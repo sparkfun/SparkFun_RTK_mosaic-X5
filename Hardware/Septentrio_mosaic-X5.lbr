@@ -3096,40 +3096,35 @@
 <smd name="7" x="-2.375" y="-1.25" dx="0.55" dy="0.23" layer="1" roundness="20"/>
 <smd name="8" x="-2.375" y="-1.75" dx="0.55" dy="0.23" layer="1" roundness="20"/>
 <smd name="9" x="-1.75" y="-2.375" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R90"/>
-<smd name="10" x="-0.25" y="-2.375" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R90"/>
+<smd name="10" x="-1.25" y="-2.375" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R90"/>
 <smd name="11" x="-0.75" y="-2.375" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R90"/>
-<smd name="12" x="-1.25" y="-2.375" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R90"/>
+<smd name="12" x="-0.25" y="-2.375" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R90"/>
 <smd name="13" x="0.25" y="-2.375" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R90"/>
 <smd name="14" x="0.75" y="-2.375" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R90"/>
 <smd name="15" x="1.25" y="-2.375" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R90"/>
 <smd name="16" x="1.75" y="-2.375" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R90"/>
 <smd name="17" x="2.375" y="-1.75" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R180"/>
-<smd name="18" x="2.375" y="-0.25" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R180"/>
+<smd name="18" x="2.375" y="-1.25" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R180"/>
 <smd name="19" x="2.375" y="-0.75" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R180"/>
-<smd name="20" x="2.375" y="-1.25" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R180"/>
+<smd name="20" x="2.375" y="-0.25" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R180"/>
 <smd name="21" x="2.375" y="0.25" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R180"/>
 <smd name="22" x="2.375" y="0.75" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R180"/>
 <smd name="23" x="2.375" y="1.25" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R180"/>
 <smd name="24" x="2.375" y="1.75" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R180"/>
 <smd name="25" x="1.75" y="2.375" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R270"/>
-<smd name="26" x="0.25" y="2.375" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R270"/>
+<smd name="26" x="1.25" y="2.375" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R270"/>
 <smd name="27" x="0.75" y="2.375" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R270"/>
-<smd name="28" x="1.25" y="2.375" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R270"/>
+<smd name="28" x="0.25" y="2.375" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R270"/>
 <smd name="29" x="-0.25" y="2.375" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R270"/>
 <smd name="30" x="-0.75" y="2.375" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R270"/>
 <smd name="31" x="-1.25" y="2.375" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R270"/>
 <smd name="32" x="-1.75" y="2.375" dx="0.55" dy="0.23" layer="1" roundness="20" rot="R270"/>
 <circle x="-2" y="2" radius="0.15" width="0.3" layer="51"/>
 <smd name="GND" x="0" y="0" dx="3.1" dy="3.1" layer="1" cream="no"/>
-<rectangle x1="-0.35" y1="-0.35" x2="0.35" y2="0.35" layer="31"/>
-<rectangle x1="-1.35" y1="-0.35" x2="-0.65" y2="0.35" layer="31"/>
-<rectangle x1="-1.35" y1="-1.35" x2="-0.65" y2="-0.65" layer="31"/>
-<rectangle x1="-0.35" y1="-1.35" x2="0.35" y2="-0.65" layer="31"/>
-<rectangle x1="0.65" y1="-1.35" x2="1.35" y2="-0.65" layer="31"/>
-<rectangle x1="0.65" y1="-0.35" x2="1.35" y2="0.35" layer="31"/>
-<rectangle x1="0.65" y1="0.65" x2="1.35" y2="1.35" layer="31"/>
-<rectangle x1="-0.35" y1="0.65" x2="0.35" y2="1.35" layer="31"/>
-<rectangle x1="-1.35" y1="0.65" x2="-0.65" y2="1.35" layer="31"/>
+<rectangle x1="-1.35" y1="0.35" x2="-0.35" y2="1.35" layer="31"/>
+<rectangle x1="-1.35" y1="-1.35" x2="-0.35" y2="-0.35" layer="31"/>
+<rectangle x1="0.35" y1="0.35" x2="1.35" y2="1.35" layer="31"/>
+<rectangle x1="0.35" y1="-1.35" x2="1.35" y2="-0.35" layer="31"/>
 </package>
 </packages>
 <symbols>
@@ -3237,8 +3232,8 @@
 <pin name="TXD2" x="17.78" y="-17.78" visible="pin" length="short" rot="R180"/>
 <pin name="TXD3" x="17.78" y="-20.32" visible="pin" length="short" rot="R180"/>
 <pin name="REXT" x="17.78" y="-30.48" visible="pin" length="short" rot="R180"/>
-<text x="-15.24" y="33.02" size="1.27" layer="95" font="vector">&gt;NAME</text>
-<text x="-15.24" y="-35.56" size="1.27" layer="96" font="vector">&gt;VALUE</text>
+<text x="-15.24" y="33.02" size="1.778" layer="95" font="vector">&gt;NAME</text>
+<text x="-15.24" y="-35.56" size="1.778" layer="96" font="vector">&gt;VALUE</text>
 </symbol>
 </symbols>
 <devicesets>
