@@ -3,14 +3,14 @@
 <eagle version="9.6.2">
 <drawing>
 <settings>
-<setting alwaysvectorfont="no"/>
+<setting alwaysvectorfont="yes"/>
 <setting verticaltext="up"/>
 </settings>
 <grid distance="0.05" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.005" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
-<layer number="2" name="Route2" color="63" fill="1" visible="yes" active="yes"/>
-<layer number="15" name="Route15" color="23" fill="1" visible="yes" active="yes"/>
+<layer number="2" name="Route2" color="63" fill="1" visible="no" active="yes"/>
+<layer number="15" name="Route15" color="23" fill="1" visible="no" active="yes"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
 <layer number="17" name="Pads" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="18" name="Vias" color="2" fill="1" visible="yes" active="yes"/>
@@ -20,34 +20,34 @@
 <layer number="22" name="bPlace" color="14" fill="1" visible="yes" active="yes"/>
 <layer number="23" name="tOrigins" color="15" fill="1" visible="yes" active="yes"/>
 <layer number="24" name="bOrigins" color="15" fill="1" visible="yes" active="yes"/>
-<layer number="25" name="tNames" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="26" name="bNames" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="27" name="tValues" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="28" name="bValues" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="29" name="tStop" color="7" fill="3" visible="yes" active="yes"/>
-<layer number="30" name="bStop" color="7" fill="6" visible="yes" active="yes"/>
-<layer number="31" name="tCream" color="7" fill="4" visible="yes" active="yes"/>
-<layer number="32" name="bCream" color="7" fill="5" visible="yes" active="yes"/>
-<layer number="33" name="tFinish" color="6" fill="3" visible="yes" active="yes"/>
-<layer number="34" name="bFinish" color="6" fill="6" visible="yes" active="yes"/>
-<layer number="35" name="tGlue" color="7" fill="4" visible="yes" active="yes"/>
-<layer number="36" name="bGlue" color="7" fill="5" visible="yes" active="yes"/>
-<layer number="37" name="tTest" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="38" name="bTest" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="39" name="tKeepout" color="4" fill="11" visible="yes" active="yes"/>
-<layer number="40" name="bKeepout" color="1" fill="11" visible="yes" active="yes"/>
-<layer number="41" name="tRestrict" color="4" fill="10" visible="yes" active="yes"/>
-<layer number="42" name="bRestrict" color="1" fill="10" visible="yes" active="yes"/>
-<layer number="43" name="vRestrict" color="2" fill="10" visible="yes" active="yes"/>
-<layer number="44" name="Drills" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="25" name="tNames" color="7" fill="1" visible="no" active="yes"/>
+<layer number="26" name="bNames" color="7" fill="1" visible="no" active="yes"/>
+<layer number="27" name="tValues" color="7" fill="1" visible="no" active="yes"/>
+<layer number="28" name="bValues" color="7" fill="1" visible="no" active="yes"/>
+<layer number="29" name="tStop" color="7" fill="3" visible="no" active="yes"/>
+<layer number="30" name="bStop" color="7" fill="6" visible="no" active="yes"/>
+<layer number="31" name="tCream" color="7" fill="4" visible="no" active="yes"/>
+<layer number="32" name="bCream" color="7" fill="5" visible="no" active="yes"/>
+<layer number="33" name="tFinish" color="6" fill="3" visible="no" active="yes"/>
+<layer number="34" name="bFinish" color="6" fill="6" visible="no" active="yes"/>
+<layer number="35" name="tGlue" color="7" fill="4" visible="no" active="yes"/>
+<layer number="36" name="bGlue" color="7" fill="5" visible="no" active="yes"/>
+<layer number="37" name="tTest" color="7" fill="1" visible="no" active="yes"/>
+<layer number="38" name="bTest" color="7" fill="1" visible="no" active="yes"/>
+<layer number="39" name="tKeepout" color="4" fill="11" visible="no" active="yes"/>
+<layer number="40" name="bKeepout" color="1" fill="11" visible="no" active="yes"/>
+<layer number="41" name="tRestrict" color="4" fill="10" visible="no" active="yes"/>
+<layer number="42" name="bRestrict" color="1" fill="10" visible="no" active="yes"/>
+<layer number="43" name="vRestrict" color="2" fill="10" visible="no" active="yes"/>
+<layer number="44" name="Drills" color="7" fill="1" visible="no" active="yes"/>
 <layer number="45" name="Holes" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="46" name="Milling" color="3" fill="1" visible="yes" active="yes"/>
-<layer number="47" name="Measures" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="48" name="Document" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="49" name="Reference" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="50" name="dxf" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="46" name="Milling" color="3" fill="1" visible="no" active="yes"/>
+<layer number="47" name="Measures" color="7" fill="1" visible="no" active="yes"/>
+<layer number="48" name="Document" color="7" fill="1" visible="no" active="yes"/>
+<layer number="49" name="Reference" color="7" fill="1" visible="no" active="yes"/>
+<layer number="50" name="dxf" color="7" fill="1" visible="no" active="yes"/>
 <layer number="51" name="tDocu" color="6" fill="1" visible="yes" active="yes"/>
-<layer number="52" name="bDocu" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="52" name="bDocu" color="7" fill="1" visible="no" active="yes"/>
 <layer number="3" name="Route3" color="17" fill="1" visible="no" active="no"/>
 <layer number="4" name="Route4" color="18" fill="1" visible="no" active="no"/>
 <layer number="5" name="Route5" color="19" fill="1" visible="no" active="no"/>
@@ -2388,6 +2388,34 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <wire x1="3" y1="3" x2="3.3" y2="3" width="0.1" layer="51"/>
 <wire x1="3.3" y1="3" x2="3.3" y2="3.5" width="0.1" layer="51"/>
 <wire x1="3.3" y1="3.5" x2="3" y2="3.5" width="0.1" layer="51"/>
+</package>
+<package name="U.FL_REDUCED_FOOTPRINT__NO_CREAM">
+<description>&lt;h3&gt;U.FL SMD Antenna Connector&lt;/h3&gt;
+&lt;p&gt;Specifications:
+&lt;li&gt;Area: 3.0mm x 2.5mm&lt;/li&gt;
+&lt;/ul&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=”http://cdn.sparkfun.com/datasheets/Wireless/Antennas/RF-001001.pdf”&gt;Datasheet referenced for footprint&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Example device(s):
+&lt;ul&gt;&lt;li&gt;U.FL&lt;/li&gt;
+&lt;/ul&gt;&lt;/p&gt;</description>
+<smd name="1" x="-0.1" y="1.375" dx="2" dy="0.85" layer="1" cream="no"/>
+<smd name="2" x="-0.1" y="-1.375" dx="2" dy="0.85" layer="1" cream="no"/>
+<smd name="FEED" x="1.575" y="0" dx="1.05" dy="1" layer="1" cream="no"/>
+<text x="-1.27" y="2.54" size="0.6096" layer="25" font="vector" ratio="20">&gt;NAME</text>
+<text x="-1.27" y="-2.54" size="0.6096" layer="27" font="vector" ratio="20" align="top-left">&gt;VALUE</text>
+<wire x1="-1.524" y1="1.016" x2="-1.524" y2="1.778" width="0.1524" layer="21"/>
+<wire x1="-1.524" y1="1.778" x2="-1.016" y2="2.286" width="0.1524" layer="21"/>
+<wire x1="-1.016" y1="2.286" x2="-0.254" y2="2.286" width="0.1524" layer="21"/>
+<rectangle x1="-1.143" y1="-0.762" x2="0.762" y2="0.762" layer="41"/>
+<wire x1="-1.3" y1="1.3" x2="1.3" y2="1.3" width="0.1524" layer="51"/>
+<wire x1="-1.3" y1="-1.3" x2="1.3" y2="-1.3" width="0.1524" layer="51"/>
+<wire x1="-1.3" y1="-1.3" x2="-1.3" y2="1.3" width="0.1524" layer="51"/>
+<wire x1="1.3" y1="-1.3" x2="1.3" y2="1.3" width="0.1524" layer="51"/>
+<rectangle x1="-0.9" y1="1.1" x2="0.9" y2="1.5" layer="51"/>
+<rectangle x1="-0.9" y1="-1.5" x2="0.9" y2="-1.1" layer="51"/>
+<circle x="0" y="0" radius="0.15" width="0.3" layer="51"/>
+<rectangle x1="0" y1="-0.3" x2="1.55" y2="0.3" layer="51"/>
+<rectangle x1="-1.55" y1="-0.3" x2="-1.3" y2="0.3" layer="51"/>
 </package>
 <package name="U.FL_REDUCED_FOOTPRINT">
 <description>&lt;h3&gt;U.FL SMD Antenna Connector&lt;/h3&gt;
@@ -25267,7 +25295,7 @@ These are the minimums &lt;a href=&quot;https://jlcpcb.com/capabilities/Capabili
 <attribute name="PROD_ID" value="RES-00824" x="43.18" y="89.027" size="1.778" layer="27" ratio="15" display="off"/>
 <attribute name="VALUE" x="43.18" y="88.265" size="0.6096" layer="27" font="vector" ratio="20" align="top-center"/>
 </element>
-<element name="MOSAIC_RF" library="SparkFun-RF" package="SMA-EDGE" value="ANTENNA-SMA-GROUNDEDEDGE_SMA" x="69.85" y="99.314" smashed="yes">
+<element name="ANT1" library="SparkFun-RF" package="SMA-EDGE" value="ANTENNA-SMA-GROUNDEDEDGE_SMA" x="69.85" y="99.314" smashed="yes">
 <attribute name="PROD_ID" value="CONN-08289" x="60.96" y="113.284" size="1.778" layer="27" ratio="15" display="off"/>
 </element>
 <element name="D17" library="SparkFun-DiscreteSemi" package="0402" value="PESD0402" x="69.342" y="94.615" smashed="yes" rot="R180">
@@ -25408,10 +25436,9 @@ These are the minimums &lt;a href=&quot;https://jlcpcb.com/capabilities/Capabili
 <element name="U$121" library="output" package="#SPEED#0" value="" x="20.701" y="100.076" smashed="yes" rot="MR0"/>
 <element name="U$122" library="output" package="#SPEED#0" value="" x="142.494" y="100.076" smashed="yes" rot="MR0"/>
 <element name="U$2" library="output" package="MOSAIC#X50" value="" x="64.516" y="97.028" smashed="yes" rot="R90"/>
-<element name="J7" library="SparkFun-Connectors" package="U.FL_REDUCED_FOOTPRINT" value="" x="62.738" y="90.424" smashed="yes" rot="R270">
+<element name="ANT2" library="SparkFun-Connectors" package="U.FL_REDUCED_FOOTPRINT__NO_CREAM" value="DNP" x="62.738" y="90.424" smashed="yes" rot="R270">
 <attribute name="NAME" x="65.278" y="91.694" size="0.6096" layer="25" font="vector" ratio="20" rot="R270"/>
-<attribute name="PROD_ID" value="CONN-09193" x="71.628" y="95.504" size="1.778" layer="27" ratio="15" rot="R270" display="off"/>
-<attribute name="VALUE" x="60.198" y="91.694" size="0.6096" layer="27" font="vector" ratio="20" rot="R270" align="top-left"/>
+<attribute name="VALUE" value="DNP" x="60.198" y="91.694" size="0.6096" layer="27" font="vector" ratio="20" rot="R270" align="top-left"/>
 </element>
 <element name="D2" library="SparkFun-DiscreteSemi" package="0402" value="PESD0402" x="62.103" y="85.344" smashed="yes" rot="R180">
 <attribute name="DIGIKEY_PART" value="PESD0402-140CT-ND" x="68.453" y="78.994" size="1.778" layer="27" ratio="15" rot="R180" display="off"/>
@@ -25981,10 +26008,10 @@ These are the minimums &lt;a href=&quot;https://jlcpcb.com/capabilities/Capabili
 <contactref element="D15" pad="C"/>
 <contactref element="R43" pad="1"/>
 <contactref element="R44" pad="1"/>
-<contactref element="MOSAIC_RF" pad="GND@1"/>
-<contactref element="MOSAIC_RF" pad="GND@2"/>
-<contactref element="MOSAIC_RF" pad="GND@0"/>
-<contactref element="MOSAIC_RF" pad="GND@3"/>
+<contactref element="ANT1" pad="GND@1"/>
+<contactref element="ANT1" pad="GND@2"/>
+<contactref element="ANT1" pad="GND@0"/>
+<contactref element="ANT1" pad="GND@3"/>
 <contactref element="D17" pad="2"/>
 <via x="33.401" y="73.66" extent="1-16" drill="0.3"/>
 <via x="104.14" y="87.63" extent="1-16" drill="0.3"/>
@@ -26187,8 +26214,8 @@ These are the minimums &lt;a href=&quot;https://jlcpcb.com/capabilities/Capabili
 <wire x1="39.144" y1="80.49" x2="38.608" y2="81.026" width="0.254" layer="1"/>
 <via x="39.37" y="72.39" extent="1-16" drill="0.3"/>
 <via x="128.27" y="59.69" extent="1-16" drill="0.3"/>
-<contactref element="J7" pad="2"/>
-<contactref element="J7" pad="1"/>
+<contactref element="ANT2" pad="2"/>
+<contactref element="ANT2" pad="1"/>
 <contactref element="D2" pad="2"/>
 <contactref element="R53" pad="1"/>
 <contactref element="C12" pad="2"/>
@@ -28970,7 +28997,7 @@ These are the minimums &lt;a href=&quot;https://jlcpcb.com/capabilities/Capabili
 </signal>
 <signal name="ANT1">
 <contactref element="U8" pad="AC20"/>
-<contactref element="MOSAIC_RF" pad="SIG"/>
+<contactref element="ANT1" pad="SIG"/>
 <contactref element="D17" pad="1"/>
 <wire x1="69.922" y1="94.615" x2="69.85" y2="94.687" width="0.3175" layer="1"/>
 <wire x1="69.85" y1="94.687" x2="69.85" y2="99.314" width="0.3175" layer="1"/>
@@ -28980,7 +29007,7 @@ These are the minimums &lt;a href=&quot;https://jlcpcb.com/capabilities/Capabili
 <wire x1="69.811" y1="86.995" x2="69.811" y2="94.504" width="0.3175" layer="1"/>
 <wire x1="69.811" y1="94.504" x2="69.922" y2="94.615" width="0.3175" layer="1" curve="-90"/>
 </signal>
-<signal name="N$6">
+<signal name="VANT">
 <contactref element="FB3" pad="2"/>
 <contactref element="U8" pad="P23"/>
 <contactref element="U8" pad="R23"/>
@@ -29219,7 +29246,7 @@ These are the minimums &lt;a href=&quot;https://jlcpcb.com/capabilities/Capabili
 </signal>
 <signal name="ANT2">
 <contactref element="U8" pad="V23"/>
-<contactref element="J7" pad="FEED"/>
+<contactref element="ANT2" pad="FEED"/>
 <contactref element="D2" pad="1"/>
 <contactref element="L2" pad="1"/>
 <contactref element="R53" pad="2"/>

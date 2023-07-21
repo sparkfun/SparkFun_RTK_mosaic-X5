@@ -24881,6 +24881,34 @@ Holes are offset 0.005" to hold pins in place while soldering.
 <rectangle x1="-0.8" y1="-0.8" x2="0.8" y2="0.8" layer="41"/>
 <rectangle x1="-0.8" y1="-0.8" x2="0.8" y2="0.8" layer="42"/>
 </package>
+<package name="U.FL_REDUCED_FOOTPRINT__NO_CREAM">
+<description>&lt;h3&gt;U.FL SMD Antenna Connector&lt;/h3&gt;
+&lt;p&gt;Specifications:
+&lt;li&gt;Area: 3.0mm x 2.5mm&lt;/li&gt;
+&lt;/ul&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=”http://cdn.sparkfun.com/datasheets/Wireless/Antennas/RF-001001.pdf”&gt;Datasheet referenced for footprint&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Example device(s):
+&lt;ul&gt;&lt;li&gt;U.FL&lt;/li&gt;
+&lt;/ul&gt;&lt;/p&gt;</description>
+<smd name="1" x="-0.1" y="1.375" dx="2" dy="0.85" layer="1" cream="no"/>
+<smd name="2" x="-0.1" y="-1.375" dx="2" dy="0.85" layer="1" cream="no"/>
+<smd name="FEED" x="1.575" y="0" dx="1.05" dy="1" layer="1" cream="no"/>
+<text x="-1.27" y="2.54" size="0.6096" layer="25" font="vector" ratio="20">&gt;NAME</text>
+<text x="-1.27" y="-2.54" size="0.6096" layer="27" font="vector" ratio="20" align="top-left">&gt;VALUE</text>
+<wire x1="-1.524" y1="1.016" x2="-1.524" y2="1.778" width="0.1524" layer="21"/>
+<wire x1="-1.524" y1="1.778" x2="-1.016" y2="2.286" width="0.1524" layer="21"/>
+<wire x1="-1.016" y1="2.286" x2="-0.254" y2="2.286" width="0.1524" layer="21"/>
+<rectangle x1="-1.143" y1="-0.762" x2="0.762" y2="0.762" layer="41"/>
+<wire x1="-1.3" y1="1.3" x2="1.3" y2="1.3" width="0.1524" layer="51"/>
+<wire x1="-1.3" y1="-1.3" x2="1.3" y2="-1.3" width="0.1524" layer="51"/>
+<wire x1="-1.3" y1="-1.3" x2="-1.3" y2="1.3" width="0.1524" layer="51"/>
+<wire x1="1.3" y1="-1.3" x2="1.3" y2="1.3" width="0.1524" layer="51"/>
+<rectangle x1="-0.9" y1="1.1" x2="0.9" y2="1.5" layer="51"/>
+<rectangle x1="-0.9" y1="-1.5" x2="0.9" y2="-1.1" layer="51"/>
+<circle x="0" y="0" radius="0.15" width="0.3" layer="51"/>
+<rectangle x1="0" y1="-0.3" x2="1.55" y2="0.3" layer="51"/>
+<rectangle x1="-1.55" y1="-0.3" x2="-1.3" y2="0.3" layer="51"/>
+</package>
 </packages>
 <symbols>
 <symbol name="USB-C-MINIMUM">
@@ -25472,13 +25500,13 @@ We carry &lt;a href=”https://www.sparkfun.com/products/14204”&gt;200mm&lt;/a
 &lt;li&gt;&lt;a href=”https://www.sparkfun.com/products/11420”&gt;SparkFun MiniGen - Pro Mini Signal Generator Shield&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/p&gt;</description>
 <gates>
-<gate name="G$1" symbol="U.FL-1" x="0" y="0"/>
+<gate name="J1" symbol="U.FL-1" x="0" y="0"/>
 </gates>
 <devices>
 <device name="" package="U.FL">
 <connects>
-<connect gate="G$1" pin="GND" pad="1 2"/>
-<connect gate="G$1" pin="SIGNAL" pad="FEED"/>
+<connect gate="J1" pin="GND" pad="1 2"/>
+<connect gate="J1" pin="SIGNAL" pad="FEED"/>
 </connects>
 <technologies>
 <technology name="">
@@ -25490,8 +25518,8 @@ We carry &lt;a href=”https://www.sparkfun.com/products/14204”&gt;200mm&lt;/a
 </device>
 <device name="-TE_1909763-1" package="U.FL-TE_1909763-1">
 <connects>
-<connect gate="G$1" pin="GND" pad="2 3"/>
-<connect gate="G$1" pin="SIGNAL" pad="1"/>
+<connect gate="J1" pin="GND" pad="2 3"/>
+<connect gate="J1" pin="SIGNAL" pad="1"/>
 </connects>
 <technologies>
 <technology name="">
@@ -25502,12 +25530,34 @@ We carry &lt;a href=”https://www.sparkfun.com/products/14204”&gt;200mm&lt;/a
 </device>
 <device name="-REDUCED-FOOTPRINT" package="U.FL_REDUCED_FOOTPRINT">
 <connects>
-<connect gate="G$1" pin="GND" pad="1 2"/>
-<connect gate="G$1" pin="SIGNAL" pad="FEED"/>
+<connect gate="J1" pin="GND" pad="1 2"/>
+<connect gate="J1" pin="SIGNAL" pad="FEED"/>
 </connects>
 <technologies>
 <technology name="">
 <attribute name="PROD_ID" value="CONN-09193" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="-REDUCED__DNP_NO_CREAM" package="U.FL_REDUCED_FOOTPRINT__NO_CREAM">
+<connects>
+<connect gate="J1" pin="GND" pad="1 2"/>
+<connect gate="J1" pin="SIGNAL" pad="FEED"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="VALUE" value="DNP" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="-REDUCED__DNP" package="U.FL_REDUCED_FOOTPRINT">
+<connects>
+<connect gate="J1" pin="GND" pad="1 2"/>
+<connect gate="J1" pin="SIGNAL" pad="FEED"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="VALUE" value="DNP" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -34660,7 +34710,7 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="R44" library="SparkFun-Resistors" deviceset="10KOHM" device="-0603-1/10W-1%" value="10k"/>
 <part name="GND100" library="SparkFun-PowerSymbols" deviceset="GND" device=""/>
 <part name="GND99" library="SparkFun-PowerSymbols" deviceset="GND" device=""/>
-<part name="MOSAIC_RF" library="SparkFun-RF" deviceset="ANTENNA-SMA-GROUNDED" device="EDGE_SMA" value="ANTENNA-SMA-GROUNDEDEDGE_SMA"/>
+<part name="ANT1" library="SparkFun-RF" deviceset="ANTENNA-SMA-GROUNDED" device="EDGE_SMA" value="ANTENNA-SMA-GROUNDEDEDGE_SMA"/>
 <part name="D17" library="SparkFun-DiscreteSemi" deviceset="PESD0402" device="-0402" value="PESD0402"/>
 <part name="GND101" library="SparkFun-PowerSymbols" deviceset="GND" device=""/>
 <part name="R46" library="SparkFun-Resistors" deviceset="10KOHM" device="-0603-1/10W-1%" value="10k"/>
@@ -34677,7 +34727,7 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="R51" library="SparkFun-Resistors" deviceset="0OHM" device="-0603-1/10W" value="0"/>
 <part name="R52" library="SparkFun-Resistors" deviceset="0OHM" device="-0603-1/10W" value="0"/>
 <part name="1V8" library="SparkFun-Connectors" deviceset="TEST-POINT" device="POGO_PTH" value="TEST-POINTPOGO_PTH"/>
-<part name="J7" library="SparkFun-Connectors" deviceset="U.FL2PIN" device="-REDUCED-FOOTPRINT"/>
+<part name="ANT2" library="SparkFun-Connectors" deviceset="U.FL2PIN" device="-REDUCED__DNP_NO_CREAM" value="DNP"/>
 <part name="GND91" library="SparkFun-PowerSymbols" deviceset="GND" device=""/>
 <part name="D2" library="SparkFun-DiscreteSemi" deviceset="PESD0402" device="-0402" value="PESD0402"/>
 <part name="GND95" library="SparkFun-PowerSymbols" deviceset="GND" device=""/>
@@ -35134,7 +35184,7 @@ Output Discharge: 100Ω Typ</text>
 <instance part="ESP32_RF" gate="G$1" x="190.5" y="269.24" smashed="yes">
 <attribute name="NAME" x="193.548" y="270.51" size="1.778" layer="95" font="vector"/>
 </instance>
-<instance part="J8" gate="G$1" x="175.26" y="264.16" smashed="yes">
+<instance part="J8" gate="J1" x="175.26" y="264.16" smashed="yes">
 <attribute name="NAME" x="170.18" y="259.08" size="1.778" layer="95"/>
 <attribute name="VALUE" x="177.8" y="256.54" size="1.778" layer="96"/>
 </instance>
@@ -35813,7 +35863,7 @@ Output Discharge: 100Ω Typ</text>
 <wire x1="193.04" y1="266.7" x2="193.04" y2="264.16" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="J8" gate="G$1" pin="GND"/>
+<pinref part="J8" gate="J1" pin="GND"/>
 <pinref part="GND59" gate="1" pin="GND"/>
 <wire x1="175.26" y1="259.08" x2="175.26" y2="256.54" width="0.1524" layer="91"/>
 </segment>
@@ -36547,7 +36597,7 @@ Output Discharge: 100Ω Typ</text>
 </net>
 <net name="ESP32_RF" class="0">
 <segment>
-<pinref part="J8" gate="G$1" pin="SIGNAL"/>
+<pinref part="J8" gate="J1" pin="SIGNAL"/>
 <pinref part="ESP32_RF" gate="G$1" pin="SIGNAL"/>
 <wire x1="180.34" y1="264.16" x2="182.88" y2="264.16" width="0.1524" layer="91"/>
 <wire x1="182.88" y1="264.16" x2="190.5" y2="264.16" width="0.1524" layer="91"/>
@@ -37616,8 +37666,8 @@ Output Discharge: 100Ω Typ</text>
 <text x="297.18" y="226.06" size="1.778" layer="97" font="vector">50Ω</text>
 <text x="307.34" y="213.36" size="1.778" layer="97" font="vector" align="top-center">For future mosaic-H product:
 
-Populate L2, L3, C12
-Do Not Populate R53</text>
+Populate: L2, L3, C12, ANT2
+Do Not Populate: R53</text>
 </plain>
 <instances>
 <instance part="FRAME3" gate="G$1" x="0" y="0" smashed="yes">
@@ -38102,12 +38152,12 @@ Do Not Populate R53</text>
 <instance part="GND99" gate="1" x="294.64" y="254" smashed="yes" rot="MR0">
 <attribute name="VALUE" x="294.64" y="253.746" size="1.778" layer="96" font="vector" rot="MR0" align="top-center"/>
 </instance>
-<instance part="MOSAIC_RF" gate="G$1" x="292.1" y="261.62" smashed="yes">
+<instance part="ANT1" gate="G$1" x="292.1" y="261.62" smashed="yes">
 <attribute name="NAME" x="295.148" y="262.89" size="1.778" layer="95" font="vector"/>
 </instance>
 <instance part="D17" gate="D1" x="284.48" y="251.46" smashed="yes" rot="MR270">
-<attribute name="NAME" x="281.686" y="251.46" size="1.778" layer="95" font="vector" rot="MR270"/>
-<attribute name="VALUE" x="288.544" y="252.73" size="1.778" layer="96" font="vector" rot="MR270" align="top-left"/>
+<attribute name="NAME" x="281.686" y="252.73" size="1.778" layer="95" font="vector" rot="MR270"/>
+<attribute name="VALUE" x="287.274" y="255.27" size="1.778" layer="96" font="vector" rot="MR270" align="top-left"/>
 </instance>
 <instance part="GND101" gate="1" x="284.48" y="241.3" smashed="yes" rot="MR0">
 <attribute name="VALUE" x="284.48" y="241.046" size="1.778" layer="96" rot="MR0" align="top-center"/>
@@ -38121,9 +38171,9 @@ Do Not Populate R53</text>
 <attribute name="VALUE" x="52.324" y="132.08" size="1.778" layer="96" font="vector" rot="R90" align="top-center"/>
 </instance>
 <instance part="1V8" gate="G$1" x="167.64" y="182.88" smashed="yes" rot="R180"/>
-<instance part="J7" gate="G$1" x="292.1" y="195.58" smashed="yes" rot="MR0">
-<attribute name="NAME" x="298.45" y="194.31" size="1.778" layer="95" rot="MR0"/>
-<attribute name="VALUE" x="289.56" y="187.96" size="1.778" layer="96" rot="MR0"/>
+<instance part="ANT2" gate="J1" x="292.1" y="195.58" smashed="yes" rot="MR0">
+<attribute name="NAME" x="302.26" y="195.58" size="1.778" layer="95" rot="MR0"/>
+<attribute name="VALUE" x="302.26" y="193.04" size="1.778" layer="96" rot="MR0"/>
 </instance>
 <instance part="GND91" gate="1" x="292.1" y="185.42" smashed="yes">
 <attribute name="VALUE" x="292.1" y="185.166" size="1.778" layer="96" align="top-center"/>
@@ -38398,7 +38448,7 @@ Do Not Populate R53</text>
 <junction x="416.56" y="101.6"/>
 </segment>
 <segment>
-<pinref part="MOSAIC_RF" gate="G$1" pin="GND"/>
+<pinref part="ANT1" gate="G$1" pin="GND"/>
 <pinref part="GND99" gate="1" pin="GND"/>
 <wire x1="294.64" y1="259.08" x2="294.64" y2="256.54" width="0.1524" layer="91"/>
 </segment>
@@ -38408,7 +38458,7 @@ Do Not Populate R53</text>
 <wire x1="284.48" y1="246.38" x2="284.48" y2="243.84" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="J7" gate="G$1" pin="GND"/>
+<pinref part="ANT2" gate="J1" pin="GND"/>
 <pinref part="GND91" gate="1" pin="GND"/>
 <wire x1="292.1" y1="190.5" x2="292.1" y2="187.96" width="0.1524" layer="91"/>
 </segment>
@@ -39535,7 +39585,7 @@ Do Not Populate R53</text>
 <label x="182.88" y="256.54" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
-<pinref part="MOSAIC_RF" gate="G$1" pin="SIGNAL"/>
+<pinref part="ANT1" gate="G$1" pin="SIGNAL"/>
 <wire x1="281.94" y1="256.54" x2="284.48" y2="256.54" width="0.1524" layer="91"/>
 <wire x1="284.48" y1="256.54" x2="292.1" y2="256.54" width="0.1524" layer="91"/>
 <wire x1="292.1" y1="256.54" x2="292.1" y2="259.08" width="0.1524" layer="91"/>
@@ -39550,7 +39600,7 @@ Do Not Populate R53</text>
 <label x="302.26" y="226.06" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
-<net name="N$6" class="0">
+<net name="VANT" class="0">
 <segment>
 <pinref part="FB3" gate="G$1" pin="2"/>
 <pinref part="U8" gate="U1" pin="VANT"/>
@@ -39635,7 +39685,7 @@ Do Not Populate R53</text>
 <label x="182.88" y="254" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
-<pinref part="J7" gate="G$1" pin="SIGNAL"/>
+<pinref part="ANT2" gate="J1" pin="SIGNAL"/>
 <wire x1="287.02" y1="195.58" x2="284.48" y2="195.58" width="0.1524" layer="91"/>
 <wire x1="284.48" y1="195.58" x2="274.32" y2="195.58" width="0.1524" layer="91"/>
 <pinref part="D2" gate="D1" pin="1"/>
@@ -39738,7 +39788,6 @@ Do Not Populate R53</text>
 <approved hash="113,1,367.623,150.023,J13,,,,,"/>
 <approved hash="113,1,306.07,211.414,VCCIO,,,,,"/>
 <approved hash="113,2,360.003,61.1226,J5,,,,,"/>
-<approved hash="113,2,290.872,192.215,J7,,,,,"/>
 </errors>
 </schematic>
 </drawing>
