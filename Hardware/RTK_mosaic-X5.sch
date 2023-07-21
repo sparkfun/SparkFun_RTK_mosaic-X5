@@ -22366,6 +22366,56 @@ Commonly used for small ceramic capacitors. Like our 0.1uF (http://www.sparkfun.
 <text x="0" y="1.778" size="0.6096" layer="25" font="vector" ratio="20" align="bottom-center">&gt;NAME</text>
 <text x="0" y="-1.778" size="0.6096" layer="27" font="vector" ratio="20" align="top-center">&gt;VALUE</text>
 </package>
+<package name="0402_NO_CREAM">
+<description>&lt;p&gt;&lt;b&gt;Generic 1005 (0402) package&lt;/b&gt;&lt;/p&gt;
+&lt;p&gt;0.2mm courtyard excess rounded to nearest 0.05mm.&lt;/p&gt;</description>
+<wire x1="-0.2704" y1="0.2286" x2="0.2704" y2="0.2286" width="0.1524" layer="51"/>
+<wire x1="0.2704" y1="-0.2286" x2="-0.2704" y2="-0.2286" width="0.1524" layer="51"/>
+<wire x1="-1.2" y1="0.65" x2="1.2" y2="0.65" width="0.0508" layer="39"/>
+<wire x1="1.2" y1="0.65" x2="1.2" y2="-0.65" width="0.0508" layer="39"/>
+<wire x1="1.2" y1="-0.65" x2="-1.2" y2="-0.65" width="0.0508" layer="39"/>
+<wire x1="-1.2" y1="-0.65" x2="-1.2" y2="0.65" width="0.0508" layer="39"/>
+<smd name="1" x="-0.58" y="0" dx="0.85" dy="0.9" layer="1" cream="no"/>
+<smd name="2" x="0.58" y="0" dx="0.85" dy="0.9" layer="1" cream="no"/>
+<text x="0" y="0.762" size="0.6096" layer="25" font="vector" ratio="20" align="bottom-center">&gt;NAME</text>
+<text x="0" y="-0.762" size="0.6096" layer="27" font="vector" ratio="20" align="top-center">&gt;VALUE</text>
+<rectangle x1="-0.554" y1="-0.3048" x2="-0.254" y2="0.3048" layer="51"/>
+<rectangle x1="0.2588" y1="-0.3048" x2="0.5588" y2="0.3048" layer="51"/>
+<rectangle x1="-0.1999" y1="-0.3" x2="0.1999" y2="0.3" layer="35"/>
+</package>
+<package name="0402-TIGHT_NO_CREAM">
+<smd name="1" x="-0.5" y="0" dx="0.6" dy="0.6" layer="1" cream="no"/>
+<smd name="2" x="0.5" y="0" dx="0.6" dy="0.6" layer="1" cream="no"/>
+<text x="0" y="0.562" size="0.6096" layer="25" font="vector" ratio="20" align="bottom-center">&gt;NAME</text>
+<text x="0" y="-0.562" size="0.6096" layer="27" font="vector" ratio="20" align="top-center">&gt;VALUE</text>
+<wire x1="-0.5" y1="-0.25" x2="-0.5" y2="0.25" width="0.002540625" layer="51"/>
+<wire x1="-0.5" y1="0.25" x2="0.5" y2="0.25" width="0.002540625" layer="51"/>
+<wire x1="0.5" y1="0.25" x2="0.5" y2="-0.25" width="0.002540625" layer="51"/>
+<wire x1="0.5" y1="-0.25" x2="-0.5" y2="-0.25" width="0.002540625" layer="51"/>
+<rectangle x1="-0.5" y1="-0.25" x2="-0.3" y2="0.25" layer="51"/>
+<rectangle x1="0.3" y1="-0.25" x2="0.5" y2="0.25" layer="51" rot="R180"/>
+<wire x1="0.9262" y1="0.4262" x2="-0.9262" y2="0.4262" width="0.05" layer="39"/>
+<wire x1="-0.9262" y1="0.4262" x2="-0.9262" y2="-0.4262" width="0.05" layer="39"/>
+<wire x1="-0.9262" y1="-0.4262" x2="0.9262" y2="-0.4262" width="0.05" layer="39"/>
+<wire x1="0.9262" y1="-0.4262" x2="0.9262" y2="0.4262" width="0.05" layer="39"/>
+</package>
+<package name="0603_NO_CREAM">
+<description>&lt;p&gt;&lt;b&gt;Generic 1608 (0603) package&lt;/b&gt;&lt;/p&gt;
+&lt;p&gt;0.2mm courtyard excess rounded to nearest 0.05mm.&lt;/p&gt;</description>
+<wire x1="-1.6" y1="0.7" x2="1.6" y2="0.7" width="0.0508" layer="39"/>
+<wire x1="1.6" y1="0.7" x2="1.6" y2="-0.7" width="0.0508" layer="39"/>
+<wire x1="1.6" y1="-0.7" x2="-1.6" y2="-0.7" width="0.0508" layer="39"/>
+<wire x1="-1.6" y1="-0.7" x2="-1.6" y2="0.7" width="0.0508" layer="39"/>
+<wire x1="-0.356" y1="0.432" x2="0.356" y2="0.432" width="0.1016" layer="51"/>
+<wire x1="-0.356" y1="-0.419" x2="0.356" y2="-0.419" width="0.1016" layer="51"/>
+<smd name="1" x="-0.85" y="0" dx="1.1" dy="1" layer="1" cream="no"/>
+<smd name="2" x="0.85" y="0" dx="1.1" dy="1" layer="1" cream="no"/>
+<text x="0" y="0.762" size="0.6096" layer="25" font="vector" ratio="20" align="bottom-center">&gt;NAME</text>
+<text x="0" y="-0.762" size="0.6096" layer="27" font="vector" ratio="20" align="top-center">&gt;VALUE</text>
+<rectangle x1="-0.8382" y1="-0.4699" x2="-0.3381" y2="0.4801" layer="51"/>
+<rectangle x1="0.3302" y1="-0.4699" x2="0.8303" y2="0.4801" layer="51"/>
+<rectangle x1="-0.1999" y1="-0.3" x2="0.1999" y2="0.3" layer="35"/>
+</package>
 </packages>
 <symbols>
 <symbol name="CAP">
@@ -23046,6 +23096,80 @@ CAP-09321</description>
 <technology name="">
 <attribute name="PROD_ID" value="CAP-13458"/>
 <attribute name="VALUE" value="100pF"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="DNP" prefix="C" uservalue="yes">
+<description>&lt;b&gt;Do-Not-Populate capacitor&lt;/b&gt;</description>
+<gates>
+<gate name="G$1" symbol="CAP" x="0" y="0"/>
+</gates>
+<devices>
+<device name="-0402" package="0402">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="VALUE" value="DNP" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="-0603" package="0603">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="VALUE" value="DNP" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="-0402-TIGHT" package="0402-TIGHT">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="VALUE" value="DNP" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="-0402_NO_CREAM" package="0402_NO_CREAM">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="VALUE" value="DNP" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="-0402-TIGHT_NO_CREAM" package="0402-TIGHT_NO_CREAM">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="VALUE" value="DNP" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="-0603_NO_CREAM" package="0603_NO_CREAM">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="VALUE" value="DNP" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -29982,6 +30106,51 @@ Mechanical Specifications
 <wire x1="-1.905" y1="2.55" x2="2.095" y2="2.55" width="0.127" layer="21"/>
 <wire x1="-1.905" y1="-2.45" x2="2.095" y2="-2.45" width="0.127" layer="21"/>
 </package>
+<package name="0402-TIGHT_NO-CREAM">
+<smd name="1" x="-0.5" y="0" dx="0.6" dy="0.6" layer="1" cream="no"/>
+<smd name="2" x="0.5" y="0" dx="0.6" dy="0.6" layer="1" cream="no"/>
+<text x="0" y="0.562" size="0.6096" layer="25" font="vector" ratio="20" align="bottom-center">&gt;NAME</text>
+<text x="0" y="-0.562" size="0.6096" layer="27" font="vector" ratio="20" align="top-center">&gt;VALUE</text>
+<wire x1="-0.5" y1="-0.25" x2="-0.5" y2="0.25" width="0.002540625" layer="51"/>
+<wire x1="-0.5" y1="0.25" x2="0.5" y2="0.25" width="0.002540625" layer="51"/>
+<wire x1="0.5" y1="0.25" x2="0.5" y2="-0.25" width="0.002540625" layer="51"/>
+<wire x1="0.5" y1="-0.25" x2="-0.5" y2="-0.25" width="0.002540625" layer="51"/>
+<rectangle x1="-0.5" y1="-0.25" x2="-0.3" y2="0.25" layer="51"/>
+<rectangle x1="0.3" y1="-0.25" x2="0.5" y2="0.25" layer="51" rot="R180"/>
+<wire x1="0.9262" y1="0.4262" x2="-0.9262" y2="0.4262" width="0.05" layer="39"/>
+<wire x1="-0.9262" y1="0.4262" x2="-0.9262" y2="-0.4262" width="0.05" layer="39"/>
+<wire x1="-0.9262" y1="-0.4262" x2="0.9262" y2="-0.4262" width="0.05" layer="39"/>
+<wire x1="0.9262" y1="-0.4262" x2="0.9262" y2="0.4262" width="0.05" layer="39"/>
+</package>
+<package name="0603_NO-CREAM">
+<description>&lt;p&gt;&lt;b&gt;Generic 1608 (0603) package&lt;/b&gt;&lt;/p&gt;
+&lt;p&gt;0.2mm courtyard excess rounded to nearest 0.05mm.&lt;/p&gt;</description>
+<wire x1="-1.6" y1="0.7" x2="1.6" y2="0.7" width="0.0508" layer="39"/>
+<wire x1="1.6" y1="0.7" x2="1.6" y2="-0.7" width="0.0508" layer="39"/>
+<wire x1="1.6" y1="-0.7" x2="-1.6" y2="-0.7" width="0.0508" layer="39"/>
+<wire x1="-1.6" y1="-0.7" x2="-1.6" y2="0.7" width="0.0508" layer="39"/>
+<wire x1="-0.356" y1="0.432" x2="0.356" y2="0.432" width="0.1016" layer="51"/>
+<wire x1="-0.356" y1="-0.419" x2="0.356" y2="-0.419" width="0.1016" layer="51"/>
+<smd name="1" x="-0.85" y="0" dx="1.1" dy="1" layer="1" cream="no"/>
+<smd name="2" x="0.85" y="0" dx="1.1" dy="1" layer="1" cream="no"/>
+<text x="0" y="0.762" size="0.6096" layer="25" font="vector" ratio="20" align="bottom-center">&gt;NAME</text>
+<text x="0" y="-0.762" size="0.6096" layer="27" font="vector" ratio="20" align="top-center">&gt;VALUE</text>
+<rectangle x1="-0.8382" y1="-0.4699" x2="-0.3381" y2="0.4801" layer="51"/>
+<rectangle x1="0.3302" y1="-0.4699" x2="0.8303" y2="0.4801" layer="51"/>
+<rectangle x1="-0.1999" y1="-0.3" x2="0.1999" y2="0.3" layer="35"/>
+</package>
+<package name="0805_NO-CREAM">
+<description>&lt;p&gt;&lt;b&gt;Generic 2012 (0805) package&lt;/b&gt;&lt;/p&gt;
+&lt;p&gt;0.2mm courtyard excess rounded to nearest 0.05mm.&lt;/p&gt;</description>
+<smd name="1" x="-0.9" y="0" dx="0.8" dy="1.2" layer="1" cream="no"/>
+<smd name="2" x="0.9" y="0" dx="0.8" dy="1.2" layer="1" cream="no"/>
+<text x="0" y="0.889" size="0.6096" layer="25" font="vector" ratio="20" align="bottom-center">&gt;NAME</text>
+<text x="0" y="-0.889" size="0.6096" layer="27" font="vector" ratio="20" align="top-center">&gt;VALUE</text>
+<wire x1="-1.5" y1="0.8" x2="1.5" y2="0.8" width="0.0508" layer="39"/>
+<wire x1="1.5" y1="0.8" x2="1.5" y2="-0.8" width="0.0508" layer="39"/>
+<wire x1="1.5" y1="-0.8" x2="-1.5" y2="-0.8" width="0.0508" layer="39"/>
+<wire x1="-1.5" y1="-0.8" x2="-1.5" y2="0.8" width="0.0508" layer="39"/>
+</package>
 </packages>
 <symbols>
 <symbol name="FERRITE_BEAD">
@@ -30380,6 +30549,90 @@ Mechanical Specifications
 </connects>
 <technologies>
 <technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="DNP">
+<gates>
+<gate name="L1" symbol="INDUCTOR" x="0" y="0"/>
+</gates>
+<devices>
+<device name="-0402" package="0402">
+<connects>
+<connect gate="L1" pin="1" pad="1"/>
+<connect gate="L1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="VALUE" value="DNP" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="-0603" package="0603">
+<connects>
+<connect gate="L1" pin="1" pad="1"/>
+<connect gate="L1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="VALUE" value="DNP" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="-0402-TIGHT_NO-CREAM" package="0402-TIGHT_NO-CREAM">
+<connects>
+<connect gate="L1" pin="1" pad="1"/>
+<connect gate="L1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="VALUE" value="DNP" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="-0402-TIGHT" package="0402-TIGHT">
+<connects>
+<connect gate="L1" pin="1" pad="1"/>
+<connect gate="L1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="VALUE" value="DNP" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="-0603_NO-CREAM" package="0603_NO-CREAM">
+<connects>
+<connect gate="L1" pin="1" pad="1"/>
+<connect gate="L1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="VALUE" value="DNP" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="-0805" package="0805">
+<connects>
+<connect gate="L1" pin="1" pad="1"/>
+<connect gate="L1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="VALUE" value="DNP" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="-0805_NO-CREAM" package="0805_NO-CREAM">
+<connects>
+<connect gate="L1" pin="1" pad="1"/>
+<connect gate="L1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="VALUE" value="DNP" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -34367,7 +34620,6 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="SUPPLY67" library="SparkFun-PowerSymbols" deviceset="1.8V" device=""/>
 <part name="SUPPLY68" library="SparkFun-PowerSymbols" deviceset="1.8V" device=""/>
 <part name="SUPPLY72" library="SparkFun-PowerSymbols" deviceset="1.8V" device=""/>
-<part name="GND91" library="SparkFun-PowerSymbols" deviceset="GND" device=""/>
 <part name="FB3" library="SparkFun-Coils" deviceset="FERRITE_BEAD" device="-0603-470Ω-100MHZ-1A-200MILIΩ" value="470Ω"/>
 <part name="GND92" library="SparkFun-PowerSymbols" deviceset="GND" device=""/>
 <part name="C61" library="SparkFun-Capacitors" deviceset="2.2UF" device="-0603-10V-20%" value="2.2uF"/>
@@ -34425,6 +34677,19 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="R51" library="SparkFun-Resistors" deviceset="0OHM" device="-0603-1/10W" value="0"/>
 <part name="R52" library="SparkFun-Resistors" deviceset="0OHM" device="-0603-1/10W" value="0"/>
 <part name="1V8" library="SparkFun-Connectors" deviceset="TEST-POINT" device="POGO_PTH" value="TEST-POINTPOGO_PTH"/>
+<part name="J7" library="SparkFun-Connectors" deviceset="U.FL2PIN" device="-REDUCED-FOOTPRINT"/>
+<part name="GND91" library="SparkFun-PowerSymbols" deviceset="GND" device=""/>
+<part name="D2" library="SparkFun-DiscreteSemi" deviceset="PESD0402" device="-0402" value="PESD0402"/>
+<part name="GND95" library="SparkFun-PowerSymbols" deviceset="GND" device=""/>
+<part name="R53" library="SparkFun-Resistors" deviceset="0OHM" device="-0603-1/10W" value="0"/>
+<part name="GND104" library="SparkFun-PowerSymbols" deviceset="GND" device=""/>
+<part name="L2" library="SparkFun-Coils" deviceset="DNP" device="-0603_NO-CREAM" value="DNP"/>
+<part name="L3" library="SparkFun-Coils" deviceset="DNP" device="-0603_NO-CREAM" value="DNP"/>
+<part name="C12" library="SparkFun-Capacitors" deviceset="DNP" device="-0603_NO_CREAM" value="DNP"/>
+<part name="GND105" library="SparkFun-PowerSymbols" deviceset="GND" device=""/>
+<part name="H7" library="SparkFun-Hardware" deviceset="STAND-OFF" device="TIGHT"/>
+<part name="H8" library="SparkFun-Hardware" deviceset="STAND-OFF" device="TIGHT"/>
+<part name="H10" library="SparkFun-Hardware" deviceset="STAND-OFF" device="TIGHT"/>
 </parts>
 <sheets>
 <sheet>
@@ -34561,7 +34826,7 @@ Iout Max: 1.8A</text>
 <text x="218.44" y="228.6" size="2.54" layer="94" font="vector" align="top-left">IO Level Shifting</text>
 <text x="335.28" y="227.33" size="2.54" layer="94" font="vector" align="top-left">Log / Unmount SD Button</text>
 <text x="5.08" y="170.18" size="2.54" layer="94" font="vector" align="top-left">LEDs</text>
-<text x="406.4" y="30.48" size="1.778" layer="97" font="vector" align="top-center">No clean process</text>
+<text x="398.78" y="30.48" size="1.778" layer="97" font="vector" align="top-center">No clean process</text>
 <wire x1="91.44" y1="228.6" x2="215.9" y2="228.6" width="0.1524" layer="97" style="longdash"/>
 <text x="169.926" y="157.734" size="1.778" layer="97" font="vector">Vin Max: 6.0V
 Iout Max: 1A (Limit 1.5A Typ)
@@ -34581,10 +34846,10 @@ Output Discharge: 100Ω Typ</text>
 <instance part="H1" gate="G$1" x="429.26" y="30.48" smashed="yes"/>
 <instance part="H2" gate="G$1" x="429.26" y="27.94" smashed="yes"/>
 <instance part="H3" gate="G$1" x="426.72" y="27.94" smashed="yes"/>
-<instance part="FD1" gate="G$1" x="421.64" y="30.48" smashed="yes"/>
-<instance part="FD2" gate="G$1" x="421.64" y="27.94" smashed="yes"/>
-<instance part="FD3" gate="G$1" x="419.1" y="27.94" smashed="yes"/>
-<instance part="FD4" gate="G$1" x="419.1" y="30.48" smashed="yes"/>
+<instance part="FD1" gate="G$1" x="416.56" y="30.48" smashed="yes"/>
+<instance part="FD2" gate="G$1" x="416.56" y="27.94" smashed="yes"/>
+<instance part="FD3" gate="G$1" x="414.02" y="27.94" smashed="yes"/>
+<instance part="FD4" gate="G$1" x="414.02" y="30.48" smashed="yes"/>
 <instance part="U1" gate="U1" x="45.72" y="231.14" smashed="yes">
 <attribute name="NAME" x="27.94" y="269.494" size="1.778" layer="95"/>
 <attribute name="VALUE" x="27.94" y="195.326" size="1.778" layer="96" align="top-left"/>
@@ -35164,7 +35429,7 @@ Output Discharge: 100Ω Typ</text>
 <attribute name="VALUE" x="346.456" y="252.349" size="1.778" layer="96" font="vector"/>
 </instance>
 <instance part="U17" gate="U1" x="365.76" y="256.54" smashed="yes">
-<attribute name="NAME" x="355.6" y="264.16" size="1.778" layer="95" font="vector"/>
+<attribute name="NAME" x="355.6" y="265.43" size="1.778" layer="95" font="vector"/>
 <attribute name="VALUE" x="355.6" y="246.38" size="1.778" layer="96" font="vector"/>
 </instance>
 <instance part="GND49" gate="1" x="134.62" y="132.08" smashed="yes">
@@ -35186,7 +35451,7 @@ Output Discharge: 100Ω Typ</text>
 <attribute name="VALUE" x="134.62" y="101.346" size="1.778" layer="96" rot="MR0" align="top-center"/>
 </instance>
 <instance part="U7" gate="U1" x="215.9" y="78.74" smashed="yes">
-<attribute name="NAME" x="200.66" y="111.76" size="1.778" layer="95" font="vector"/>
+<attribute name="NAME" x="200.66" y="113.03" size="1.778" layer="95" font="vector"/>
 <attribute name="VALUE" x="200.66" y="43.18" size="1.778" layer="96" font="vector"/>
 </instance>
 <instance part="SUPPLY33" gate="G$1" x="48.26" y="104.14" smashed="yes">
@@ -35420,6 +35685,9 @@ Output Discharge: 100Ω Typ</text>
 <attribute name="NAME" x="142.24" y="244.094" size="1.778" layer="95" font="vector" align="bottom-center"/>
 <attribute name="VALUE" x="151.13" y="244.094" size="1.778" layer="96" font="vector" rot="R180" align="top-center"/>
 </instance>
+<instance part="H7" gate="G$1" x="421.64" y="30.48" smashed="yes"/>
+<instance part="H8" gate="G$1" x="421.64" y="27.94" smashed="yes"/>
+<instance part="H10" gate="G$1" x="419.1" y="30.48" smashed="yes"/>
 </instances>
 <busses>
 </busses>
@@ -37339,9 +37607,17 @@ Output Discharge: 100Ω Typ</text>
 <wire x1="203.2" y1="152.4" x2="104.14" y2="152.4" width="0.1524" layer="97" style="longdash"/>
 <wire x1="431.8" y1="152.4" x2="203.2" y2="152.4" width="0.1524" layer="97" style="longdash"/>
 <wire x1="431.8" y1="88.9" x2="330.2" y2="88.9" width="0.1524" layer="97" style="longdash"/>
-<text x="274.32" y="254" size="1.778" layer="97" font="vector" rot="MR0">50Ω</text>
+<text x="289.56" y="256.54" size="1.778" layer="97" font="vector" rot="MR0">50Ω</text>
 <text x="350.52" y="10.16" size="2.54" layer="94" font="vector">Paul Clark</text>
 <text x="421.64" y="7.62" size="2.54" layer="94" font="vector">v01</text>
+<text x="278.13" y="195.58" size="1.778" layer="97" font="vector">50Ω</text>
+<text x="267.97" y="226.06" size="1.778" layer="97" font="vector">50Ω</text>
+<text x="283.21" y="226.06" size="1.778" layer="97" font="vector">50Ω</text>
+<text x="297.18" y="226.06" size="1.778" layer="97" font="vector">50Ω</text>
+<text x="307.34" y="213.36" size="1.778" layer="97" font="vector" align="top-center">For future mosaic-H product:
+
+Populate L2, L3, C12
+Do Not Populate R53</text>
 </plain>
 <instances>
 <instance part="FRAME3" gate="G$1" x="0" y="0" smashed="yes">
@@ -37536,7 +37812,7 @@ Output Discharge: 100Ω Typ</text>
 <attribute name="VALUE" x="142.24" y="65.786" size="1.778" layer="96" rot="MR0" align="top-center"/>
 </instance>
 <instance part="U9" gate="U1" x="236.22" y="43.18" smashed="yes">
-<attribute name="NAME" x="220.98" y="76.2" size="1.778" layer="95" font="vector"/>
+<attribute name="NAME" x="220.98" y="77.47" size="1.778" layer="95" font="vector"/>
 <attribute name="VALUE" x="220.98" y="7.62" size="1.778" layer="96" font="vector"/>
 </instance>
 <instance part="C35" gate="G$1" x="195.58" y="73.66" smashed="yes" rot="MR0">
@@ -37753,9 +38029,6 @@ Output Discharge: 100Ω Typ</text>
 <instance part="SUPPLY72" gate="G$1" x="137.16" y="185.42" smashed="yes">
 <attribute name="VALUE" x="137.16" y="188.214" size="1.778" layer="96" font="vector" align="bottom-center"/>
 </instance>
-<instance part="GND91" gate="1" x="162.56" y="248.92" smashed="yes">
-<attribute name="VALUE" x="162.56" y="248.666" size="1.778" layer="96" align="top-center"/>
-</instance>
 <instance part="FB3" gate="G$1" x="177.8" y="251.46" smashed="yes" rot="R90">
 <attribute name="NAME" x="171.45" y="248.92" size="1.778" layer="95" font="vector"/>
 <attribute name="VALUE" x="184.15" y="248.92" size="1.778" layer="96" font="vector" rot="R180" align="top-left"/>
@@ -37826,18 +38099,18 @@ Output Discharge: 100Ω Typ</text>
 <instance part="GND100" gate="1" x="416.56" y="96.52" smashed="yes">
 <attribute name="VALUE" x="416.56" y="96.266" size="1.778" layer="96" align="top-center"/>
 </instance>
-<instance part="GND99" gate="1" x="279.4" y="251.46" smashed="yes" rot="MR0">
-<attribute name="VALUE" x="279.4" y="251.206" size="1.778" layer="96" font="vector" rot="MR0" align="top-center"/>
+<instance part="GND99" gate="1" x="294.64" y="254" smashed="yes" rot="MR0">
+<attribute name="VALUE" x="294.64" y="253.746" size="1.778" layer="96" font="vector" rot="MR0" align="top-center"/>
 </instance>
-<instance part="MOSAIC_RF" gate="G$1" x="276.86" y="259.08" smashed="yes">
-<attribute name="NAME" x="279.908" y="260.35" size="1.778" layer="95" font="vector"/>
+<instance part="MOSAIC_RF" gate="G$1" x="292.1" y="261.62" smashed="yes">
+<attribute name="NAME" x="295.148" y="262.89" size="1.778" layer="95" font="vector"/>
 </instance>
-<instance part="D17" gate="D1" x="269.24" y="248.92" smashed="yes" rot="MR270">
-<attribute name="NAME" x="266.446" y="248.92" size="1.778" layer="95" font="vector" rot="MR270"/>
-<attribute name="VALUE" x="273.304" y="250.19" size="1.778" layer="96" font="vector" rot="MR270" align="top-left"/>
+<instance part="D17" gate="D1" x="284.48" y="251.46" smashed="yes" rot="MR270">
+<attribute name="NAME" x="281.686" y="251.46" size="1.778" layer="95" font="vector" rot="MR270"/>
+<attribute name="VALUE" x="288.544" y="252.73" size="1.778" layer="96" font="vector" rot="MR270" align="top-left"/>
 </instance>
-<instance part="GND101" gate="1" x="269.24" y="238.76" smashed="yes" rot="MR0">
-<attribute name="VALUE" x="269.24" y="238.506" size="1.778" layer="96" rot="MR0" align="top-center"/>
+<instance part="GND101" gate="1" x="284.48" y="241.3" smashed="yes" rot="MR0">
+<attribute name="VALUE" x="284.48" y="241.046" size="1.778" layer="96" rot="MR0" align="top-center"/>
 </instance>
 <instance part="R46" gate="G$1" x="58.42" y="132.08" smashed="yes" rot="R90">
 <attribute name="NAME" x="56.896" y="132.08" size="1.778" layer="95" font="vector" rot="R90" align="bottom-center"/>
@@ -37848,6 +38121,42 @@ Output Discharge: 100Ω Typ</text>
 <attribute name="VALUE" x="52.324" y="132.08" size="1.778" layer="96" font="vector" rot="R90" align="top-center"/>
 </instance>
 <instance part="1V8" gate="G$1" x="167.64" y="182.88" smashed="yes" rot="R180"/>
+<instance part="J7" gate="G$1" x="292.1" y="195.58" smashed="yes" rot="MR0">
+<attribute name="NAME" x="298.45" y="194.31" size="1.778" layer="95" rot="MR0"/>
+<attribute name="VALUE" x="289.56" y="187.96" size="1.778" layer="96" rot="MR0"/>
+</instance>
+<instance part="GND91" gate="1" x="292.1" y="185.42" smashed="yes">
+<attribute name="VALUE" x="292.1" y="185.166" size="1.778" layer="96" align="top-center"/>
+</instance>
+<instance part="D2" gate="D1" x="284.48" y="190.5" smashed="yes" rot="R270">
+<attribute name="NAME" x="287.274" y="190.5" size="1.778" layer="95" font="vector" rot="R270"/>
+<attribute name="VALUE" x="281.686" y="194.31" size="1.778" layer="96" font="vector" rot="R270" align="top-left"/>
+</instance>
+<instance part="GND95" gate="1" x="284.48" y="180.34" smashed="yes">
+<attribute name="VALUE" x="284.48" y="180.086" size="1.778" layer="96" align="top-center"/>
+</instance>
+<instance part="R53" gate="G$1" x="274.32" y="187.96" smashed="yes" rot="R90">
+<attribute name="NAME" x="272.796" y="187.96" size="1.778" layer="95" font="vector" rot="R90" align="bottom-center"/>
+<attribute name="VALUE" x="275.844" y="187.96" size="1.778" layer="96" font="vector" rot="R90" align="top-center"/>
+</instance>
+<instance part="GND104" gate="1" x="274.32" y="177.8" smashed="yes">
+<attribute name="VALUE" x="274.32" y="177.546" size="1.778" layer="96" align="top-center"/>
+</instance>
+<instance part="L2" gate="L1" x="276.86" y="226.06" smashed="yes" rot="R90">
+<attribute name="NAME" x="275.59" y="227.33" size="1.778" layer="95" font="vector"/>
+<attribute name="VALUE" x="275.59" y="224.79" size="1.778" layer="96" font="vector" align="top-left"/>
+</instance>
+<instance part="L3" gate="L1" x="292.1" y="226.06" smashed="yes" rot="R90">
+<attribute name="NAME" x="290.83" y="227.33" size="1.778" layer="95" font="vector"/>
+<attribute name="VALUE" x="290.83" y="224.79" size="1.778" layer="96" font="vector" align="top-left"/>
+</instance>
+<instance part="C12" gate="G$1" x="284.48" y="218.44" smashed="yes">
+<attribute name="NAME" x="286.004" y="221.361" size="1.778" layer="95" font="vector"/>
+<attribute name="VALUE" x="286.004" y="216.281" size="1.778" layer="96" font="vector"/>
+</instance>
+<instance part="GND105" gate="1" x="284.48" y="210.82" smashed="yes">
+<attribute name="VALUE" x="284.48" y="210.566" size="1.778" layer="96" align="top-center"/>
+</instance>
 </instances>
 <busses>
 </busses>
@@ -38044,12 +38353,6 @@ Output Discharge: 100Ω Typ</text>
 <wire x1="177.8" y1="205.74" x2="177.8" y2="203.2" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="U8" gate="U1" pin="ANT_2"/>
-<wire x1="185.42" y1="254" x2="162.56" y2="254" width="0.1524" layer="91"/>
-<pinref part="GND91" gate="1" pin="GND"/>
-<wire x1="162.56" y1="254" x2="162.56" y2="251.46" width="0.1524" layer="91"/>
-</segment>
-<segment>
 <pinref part="GND92" gate="1" pin="GND"/>
 <pinref part="C61" gate="G$1" pin="2"/>
 <wire x1="149.86" y1="251.46" x2="149.86" y2="254" width="0.1524" layer="91"/>
@@ -38097,12 +38400,32 @@ Output Discharge: 100Ω Typ</text>
 <segment>
 <pinref part="MOSAIC_RF" gate="G$1" pin="GND"/>
 <pinref part="GND99" gate="1" pin="GND"/>
-<wire x1="279.4" y1="256.54" x2="279.4" y2="254" width="0.1524" layer="91"/>
+<wire x1="294.64" y1="259.08" x2="294.64" y2="256.54" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="D17" gate="D1" pin="2"/>
 <pinref part="GND101" gate="1" pin="GND"/>
-<wire x1="269.24" y1="243.84" x2="269.24" y2="241.3" width="0.1524" layer="91"/>
+<wire x1="284.48" y1="246.38" x2="284.48" y2="243.84" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="J7" gate="G$1" pin="GND"/>
+<pinref part="GND91" gate="1" pin="GND"/>
+<wire x1="292.1" y1="190.5" x2="292.1" y2="187.96" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="D2" gate="D1" pin="2"/>
+<pinref part="GND95" gate="1" pin="GND"/>
+<wire x1="284.48" y1="185.42" x2="284.48" y2="182.88" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="GND104" gate="1" pin="GND"/>
+<pinref part="R53" gate="G$1" pin="1"/>
+<wire x1="274.32" y1="180.34" x2="274.32" y2="182.88" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="GND105" gate="1" pin="GND"/>
+<pinref part="C12" gate="G$1" pin="2"/>
+<wire x1="284.48" y1="213.36" x2="284.48" y2="215.9" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="3.3V_SW" class="0">
@@ -39205,7 +39528,7 @@ Output Discharge: 100Ω Typ</text>
 <junction x="238.76" y="116.84"/>
 </segment>
 </net>
-<net name="MOSAIC_RF" class="0">
+<net name="ANT1" class="0">
 <segment>
 <pinref part="U8" gate="U1" pin="ANT_1"/>
 <wire x1="185.42" y1="256.54" x2="182.88" y2="256.54" width="0.1524" layer="91"/>
@@ -39213,13 +39536,18 @@ Output Discharge: 100Ω Typ</text>
 </segment>
 <segment>
 <pinref part="MOSAIC_RF" gate="G$1" pin="SIGNAL"/>
-<wire x1="266.7" y1="254" x2="269.24" y2="254" width="0.1524" layer="91"/>
-<wire x1="269.24" y1="254" x2="276.86" y2="254" width="0.1524" layer="91"/>
-<wire x1="276.86" y1="254" x2="276.86" y2="256.54" width="0.1524" layer="91"/>
+<wire x1="281.94" y1="256.54" x2="284.48" y2="256.54" width="0.1524" layer="91"/>
+<wire x1="284.48" y1="256.54" x2="292.1" y2="256.54" width="0.1524" layer="91"/>
+<wire x1="292.1" y1="256.54" x2="292.1" y2="259.08" width="0.1524" layer="91"/>
 <pinref part="D17" gate="D1" pin="1"/>
-<wire x1="269.24" y1="251.46" x2="269.24" y2="254" width="0.1524" layer="91"/>
-<junction x="269.24" y="254"/>
-<label x="266.7" y="254" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="284.48" y1="254" x2="284.48" y2="256.54" width="0.1524" layer="91"/>
+<junction x="284.48" y="256.54"/>
+<label x="281.94" y="256.54" size="1.27" layer="95" rot="R180" xref="yes"/>
+</segment>
+<segment>
+<pinref part="L3" gate="L1" pin="2"/>
+<wire x1="297.18" y1="226.06" x2="302.26" y2="226.06" width="0.1524" layer="91"/>
+<label x="302.26" y="226.06" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="N$6" class="0">
@@ -39300,6 +39628,42 @@ Output Discharge: 100Ω Typ</text>
 <wire x1="53.34" y1="63.5" x2="58.42" y2="63.5" width="0.1524" layer="91"/>
 </segment>
 </net>
+<net name="ANT2" class="0">
+<segment>
+<pinref part="U8" gate="U1" pin="ANT_2"/>
+<wire x1="185.42" y1="254" x2="182.88" y2="254" width="0.1524" layer="91"/>
+<label x="182.88" y="254" size="1.27" layer="95" rot="R180" xref="yes"/>
+</segment>
+<segment>
+<pinref part="J7" gate="G$1" pin="SIGNAL"/>
+<wire x1="287.02" y1="195.58" x2="284.48" y2="195.58" width="0.1524" layer="91"/>
+<wire x1="284.48" y1="195.58" x2="274.32" y2="195.58" width="0.1524" layer="91"/>
+<pinref part="D2" gate="D1" pin="1"/>
+<wire x1="274.32" y1="195.58" x2="271.78" y2="195.58" width="0.1524" layer="91"/>
+<wire x1="284.48" y1="193.04" x2="284.48" y2="195.58" width="0.1524" layer="91"/>
+<junction x="284.48" y="195.58"/>
+<label x="271.78" y="195.58" size="1.27" layer="95" rot="R180" xref="yes"/>
+<pinref part="R53" gate="G$1" pin="2"/>
+<wire x1="274.32" y1="193.04" x2="274.32" y2="195.58" width="0.1524" layer="91"/>
+<junction x="274.32" y="195.58"/>
+</segment>
+<segment>
+<label x="266.7" y="226.06" size="1.27" layer="95" rot="R180" xref="yes"/>
+<pinref part="L2" gate="L1" pin="1"/>
+<wire x1="271.78" y1="226.06" x2="266.7" y2="226.06" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$13" class="0">
+<segment>
+<pinref part="L2" gate="L1" pin="2"/>
+<pinref part="L3" gate="L1" pin="1"/>
+<wire x1="281.94" y1="226.06" x2="284.48" y2="226.06" width="0.1524" layer="91"/>
+<pinref part="C12" gate="G$1" pin="1"/>
+<wire x1="284.48" y1="226.06" x2="287.02" y2="226.06" width="0.1524" layer="91"/>
+<wire x1="284.48" y1="223.52" x2="284.48" y2="226.06" width="0.1524" layer="91"/>
+<junction x="284.48" y="226.06"/>
+</segment>
+</net>
 </nets>
 </sheet>
 </sheets>
@@ -39364,7 +39728,7 @@ Output Discharge: 100Ω Typ</text>
 <approved hash="208,2,182.88,269.24,3.3V_SW,sup,,,,"/>
 <approved hash="208,2,66.04,142.24,3.3V_SW,sup,,,,"/>
 <approved hash="208,2,317.5,137.16,3.3V_SW,sup,,,,"/>
-<approved hash="208,2,388.62,137.16,3.3V_SW,sup,,,,"/>
+<approved hash="208,2,396.24,142.24,3.3V_SW,sup,,,,"/>
 <approved hash="208,2,167.64,58.42,3.3V_SW,sup,,,,"/>
 <approved hash="208,2,276.86,132.08,3.3V_SW,sup,,,,"/>
 <approved hash="113,1,106.003,204.544,J1,,,,,"/>
@@ -39374,6 +39738,7 @@ Output Discharge: 100Ω Typ</text>
 <approved hash="113,1,367.623,150.023,J13,,,,,"/>
 <approved hash="113,1,306.07,211.414,VCCIO,,,,,"/>
 <approved hash="113,2,360.003,61.1226,J5,,,,,"/>
+<approved hash="113,2,290.872,192.215,J7,,,,,"/>
 </errors>
 </schematic>
 </drawing>
