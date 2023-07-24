@@ -34079,7 +34079,7 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <pin name="TXD2" x="17.78" y="-17.78" visible="pin" length="short" rot="R180"/>
 <pin name="TXD3" x="17.78" y="-20.32" visible="pin" length="short" rot="R180"/>
 <pin name="REXT" x="17.78" y="-30.48" visible="pin" length="short" rot="R180"/>
-<text x="-15.24" y="33.02" size="1.778" layer="95" font="vector">&gt;NAME</text>
+<text x="-15.24" y="33.274" size="1.778" layer="95" font="vector">&gt;NAME</text>
 <text x="-15.24" y="-35.56" size="1.778" layer="96" font="vector">&gt;VALUE</text>
 </symbol>
 </symbols>
@@ -34220,7 +34220,9 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <connect gate="U1" pin="V_USB" pad="A8"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="PROD_ID" value="GPS-19395" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -34266,7 +34268,10 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <connect gate="U1" pin="XO" pad="8"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="PROD_ID" value="IC-19428" constant="no"/>
+<attribute name="VALUE" value="KSZ8041NLI" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -34527,7 +34532,7 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="C27" library="SparkFun-Capacitors" deviceset="0.1UF" device="-0603-25V-5%" value="0.1uF"/>
 <part name="C28" library="SparkFun-Capacitors" deviceset="0.1UF" device="-0603-25V-5%" value="0.1uF"/>
 <part name="GND62" library="SparkFun-PowerSymbols" deviceset="GND" device=""/>
-<part name="U7" library="Septentrio_mosaic-X5" deviceset="KSZ8041NL" device=""/>
+<part name="U7" library="Septentrio_mosaic-X5" deviceset="KSZ8041NL" device="" value="KSZ8041NLI"/>
 <part name="SUPPLY33" library="SparkFun-PowerSymbols" deviceset="3.3V" device=""/>
 <part name="SUPPLY38" library="SparkFun-PowerSymbols" deviceset="3.3V" device=""/>
 <part name="SUPPLY39" library="SparkFun-PowerSymbols" deviceset="3.3V" device=""/>
@@ -34577,7 +34582,7 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="C29" library="SparkFun-Capacitors" deviceset="0.1UF" device="-0603-25V-5%" value="0.1uF"/>
 <part name="C30" library="SparkFun-Capacitors" deviceset="0.1UF" device="-0603-25V-5%" value="0.1uF"/>
 <part name="GND41" library="SparkFun-PowerSymbols" deviceset="GND" device=""/>
-<part name="U9" library="Septentrio_mosaic-X5" deviceset="KSZ8041NL" device=""/>
+<part name="U9" library="Septentrio_mosaic-X5" deviceset="KSZ8041NL" device="" value="KSZ8041NLI"/>
 <part name="C35" library="SparkFun-Capacitors" deviceset="0.1UF" device="-0603-25V-5%" value="0.1uF"/>
 <part name="C36" library="SparkFun-Capacitors" deviceset="2.2UF" device="-0603-10V-20%" value="2.2uF"/>
 <part name="GND42" library="SparkFun-PowerSymbols" deviceset="GND" device=""/>
@@ -35501,7 +35506,7 @@ Output Discharge: 100Ω Typ</text>
 <attribute name="VALUE" x="134.62" y="101.346" size="1.778" layer="96" rot="MR0" align="top-center"/>
 </instance>
 <instance part="U7" gate="U1" x="215.9" y="78.74" smashed="yes">
-<attribute name="NAME" x="200.66" y="113.03" size="1.778" layer="95" font="vector"/>
+<attribute name="NAME" x="200.66" y="112.014" size="1.778" layer="95" font="vector"/>
 <attribute name="VALUE" x="200.66" y="43.18" size="1.778" layer="96" font="vector"/>
 </instance>
 <instance part="SUPPLY33" gate="G$1" x="48.26" y="104.14" smashed="yes">
@@ -37862,7 +37867,7 @@ Do Not Populate: R53</text>
 <attribute name="VALUE" x="142.24" y="65.786" size="1.778" layer="96" rot="MR0" align="top-center"/>
 </instance>
 <instance part="U9" gate="U1" x="236.22" y="43.18" smashed="yes">
-<attribute name="NAME" x="220.98" y="77.47" size="1.778" layer="95" font="vector"/>
+<attribute name="NAME" x="220.98" y="76.454" size="1.778" layer="95" font="vector"/>
 <attribute name="VALUE" x="220.98" y="7.62" size="1.778" layer="96" font="vector"/>
 </instance>
 <instance part="C35" gate="G$1" x="195.58" y="73.66" smashed="yes" rot="MR0">
@@ -38022,8 +38027,8 @@ Do Not Populate: R53</text>
 <instance part="SUPPLY69" gate="G$1" x="182.88" y="269.24" smashed="yes">
 <attribute name="VALUE" x="182.88" y="272.034" size="1.778" layer="96" align="bottom-center"/>
 </instance>
-<instance part="SUPPLY70" gate="G$1" x="167.64" y="269.24" smashed="yes">
-<attribute name="VALUE" x="167.64" y="272.034" size="1.778" layer="96" font="vector" align="bottom-center"/>
+<instance part="SUPPLY70" gate="G$1" x="165.1" y="269.24" smashed="yes">
+<attribute name="VALUE" x="165.1" y="272.034" size="1.778" layer="96" font="vector" align="bottom-center"/>
 </instance>
 <instance part="R17" gate="G$1" x="66.04" y="132.08" smashed="yes" rot="R90">
 <attribute name="NAME" x="64.516" y="132.08" size="1.778" layer="95" font="vector" rot="R90" align="bottom-center"/>
@@ -38079,9 +38084,9 @@ Do Not Populate: R53</text>
 <instance part="SUPPLY72" gate="G$1" x="137.16" y="185.42" smashed="yes">
 <attribute name="VALUE" x="137.16" y="188.214" size="1.778" layer="96" font="vector" align="bottom-center"/>
 </instance>
-<instance part="FB3" gate="G$1" x="177.8" y="251.46" smashed="yes" rot="R90">
-<attribute name="NAME" x="171.45" y="248.92" size="1.778" layer="95" font="vector"/>
-<attribute name="VALUE" x="184.15" y="248.92" size="1.778" layer="96" font="vector" rot="R180" align="top-left"/>
+<instance part="FB3" gate="G$1" x="175.26" y="251.46" smashed="yes" rot="R90">
+<attribute name="NAME" x="168.91" y="248.92" size="1.778" layer="95" font="vector"/>
+<attribute name="VALUE" x="181.61" y="248.92" size="1.778" layer="96" font="vector" rot="R180" align="top-left"/>
 </instance>
 <instance part="GND92" gate="1" x="149.86" y="248.92" smashed="yes">
 <attribute name="VALUE" x="149.86" y="248.666" size="1.778" layer="96" align="top-center"/>
@@ -39000,13 +39005,13 @@ Do Not Populate: R53</text>
 <net name="5V" class="0">
 <segment>
 <pinref part="SUPPLY70" gate="G$1" pin="5V"/>
-<wire x1="167.64" y1="246.38" x2="167.64" y2="251.46" width="0.1524" layer="91"/>
+<wire x1="165.1" y1="246.38" x2="165.1" y2="251.46" width="0.1524" layer="91"/>
 <pinref part="U8" gate="U1" pin="V_USB"/>
-<wire x1="167.64" y1="251.46" x2="167.64" y2="269.24" width="0.1524" layer="91"/>
-<wire x1="185.42" y1="246.38" x2="167.64" y2="246.38" width="0.1524" layer="91"/>
+<wire x1="165.1" y1="251.46" x2="165.1" y2="269.24" width="0.1524" layer="91"/>
+<wire x1="185.42" y1="246.38" x2="165.1" y2="246.38" width="0.1524" layer="91"/>
 <pinref part="FB3" gate="G$1" pin="1"/>
-<wire x1="172.72" y1="251.46" x2="167.64" y2="251.46" width="0.1524" layer="91"/>
-<junction x="167.64" y="251.46"/>
+<wire x1="170.18" y1="251.46" x2="165.1" y2="251.46" width="0.1524" layer="91"/>
+<junction x="165.1" y="251.46"/>
 </segment>
 <segment>
 <pinref part="C61" gate="G$1" pin="1"/>
@@ -39604,7 +39609,7 @@ Do Not Populate: R53</text>
 <segment>
 <pinref part="FB3" gate="G$1" pin="2"/>
 <pinref part="U8" gate="U1" pin="VANT"/>
-<wire x1="182.88" y1="251.46" x2="185.42" y2="251.46" width="0.1524" layer="91"/>
+<wire x1="180.34" y1="251.46" x2="185.42" y2="251.46" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="MOSAIC_PPSO_1V8" class="0">
