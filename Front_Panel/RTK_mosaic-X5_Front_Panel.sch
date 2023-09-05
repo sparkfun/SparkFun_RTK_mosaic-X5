@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
+<grid distance="2.5" unitdist="mm" unit="mm" style="lines" multiple="1" display="no" altdistance="0.5" altunitdist="mm" altunit="mm"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="no" active="no"/>
 <layer number="2" name="Route2" color="1" fill="3" visible="no" active="no"/>
@@ -14197,10 +14197,6 @@ You are welcome to use this library for commercial purposes. For attribution, we
 </library>
 <library name="SparkFun-Enclosure-Panel">
 <packages>
-<package name="LED">
-<hole x="0" y="3.1" drill="5.5"/>
-<circle x="0" y="3.1" radius="2.5" width="0.2" layer="51"/>
-</package>
 <package name="MICRO_SD">
 <wire x1="-7.35" y1="0" x2="7.35" y2="0" width="0.2" layer="51"/>
 <wire x1="7.35" y1="0" x2="7.35" y2="2" width="0.2" layer="51"/>
@@ -14247,36 +14243,36 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <dimension x1="75.4" y1="-4.25" x2="75.4" y2="29.25" x3="83" y3="12.5" textsize="1.27" layer="47" dtype="vertical"/>
 <text x="0" y="-20" size="1.27" layer="47" font="vector" align="bottom-center">Dimensions in mm</text>
 </package>
-<package name="OLED">
-<wire x1="-6.7" y1="5" x2="6.7" y2="5" width="0.2" layer="51"/>
-<wire x1="6.7" y1="5" x2="6.7" y2="-5" width="0.2" layer="51"/>
-<wire x1="6.7" y1="-5" x2="-6.7" y2="-5" width="0.2" layer="51"/>
-<wire x1="-6.7" y1="-5" x2="-6.7" y2="5" width="0.2" layer="51"/>
-<wire x1="-7.7" y1="-5" x2="-7.7" y2="5" width="0.2" layer="51"/>
-<wire x1="-7.7" y1="5" x2="-6.7" y2="6" width="0.2" layer="51" curve="-90"/>
-<wire x1="-6.7" y1="6" x2="6.7" y2="6" width="0.2" layer="51"/>
-<wire x1="6.7" y1="6" x2="7.7" y2="5" width="0.2" layer="51" curve="-90"/>
-<wire x1="7.7" y1="5" x2="7.7" y2="-5" width="0.2" layer="51"/>
-<wire x1="7.7" y1="-5" x2="6.7" y2="-6" width="0.2" layer="51" curve="-90"/>
-<wire x1="6.7" y1="-6" x2="-6.7" y2="-6" width="0.2" layer="51"/>
-<wire x1="-6.7" y1="-6" x2="-7.7" y2="-5" width="0.2" layer="51" curve="-90"/>
+<package name="OLED-1.3-128X64">
+<wire x1="-14.71" y1="7.35" x2="14.71" y2="7.35" width="0.2" layer="51"/>
+<wire x1="14.71" y1="7.35" x2="14.71" y2="-7.35" width="0.2" layer="51"/>
+<wire x1="14.71" y1="-7.35" x2="-14.71" y2="-7.35" width="0.2" layer="51"/>
+<wire x1="-14.71" y1="-7.35" x2="-14.71" y2="7.35" width="0.2" layer="51"/>
+<wire x1="-15.71" y1="-7.35" x2="-15.71" y2="7.35" width="0.2" layer="51"/>
+<wire x1="-15.71" y1="7.35" x2="-14.71" y2="8.35" width="0.2" layer="51" curve="-90"/>
+<wire x1="-14.71" y1="8.35" x2="14.71" y2="8.35" width="0.2" layer="51"/>
+<wire x1="14.71" y1="8.35" x2="15.71" y2="7.35" width="0.2" layer="51" curve="-90"/>
+<wire x1="15.71" y1="7.35" x2="15.71" y2="-7.35" width="0.2" layer="51"/>
+<wire x1="15.71" y1="-7.35" x2="14.71" y2="-8.35" width="0.2" layer="51" curve="-90"/>
+<wire x1="14.71" y1="-8.35" x2="-14.71" y2="-8.35" width="0.2" layer="51"/>
+<wire x1="-14.71" y1="-8.35" x2="-15.71" y2="-7.35" width="0.2" layer="51" curve="-90"/>
 <text x="0" y="0" size="1.27" layer="20" align="center">Route Out</text>
-<wire x1="-9.4" y1="7.35" x2="9.4" y2="7.35" width="0.2" layer="20"/>
-<wire x1="-9.4" y1="7.35" x2="-9.4" y2="4.35" width="0.2" layer="20" curve="180"/>
-<wire x1="9.4" y1="4.35" x2="9.4" y2="7.35" width="0.2" layer="20" curve="180"/>
-<wire x1="-9.4" y1="-8.05" x2="-9.4" y2="-11.05" width="0.2" layer="20" curve="180"/>
-<wire x1="9.4" y1="-11.05" x2="9.4" y2="-8.05" width="0.2" layer="20" curve="180"/>
-<text x="-6" y="4" size="0.5" layer="51">13.42 x 10.06 A/A</text>
-<text x="-6" y="6.3" size="0.5" layer="51">15.42 x 12.06 V/A</text>
-<wire x1="-9.4" y1="4.35" x2="-9.4" y2="-8.05" width="0.2" layer="20"/>
-<wire x1="9.4" y1="4.35" x2="9.4" y2="-8.05" width="0.2" layer="20"/>
-<wire x1="-9.4" y1="-11.05" x2="-7" y2="-11.05" width="0.2" layer="20"/>
-<wire x1="7" y1="-11.05" x2="9.4" y2="-11.05" width="0.2" layer="20"/>
-<wire x1="-7" y1="-11.05" x2="-7" y2="-12.7" width="0.2" layer="20"/>
-<wire x1="7" y1="-11.05" x2="7" y2="-12.7" width="0.2" layer="20"/>
-<wire x1="-7" y1="-12.7" x2="-5.5" y2="-14.2" width="0.2" layer="20" curve="90"/>
-<wire x1="5.5" y1="-14.2" x2="7" y2="-12.7" width="0.2" layer="20" curve="90"/>
-<wire x1="-5.5" y1="-14.2" x2="5.5" y2="-14.2" width="0.2" layer="20"/>
+<wire x1="-17.4" y1="9.6" x2="17.4" y2="9.6" width="0.2" layer="20"/>
+<wire x1="-17.4" y1="9.6" x2="-17.4" y2="5.6" width="0.2" layer="20" curve="180"/>
+<wire x1="17.4" y1="5.6" x2="17.4" y2="9.6" width="0.2" layer="20" curve="180"/>
+<wire x1="-17.4" y1="-9.7" x2="-17.4" y2="-13.7" width="0.2" layer="20" curve="180"/>
+<wire x1="17.4" y1="-13.7" x2="17.4" y2="-9.7" width="0.2" layer="20" curve="180"/>
+<text x="-14.2" y="6.6" size="0.5" layer="51">29.42 x 14.7 A/A</text>
+<text x="-14.2" y="8.7" size="0.5" layer="51">31.42 x 16.7 V/A</text>
+<wire x1="-17.4" y1="5.6" x2="-17.4" y2="-9.7" width="0.2" layer="20"/>
+<wire x1="17.4" y1="5.6" x2="17.4" y2="-9.7" width="0.2" layer="20"/>
+<wire x1="-17.4" y1="-13.7" x2="-7.5" y2="-13.7" width="0.2" layer="20"/>
+<wire x1="7.5" y1="-13.7" x2="17.4" y2="-13.7" width="0.2" layer="20"/>
+<wire x1="-7.5" y1="-13.7" x2="-7.5" y2="-14.7" width="0.2" layer="20"/>
+<wire x1="7.5" y1="-13.7" x2="7.5" y2="-14.7" width="0.2" layer="20"/>
+<wire x1="-7.5" y1="-14.7" x2="-5.5" y2="-16.7" width="0.2" layer="20" curve="90"/>
+<wire x1="5.5" y1="-16.7" x2="7.5" y2="-14.7" width="0.2" layer="20" curve="90"/>
+<wire x1="-5.5" y1="-16.7" x2="5.5" y2="-16.7" width="0.2" layer="20"/>
 </package>
 <package name="BUTTON">
 <hole x="0" y="4.05" drill="3.75"/>
@@ -14301,11 +14297,16 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <wire x1="-4.5" y1="1" x2="-4.5" y2="2.2" width="0.2" layer="51"/>
 <wire x1="-4.5" y1="2.2" x2="-3.5" y2="3.2" width="0.2" layer="51" curve="-90"/>
 </package>
+<package name="CBI_LED_TRIPLE-3MM">
+<hole x="0" y="2.54" drill="3.2"/>
+<circle x="0" y="2.54" radius="1.45" width="0.2" layer="51"/>
+<hole x="0" y="7.62" drill="3.2"/>
+<circle x="0" y="7.62" radius="1.45" width="0.2" layer="51"/>
+<circle x="0" y="12.7" radius="1.45" width="0.2" layer="51"/>
+<hole x="0" y="12.7" drill="3.2"/>
+</package>
 </packages>
 <symbols>
-<symbol name="LED">
-<circle x="0" y="3" radius="2.5" width="0.2" layer="94"/>
-</symbol>
 <symbol name="MICRO_SD">
 <wire x1="-6.85" y1="2.5" x2="6.85" y2="2.5" width="0.2" layer="94"/>
 <wire x1="6.85" y1="2.5" x2="7.85" y2="1.5" width="0.2" layer="94" curve="-90"/>
@@ -14331,15 +14332,15 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <circle x="-75.55" y="-4.25" radius="1.5" width="0.2" layer="94"/>
 <circle x="75.55" y="-4.25" radius="1.5" width="0.2" layer="94"/>
 </symbol>
-<symbol name="OLED">
-<wire x1="-6.5" y1="7" x2="6.5" y2="7" width="0.2" layer="94"/>
-<wire x1="6.5" y1="7" x2="8.5" y2="5" width="0.2" layer="94" curve="-90"/>
-<wire x1="8.5" y1="5" x2="8.5" y2="-5" width="0.2" layer="94"/>
-<wire x1="8.5" y1="-5" x2="6.5" y2="-7" width="0.2" layer="94" curve="-90"/>
-<wire x1="6.5" y1="-7" x2="-6.5" y2="-7" width="0.2" layer="94"/>
-<wire x1="-6.5" y1="-7" x2="-8.5" y2="-5" width="0.2" layer="94" curve="-90"/>
-<wire x1="-8.5" y1="-5" x2="-8.5" y2="5" width="0.2" layer="94"/>
-<wire x1="-8.5" y1="5" x2="-6.5" y2="7" width="0.2" layer="94" curve="-90"/>
+<symbol name="OLED-1.3-128X64">
+<wire x1="-14.71" y1="8.35" x2="14.71" y2="8.35" width="0.2" layer="94"/>
+<wire x1="14.71" y1="8.35" x2="15.71" y2="7.35" width="0.2" layer="94" curve="-90"/>
+<wire x1="15.71" y1="7.35" x2="15.71" y2="-7.35" width="0.2" layer="94"/>
+<wire x1="15.71" y1="-7.35" x2="14.71" y2="-8.35" width="0.2" layer="94" curve="-90"/>
+<wire x1="14.71" y1="-8.35" x2="-14.71" y2="-8.35" width="0.2" layer="94"/>
+<wire x1="-14.71" y1="-8.35" x2="-15.71" y2="-7.35" width="0.2" layer="94" curve="-90"/>
+<wire x1="-15.71" y1="-7.35" x2="-15.71" y2="7.35" width="0.2" layer="94"/>
+<wire x1="-15.71" y1="7.35" x2="-14.71" y2="8.35" width="0.2" layer="94" curve="-90"/>
 </symbol>
 <symbol name="BUTTON">
 <circle x="0" y="4.05" radius="1.7" width="0.2" layer="94"/>
@@ -14354,21 +14355,13 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <wire x1="-5" y1="1" x2="-5" y2="2.2" width="0.2" layer="94"/>
 <wire x1="-5" y1="2.2" x2="-3.5" y2="3.7" width="0.2" layer="94" curve="-90"/>
 </symbol>
+<symbol name="CBI_LED_TRIPLE-3MM">
+<circle x="0" y="2.54" radius="1.4478" width="0.2" layer="94"/>
+<circle x="0" y="7.62" radius="1.4478" width="0.2" layer="94"/>
+<circle x="0" y="12.7" radius="1.4478" width="0.2" layer="94"/>
+</symbol>
 </symbols>
 <devicesets>
-<deviceset name="LED_DIO-13847">
-<description>This is the enclosure panel cut-out for the 5mm right angle LED (LED-RIGHT-ANGLE-PTH-GREEN, DIO-13847)</description>
-<gates>
-<gate name="G$1" symbol="LED" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="LED">
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-</devices>
-</deviceset>
 <deviceset name="MICRO_SD_CONN-16110">
 <description>This is the enclosure panel cut-out for the microSD socket (push-push) (MICRO-SD-PUSH-PUSH-EXT-PIN, CONN-16110)</description>
 <gates>
@@ -14401,13 +14394,13 @@ The origin is centered on the top surface of the PCB</description>
 </device>
 </devices>
 </deviceset>
-<deviceset name="OLED_14532">
-<description>This is the enclosure panel cut-out for the &lt;a href="https://www.sparkfun.com/products/14532"&gt;micro OLED breakout&lt;/a&gt;</description>
+<deviceset name="OLED_1.3_128X64">
+<description>This is the enclosure panel cut-out for the new 1.3" 128x64 OLED display.</description>
 <gates>
-<gate name="G$1" symbol="OLED" x="0" y="0"/>
+<gate name="G$1" symbol="OLED-1.3-128X64" x="0" y="0"/>
 </gates>
 <devices>
-<device name="" package="OLED">
+<device name="" package="OLED-1.3-128X64">
 <technologies>
 <technology name=""/>
 </technologies>
@@ -14440,6 +14433,19 @@ The origin is centered on the top surface of the PCB</description>
 </device>
 </devices>
 </deviceset>
+<deviceset name="CBI_LED_TRIPLE-3MM_DIO-19990">
+<description>This is the enclosure panel cut-out for the right angle PTH triple-3mm CBI LED (E.g.: Yellow-Green-Red DIO-19990)</description>
+<gates>
+<gate name="G$1" symbol="CBI_LED_TRIPLE-3MM" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="CBI_LED_TRIPLE-3MM">
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
 </devicesets>
 </library>
 </libraries>
@@ -14455,20 +14461,21 @@ The origin is centered on the top surface of the PCB</description>
 <part name="FRAME1" library="SparkFun-Aesthetics" deviceset="FRAME-LETTER" device=""/>
 <part name="PANEL_OUTLINE" library="SparkFun-Enclosure-Panel" deviceset="PANEL_OUTLINE" device=""/>
 <part name="GND1" library="SparkFun-PowerSymbols" deviceset="GND" device=""/>
-<part name="LED" library="SparkFun-Enclosure-Panel" deviceset="LED_DIO-13847" device=""/>
 <part name="RESET" library="SparkFun-Enclosure-Panel" deviceset="BUTTON_SWCH-13896" device=""/>
 <part name="BOOT" library="SparkFun-Enclosure-Panel" deviceset="BUTTON_SWCH-13896" device=""/>
 <part name="MICRO_SD" library="SparkFun-Enclosure-Panel" deviceset="MICRO_SD_CONN-16110" device=""/>
 <part name="ESP32_USB" library="SparkFun-Enclosure-Panel" deviceset="USB-C_CONN-14122" device=""/>
 <part name="GNSS_USB" library="SparkFun-Enclosure-Panel" deviceset="USB-C_CONN-14122" device=""/>
-<part name="OLED" library="SparkFun-Enclosure-Panel" deviceset="OLED_14532" device=""/>
+<part name="OLED" library="SparkFun-Enclosure-Panel" deviceset="OLED_1.3_128X64" device=""/>
 <part name="LOGO1" library="SparkFun-Aesthetics" deviceset="SFE_LOGO_NAME_FLAME" device=".3_INCH" value="SFE_LOGO_NAME_FLAME.3_INCH"/>
 <part name="RESET1" library="SparkFun-Enclosure-Panel" deviceset="BUTTON_SWCH-13896" device=""/>
+<part name="U$5" library="SparkFun-Enclosure-Panel" deviceset="CBI_LED_TRIPLE-3MM_DIO-19990" device=""/>
+<part name="U$16" library="SparkFun-Enclosure-Panel" deviceset="CBI_LED_TRIPLE-3MM_DIO-19990" device=""/>
 </parts>
 <sheets>
 <sheet>
 <plain>
-<text x="241.3" y="7.62" size="2.54" layer="94" font="vector">v01</text>
+<text x="241.3" y="7.62" size="2.54" layer="94" font="vector">v10</text>
 <text x="167.64" y="10.16" size="2.54" layer="94" font="vector">Paul Clark</text>
 </plain>
 <instances>
@@ -14484,15 +14491,16 @@ The origin is centered on the top surface of the PCB</description>
 <instance part="GND1" gate="1" x="222.5" y="57.5" smashed="yes">
 <attribute name="VALUE" x="222.5" y="57.246" size="1.778" layer="96" font="vector" align="top-center"/>
 </instance>
-<instance part="LED" gate="G$1" x="65" y="95" smashed="yes"/>
 <instance part="RESET" gate="G$1" x="170.32" y="95" smashed="yes"/>
 <instance part="BOOT" gate="G$1" x="192.82" y="95" smashed="yes"/>
-<instance part="MICRO_SD" gate="G$1" x="120.44" y="95" smashed="yes"/>
+<instance part="MICRO_SD" gate="G$1" x="92.94" y="95" smashed="yes"/>
 <instance part="ESP32_USB" gate="G$1" x="182.82" y="95" smashed="yes"/>
 <instance part="GNSS_USB" gate="G$1" x="157.1" y="95" smashed="yes"/>
-<instance part="OLED" gate="G$1" x="140.24" y="107.54" smashed="yes"/>
+<instance part="OLED" gate="G$1" x="124.46" y="107.54" smashed="yes"/>
 <instance part="LOGO1" gate="G$1" x="85" y="2.5" smashed="yes"/>
-<instance part="RESET1" gate="G$1" x="106.82" y="95" smashed="yes"/>
+<instance part="RESET1" gate="G$1" x="79.32" y="95" smashed="yes"/>
+<instance part="U$5" gate="G$1" x="61.04" y="95" smashed="yes"/>
+<instance part="U$16" gate="G$1" x="66.12" y="95" smashed="yes"/>
 </instances>
 <busses>
 </busses>
