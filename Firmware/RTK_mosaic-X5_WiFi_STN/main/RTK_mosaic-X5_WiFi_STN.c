@@ -1,6 +1,20 @@
 /* 
 
-   SparkFun RTK mosaic-X5 WiFi Basic example
+   SparkFun RTK mosaic-X5 WiFi Station example
+
+   To keep this example as simple as possible, the WiFi Access Point SSID and
+   password are hard-coded. You set them using the idf.py menuconfig
+   (CONFIG_RTK_X5_WIFI_SSID and CONFIG_RTK_X5_WIFI_PSWD), before build and flash.
+   The next example shows how to set the SSID and password using Bluetooth
+   provisioning via the Espressif ESP BLE Provisioning App.
+
+   Written for and tested on ESP IDF v5.1.1
+
+   The I2C OLED code is taken from:
+   https://github.com/espressif/esp-idf/tree/master/examples/peripherals/lcd/i2c_oled
+   Needs:
+   idf.py add-dependency "lvgl/lvgl^8.3.9"
+   idf.py add-dependency "espressif/esp_lvgl_port^1.3.0"
 
    Based on:
 
@@ -40,24 +54,33 @@
 #include <driver/gpio.h>
 #include <driver/uart.h>
 
-static const char *TAG = "RTK_mosaic-X5_wifi_basic";
+#include <esp_timer.h>
+#include <esp_lcd_panel_io.h>
+#include <esp_lcd_panel_ops.h>
+#include <driver/i2c.h>
+#include "lvgl.h"
+#include "esp_lvgl_port.h"
+#include "esp_lcd_panel_vendor.h"
+
+#include <lwip/inet.h>
+#include <lwip/ip4_addr.h>
+
+static const char *TAG = "RTK_mosaic-X5_WiFi_STN";
 
 static esp_eth_handle_t s_eth_handle = NULL;
 static esp_eth_mac_t *s_mac = NULL;
 static esp_eth_phy_t *s_phy = NULL;
 static QueueHandle_t flow_control_queue = NULL;
 
-static uint8_t eth_mac[6]; // = { 0x8C, 0x1C, 0xDA, 0x51, 0x90, 0x55 };
+static uint8_t eth_mac[6];
 static bool eth_mac_is_set = false;
 static bool wifi_is_connected = false;
-
-//const char mosaicHostname[] = "mosaic-x5-3670565";
+static char sta_ip[16];
 
 typedef struct {
     void *packet;
     uint16_t length;
 } flow_control_msg_t;
-
 
 /* mosaic-X5 serial commands */
 const char MOSAIC_CMD_ETHERNET_OFF[] = "seth,off\n\r";
@@ -67,6 +90,22 @@ const char MOSAIC_CMD_IP_DHCP_RESPONSE_START[] = "$R: setIPSettings";
 const char MOSAIC_CMD_ETHERNET_ON[] = "seth,on\n\r";
 const char MOSAIC_CMD_ETHERNET_ON_RESPONSE_START[] = "$R: seth";
 
+/* I2C OLED */
+#define I2C_HOST  0
+#define EXAMPLE_LCD_PIXEL_CLOCK_HZ    (100 * 1000)
+#define EXAMPLE_PIN_NUM_SDA           15
+#define EXAMPLE_PIN_NUM_SCL           14
+#define EXAMPLE_PIN_NUM_RST           -1
+#define EXAMPLE_I2C_HW_ADDR           0x3D
+#define EXAMPLE_LCD_H_RES             128
+#define EXAMPLE_LCD_V_RES             64
+#define EXAMPLE_LCD_CMD_BITS          8
+#define EXAMPLE_LCD_PARAM_BITS        8
+
+void scroll_text(char *txt); // Header
+lv_disp_t * disp = NULL;
+
+
 /* PACKETS / DATA FORWARDING */
 
 static esp_err_t pkt_wifi2eth(void *buffer, uint16_t len, void *eb)
@@ -75,9 +114,6 @@ static esp_err_t pkt_wifi2eth(void *buffer, uint16_t len, void *eb)
         ESP_LOGE(TAG, "Ethernet send packet failed");
     }
 #if CONFIG_RTK_X5_VERBOSE_LOG
-    // else {
-    //     ESP_LOGI(TAG, "Sent Ethernet packet of length %d", len);
-    // }
     else {
         uint8_t *ptr = (uint8_t *)buffer;
         ESP_LOGI(TAG, "Sent Ethernet packet L:%d D:%02X:%02X:%02X:%02X:%02X:%02X S:%02X:%02X:%02X:%02X:%02X:%02X IPS:%d.%d.%d.%d IPD:%d.%d.%d.%d",
@@ -207,6 +243,9 @@ static void ip_event_handler(void* arg, esp_event_base_t event_base, int32_t eve
 
         // Start forwarding WiFi and Ethernet data
         ESP_ERROR_CHECK(esp_wifi_internal_reg_rxcb(ESP_IF_WIFI_STA, &pkt_wifi2eth));
+
+        snprintf(sta_ip, sizeof(sta_ip), "%s", inet_ntoa(event->ip_info.ip));
+        scroll_text(sta_ip);
     }
 }
 
@@ -349,11 +388,10 @@ static void initialize_wifi(void)
     ESP_ERROR_CHECK(esp_netif_init());
 
     // Initialize WiFi including netif with default config
-    esp_netif_t* sta_netif = esp_netif_create_default_wifi_sta();
+    esp_netif_create_default_wifi_sta();
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-    //ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
 
     // Create WiFi config
     wifi_config_t wifi_config = {
@@ -371,9 +409,6 @@ static void initialize_wifi(void)
     ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, NULL));
     ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &ip_event_handler, NULL));
 
-    //ESP_ERROR_CHECK(esp_netif_set_hostname(sta_netif, mosaicHostname));
-    (void)sta_netif; // Pesky compiler warning
-
     ESP_ERROR_CHECK(esp_wifi_start());
 }
 
@@ -381,19 +416,98 @@ static esp_err_t initialize_flow_control(void)
 {
     flow_control_queue = xQueueCreate(CONFIG_RTK_X5_FLOW_CONTROL_QUEUE_LENGTH, sizeof(flow_control_msg_t));
     if (!flow_control_queue) {
-        ESP_LOGE(TAG, "create flow control queue failed");
+        ESP_LOGE(TAG, "Create flow control queue failed");
         return ESP_FAIL;
     }
 
     BaseType_t ret = xTaskCreate(eth2wifi_flow_control_task, "flow_ctl", 2048, NULL, (tskIDLE_PRIORITY + 2), NULL);
     if (ret != pdTRUE) {
-        ESP_LOGE(TAG, "create flow control task failed");
+        ESP_LOGE(TAG, "Create flow control task failed");
         return ESP_FAIL;
     }
 
     return ESP_OK;
 }
 
+static esp_err_t initialize_i2c(void)
+{
+    ESP_LOGI(TAG, "Initialize I2C bus");
+    i2c_config_t i2c_conf = {
+        .mode = I2C_MODE_MASTER,
+        .sda_io_num = EXAMPLE_PIN_NUM_SDA,
+        .scl_io_num = EXAMPLE_PIN_NUM_SCL,
+        .sda_pullup_en = GPIO_PULLUP_ENABLE,
+        .scl_pullup_en = GPIO_PULLUP_ENABLE,
+        .master.clk_speed = EXAMPLE_LCD_PIXEL_CLOCK_HZ,
+    };
+    esp_err_t ret = i2c_param_config(I2C_HOST, &i2c_conf);
+    ESP_ERROR_CHECK(ret);
+    ret = i2c_driver_install(I2C_HOST, I2C_MODE_MASTER, 0, 0, 0);
+    ESP_ERROR_CHECK(ret);
+    return ret;
+}
+
+static esp_err_t initialize_oled(void)
+{
+    ESP_LOGI(TAG, "Install panel IO");
+    esp_lcd_panel_io_handle_t io_handle = NULL;
+    esp_lcd_panel_io_i2c_config_t io_config = {
+        .dev_addr = EXAMPLE_I2C_HW_ADDR,
+        .control_phase_bytes = 1,                 // According to SSD1306 datasheet
+        .lcd_cmd_bits = EXAMPLE_LCD_CMD_BITS,     // According to SSD1306 datasheet
+        .lcd_param_bits = EXAMPLE_LCD_PARAM_BITS, // According to SSD1306 datasheet
+        .dc_bit_offset = 6,                       // According to SSD1306 datasheet
+    };
+    esp_err_t ret = esp_lcd_new_panel_io_i2c((esp_lcd_i2c_bus_handle_t)I2C_HOST, &io_config, &io_handle);
+    ESP_ERROR_CHECK(ret);
+
+    ESP_LOGI(TAG, "Install SSD1306 panel driver");
+    esp_lcd_panel_handle_t panel_handle = NULL;
+    esp_lcd_panel_dev_config_t panel_config = {
+        .bits_per_pixel = 1,
+        .reset_gpio_num = EXAMPLE_PIN_NUM_RST,
+    };
+    ESP_ERROR_CHECK(esp_lcd_new_panel_ssd1306(io_handle, &panel_config, &panel_handle));
+
+    ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
+    ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
+    ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_handle, true));
+
+    ESP_LOGI(TAG, "Initialize LVGL");
+    const lvgl_port_cfg_t lvgl_cfg = ESP_LVGL_PORT_INIT_CONFIG();
+    lvgl_port_init(&lvgl_cfg);
+
+    lvgl_port_display_cfg_t disp_cfg = {
+        .io_handle = io_handle,
+        .panel_handle = panel_handle,
+        .buffer_size = EXAMPLE_LCD_H_RES * EXAMPLE_LCD_V_RES,
+        .double_buffer = true,
+        .hres = EXAMPLE_LCD_H_RES,
+        .vres = EXAMPLE_LCD_V_RES,
+        .monochrome = true,
+        .rotation = {
+            .swap_xy = false,
+            .mirror_x = false,
+            .mirror_y = false,
+        }
+    };
+    disp = lvgl_port_add_disp(&disp_cfg);
+
+    /* Rotation of the screen */
+    lv_disp_set_rotation(disp, LV_DISP_ROT_180);
+
+    return ret;
+}
+
+void scroll_text(char *txt)
+{
+    lv_obj_t *scr = lv_disp_get_scr_act(disp);
+    lv_obj_t *label = lv_label_create(scr);
+    lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR); /* Circular scroll */
+    lv_label_set_text(label, txt);
+    lv_obj_set_width(label, disp->driver->hor_res);
+    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
+}
 
 /* APPLICATION MAIN */
 
@@ -410,6 +524,8 @@ void app_main(void)
     // Initialize auxiliary peripherals
     initialize_led();
     initialize_uart();
+    initialize_i2c();
+    initialize_oled();
 
     // Initialize event loop
     ESP_ERROR_CHECK(esp_event_loop_create_default());
