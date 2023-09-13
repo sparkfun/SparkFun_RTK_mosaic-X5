@@ -2,4 +2,4 @@ cmake_minimum_required(VERSION 3.5)
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 
-project(RTK_mosaix-X5_basic)
+project(RTK_mosaix-X5_WiFi_STN)
