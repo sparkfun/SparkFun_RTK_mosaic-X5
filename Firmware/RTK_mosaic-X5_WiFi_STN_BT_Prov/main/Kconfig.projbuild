@@ -1,0 +1,23 @@
+menu "RTK mosaic-X5 WiFi STN config"
+
+    config RTK_X5_FLOW_CONTROL_QUEUE_TIMEOUT_MS 
+        int "Flow Control Queue Timeout [ms]"
+        default 100
+
+    config RTK_X5_FLOW_CONTROL_QUEUE_LENGTH
+        int "Flow Control Queue Length"
+        default 40
+
+    config RTK_X5_FLOW_CONTROL_WIFI_SEND_TIMEOUT_MS
+        int "Flow Control WiFi Send Timeout [ms]"
+        default 100
+
+    config  MOWI_PROV_MGR_REMEMBER
+        bool "Remember previous state and skip provisioning"
+        default y
+
+    config RTK_X5_VERBOSE_LOG
+        bool "Enable extra WiFi and Ethernet log messages"
+        default n
+
+endmenu
