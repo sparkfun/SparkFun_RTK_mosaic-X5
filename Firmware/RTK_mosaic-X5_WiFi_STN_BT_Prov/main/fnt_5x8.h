@@ -27,11 +27,6 @@ https://github.com/emil01/SparkFun_Micro_OLED_Arduino_Library/
 ******************************************************************************/
 #pragma once 
 
-// START of new code added for the RTK mosaic-X5
-void ssd1306_draw_58char(ssd1306_handle_t dev, uint8_t chXpos, uint8_t chYpos, uint8_t chChar);
-// END of new code added for the RTK mosaic-X5
-
-
 // Define the font attributes
 #define FONT_5X7_WIDTH        5
 #define FONT_5X7_HEIGHT       8

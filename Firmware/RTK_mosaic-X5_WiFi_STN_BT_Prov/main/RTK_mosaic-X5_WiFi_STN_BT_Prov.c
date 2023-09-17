@@ -110,11 +110,11 @@ const char MOSAIC_CMD_ETHERNET_ON_RESPONSE_START[] = "$R: seth";
 
 /* I2C OLED */
 #define I2C_HOST  0
-#define RTK_X5_LCD_PIXEL_CLOCK_HZ    (100 * 1000)
+#define RTK_X5_LCD_PIXEL_CLOCK_HZ    (400 * 1000)
 #define RTK_X5_PIN_NUM_SDA           15
 #define RTK_X5_PIN_NUM_SCL           14
 #define RTK_X5_PIN_NUM_RST           -1
-#define RTK_X5_OLED_HW_ADDR          0x3D
+#define RTK_X5_OLED_HW_ADDR          0x3C
 
 void print_text(char *txt); // Header
 void display_qr(esp_qrcode_handle_t qrcode); // Header
@@ -123,36 +123,8 @@ static ssd1306_handle_t disp;
 const uint8_t oled_x_chars = 25; // 128 / 5
 const uint8_t oled_y_chars = 8;  // 64 / 8
 static char oled_text[25][8];
-void clear_oled_text(void) {
-    for (uint8_t y = 0; y < oled_y_chars; y++)
-        for (uint8_t x = 0; x < oled_x_chars; x++)
-            oled_text[x][y] = ' ';
-}
-void print_oled(const char *txt) {
-    // Scroll text up by one line
-    for (uint8_t y = 0; y < (oled_y_chars - 1); y++)
-        for (uint8_t x = 0; x < oled_x_chars; x++)
-            oled_text[x][y] = oled_text[x][y + 1];
-    uint8_t x;
-    // Add new text
-    for (x = 0; (x < strlen(txt)) && (x < oled_x_chars); x++)
-        oled_text[x][oled_y_chars - 1] = *txt++;
-    // Wipe to end of line
-    for (; x < oled_x_chars; x++)
-        oled_text[x][oled_y_chars - 1] = ' ';
-    // Print the characters
-    ssd1306_clear_screen(disp, 0);
-    uint8_t ypos = 0;
-    for (uint8_t y = 0; y < oled_y_chars; y++) {
-        uint8_t xpos = 0;
-        for (uint8_t x = 0; x < oled_x_chars; x++) {
-            ssd1306_draw_58char(disp, xpos, ypos, oled_text[x][y]);
-            xpos += 5;
-        }
-        ypos += 8;
-    }
-    ssd1306_refresh_gram(disp);
-}
+void clear_oled_text(void); // Header
+void print_oled(char *txt); // Header
 
 /* Extra SSD1306 commands - if needed */
 #define RTK_SSD1306_CMD_SET_MEMORY_ADDR_MODE  0x20
@@ -469,6 +441,9 @@ static void initialize_uart(void)
 
 static void initialize_ethernet(void)
 {
+    ESP_LOGI(TAG, "Initializing Ethernet");
+    print_oled("Initializing Ethernet");
+
     eth_mac_config_t mac_config = ETH_MAC_DEFAULT_CONFIG();
     eth_phy_config_t phy_config = ETH_PHY_DEFAULT_CONFIG();
     phy_config.phy_addr = CONFIG_RTK_X5_ETHERNET_PHY_ADDR;
@@ -505,6 +480,7 @@ static void initialize_ethernet(void)
 
 
     ESP_LOGI(TAG, "Configuring Mosaic Ethernet DHCP");
+    print_oled("Configure Ethernet DHCP");
 
     // Create a temporary buffer for the incoming data
     uint8_t *uart_buf = (uint8_t *) calloc(CONFIG_RTK_X5_MOSAIC_UART_BUF_SIZE, sizeof(uint8_t));
@@ -542,10 +518,12 @@ static void initialize_ethernet(void)
 
     // Ethernet configured, temporary buffer no longer needed
     ESP_LOGI(TAG, "Mosaic Ethernet DHCP configured");
+    print_oled("DHCP Configured");
     free(uart_buf);
 
     // Wait for Mosaic to report ist MAC address
     ESP_LOGI(TAG, "Waiting for Mosaic Ethernet MAC address");
+    print_oled("Waiting for MAC address");
     while(!eth_mac_is_set) {
         vTaskDelay(10);
     }
@@ -554,10 +532,17 @@ static void initialize_ethernet(void)
     ESP_ERROR_CHECK(esp_base_mac_addr_set(eth_mac));
     ESP_LOGI(TAG, "ESP base MAC address set as: %02X:%02X:%02X:%02X:%02X:%02X", 
         eth_mac[0], eth_mac[1], eth_mac[2], eth_mac[3], eth_mac[4], eth_mac[5]);
+    char mac_str[25];
+    snprintf(mac_str, sizeof(mac_str), "MAC: %02X:%02X:%02X:%02X:%02X:%02X",
+        eth_mac[0], eth_mac[1], eth_mac[2], eth_mac[3], eth_mac[4], eth_mac[5]);
+    print_oled(mac_str);
 }
 
 static void initialize_wifi(void)
 {
+    ESP_LOGI(TAG, "Initializing WiFi");
+    print_oled("Initializing WiFi");
+
     // Initialize TCP/IP
     ESP_ERROR_CHECK(esp_netif_init());
 
@@ -587,6 +572,7 @@ static void initialize_wifi(void)
     // Start provisioning service if not yet provisioned
     if (!provisioned) {
         ESP_LOGI(TAG, "Starting provisioning");
+        print_oled("Starting provisioning");
 
         // Set device name
         char service_name[30];
@@ -618,6 +604,8 @@ static void initialize_wifi(void)
     
     else {
         ESP_LOGI(TAG, "Already provisioned, starting WiFi STA");
+        print_oled("Already provisioned");
+        print_oled("Starting WiFi STA");
 
         // Release provisioning resources
         wifi_prov_mgr_deinit();
@@ -682,20 +670,21 @@ void display_qr(esp_qrcode_handle_t qrcode)
 {
     ESP_LOGI(TAG, "Display QR called");
 
-    const uint8_t x_border = 45;
-    const uint8_t y_border = 20; // 12;
-    const uint8_t magnify = 1;
-
     ssd1306_clear_screen(disp, 0);
     ssd1306_refresh_gram(disp);
 
     uint8_t size = esp_qrcode_get_size(qrcode);
 
-    if (((size * magnify) + y_border) > 63)
+    uint8_t magnify = SSD1306_HEIGHT / size;
+
+    if (magnify == 0)
     {
-        ESP_LOGE(TAG, "QR code is too big for display: size %d magnify %d border %d", size, magnify, y_border);
+        ESP_LOGE(TAG, "QR code is too big for display: size %d", size);
         return;
     }
+
+    const uint8_t x_border = (SSD1306_WIDTH - size) / 2;
+    const uint8_t y_border = (SSD1306_HEIGHT - size) / 2;
 
     for (uint8_t y = 0; y < size; y++) {
         for (uint8_t x = 0; x < size; x++) {
@@ -709,6 +698,59 @@ void display_qr(esp_qrcode_handle_t qrcode)
         }
     }
 
+    ssd1306_refresh_gram(disp);
+}
+
+void clear_oled_text(void) {
+    for (uint8_t y = 0; y < oled_y_chars; y++)
+        for (uint8_t x = 0; x < oled_x_chars; x++)
+            oled_text[x][y] = ' ';
+}
+
+void ssd1306_draw_58char(ssd1306_handle_t dev, uint8_t chXpos, uint8_t chYpos, uint8_t chChar)
+{
+    uint8_t i, j;
+    uint8_t chTemp = 0, chYpos0 = chYpos, chMode = 0;
+
+    for (i = 0; i < FONT_5X7_WIDTH; i++) {
+        chTemp = font5x7_data[(uint16_t)chChar * FONT_5X7_WIDTH + i];
+        for (j = 0; j < FONT_5X7_HEIGHT; j++) {
+            chMode = chTemp & 0x01 ? 1 : 0;
+            ssd1306_fill_point(dev, chXpos, chYpos, chMode);
+            chTemp >>= 1;
+            chYpos++;
+            }
+        chYpos = chYpos0;
+        chXpos++;
+    }
+}
+
+void print_oled(char *txt) {
+    // Scroll text up by one line
+    for (uint8_t y = 0; y < (oled_y_chars - 1); y++)
+        for (uint8_t x = 0; x < oled_x_chars; x++)
+            oled_text[x][y] = oled_text[x][y + 1];
+    uint8_t x;
+    // Add new text - wrapping not currently supported
+    char *ptr = txt;
+    for (x = 0; (x < strlen(txt)) && (x < oled_x_chars); x++) {
+        oled_text[x][oled_y_chars - 1] = *ptr;
+        ptr++;
+    }
+    // Wipe to end of line
+    for (; x < oled_x_chars; x++)
+        oled_text[x][oled_y_chars - 1] = ' ';
+    // Print the characters
+    ssd1306_clear_screen(disp, 0);
+    uint8_t ypos = 0;
+    for (uint8_t y = 0; y < oled_y_chars; y++) {
+        uint8_t xpos = 0;
+        for (uint8_t x = 0; x < oled_x_chars; x++) {
+            ssd1306_draw_58char(disp, xpos, ypos, oled_text[x][y]);
+            xpos += 5;
+        }
+        ypos += 8;
+    }
     ssd1306_refresh_gram(disp);
 }
 
