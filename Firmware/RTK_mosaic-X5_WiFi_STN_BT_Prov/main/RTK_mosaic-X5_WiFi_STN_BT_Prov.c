@@ -7,12 +7,9 @@
 
    Written for and tested on ESP IDF v5.1.1
 
-   The I2C OLED code is taken from:
-   https://github.com/espressif/esp-idf/tree/master/examples/peripherals/lcd/i2c_oled
    Needs:
-   idf.py add-dependency "lvgl/lvgl^8.3.9"
-   idf.py add-dependency "espressif/esp_lvgl_port^1.3.0"
    idf.py add-dependency "espressif/qrcode^0.1.0"
+   idf.py add-dependency "espressif/ssd1306^1.0.5"
 
    Based on:
 
@@ -58,13 +55,12 @@
 #include <wifi_provisioning/scheme_ble.h>
 #include "qrcode.h"
 
+#include "ssd1306.h"
+#include "ssd1306_fonts.h"
+#include "fnt_5x8.h"
+
 #include <esp_timer.h>
-#include <esp_lcd_panel_io.h>
-#include <esp_lcd_panel_ops.h>
 #include <driver/i2c.h>
-#include "lvgl.h"
-#include "esp_lvgl_port.h"
-#include "esp_lcd_panel_vendor.h"
 
 #include <lwip/inet.h>
 #include <lwip/ip4_addr.h>
@@ -114,19 +110,72 @@ const char MOSAIC_CMD_ETHERNET_ON_RESPONSE_START[] = "$R: seth";
 
 /* I2C OLED */
 #define I2C_HOST  0
-#define EXAMPLE_LCD_PIXEL_CLOCK_HZ    (100 * 1000)
-#define EXAMPLE_PIN_NUM_SDA           15
-#define EXAMPLE_PIN_NUM_SCL           14
-#define EXAMPLE_PIN_NUM_RST           -1
-#define EXAMPLE_I2C_HW_ADDR           0x3D
-#define EXAMPLE_LCD_H_RES             128
-#define EXAMPLE_LCD_V_RES             64
-#define EXAMPLE_LCD_CMD_BITS          8
-#define EXAMPLE_LCD_PARAM_BITS        8
+#define RTK_X5_LCD_PIXEL_CLOCK_HZ    (100 * 1000)
+#define RTK_X5_PIN_NUM_SDA           15
+#define RTK_X5_PIN_NUM_SCL           14
+#define RTK_X5_PIN_NUM_RST           -1
+#define RTK_X5_OLED_HW_ADDR          0x3D
 
-void lvgl_scroll_text(char *txt); // Header
-void lvgl_display_qr(esp_qrcode_handle_t qrcode); // Header
-lv_disp_t * disp = NULL;
+void print_text(char *txt); // Header
+void display_qr(esp_qrcode_handle_t qrcode); // Header
+static ssd1306_handle_t disp;
+
+const uint8_t oled_x_chars = 25; // 128 / 5
+const uint8_t oled_y_chars = 8;  // 64 / 8
+static char oled_text[25][8];
+void clear_oled_text(void) {
+    for (uint8_t y = 0; y < oled_y_chars; y++)
+        for (uint8_t x = 0; x < oled_x_chars; x++)
+            oled_text[x][y] = ' ';
+}
+void print_oled(const char *txt) {
+    // Scroll text up by one line
+    for (uint8_t y = 0; y < (oled_y_chars - 1); y++)
+        for (uint8_t x = 0; x < oled_x_chars; x++)
+            oled_text[x][y] = oled_text[x][y + 1];
+    uint8_t x;
+    // Add new text
+    for (x = 0; (x < strlen(txt)) && (x < oled_x_chars); x++)
+        oled_text[x][oled_y_chars - 1] = *txt++;
+    // Wipe to end of line
+    for (; x < oled_x_chars; x++)
+        oled_text[x][oled_y_chars - 1] = ' ';
+    // Print the characters
+    ssd1306_clear_screen(disp, 0);
+    uint8_t ypos = 0;
+    for (uint8_t y = 0; y < oled_y_chars; y++) {
+        uint8_t xpos = 0;
+        for (uint8_t x = 0; x < oled_x_chars; x++) {
+            ssd1306_draw_58char(disp, xpos, ypos, oled_text[x][y]);
+            xpos += 5;
+        }
+        ypos += 8;
+    }
+    ssd1306_refresh_gram(disp);
+}
+
+/* Extra SSD1306 commands - if needed */
+#define RTK_SSD1306_CMD_SET_MEMORY_ADDR_MODE  0x20
+#define RTK_SSD1306_CMD_SET_COLUMN_RANGE      0x21
+#define RTK_SSD1306_CMD_SET_PAGE_RANGE        0x22
+#define RTK_SSD1306_CMD_SET_START_LINE        0x40
+#define RTK_SSD1306_CMD_SET_CONTRAST_BANK0    0x81
+#define RTK_SSD1306_CMD_SET_CHARGE_PUMP       0x8D
+#define RTK_SSD1306_CMD_MIRROR_X_OFF          0xA0
+#define RTK_SSD1306_CMD_MIRROR_X_ON           0xA1
+#define RTK_SSD1306_CMD_DISPLAY_ALL_ON_RESUME 0xA4
+#define RTK_SSD1306_CMD_INVERT_OFF            0xA6
+#define RTK_SSD1306_CMD_INVERT_ON             0xA7
+#define RTK_SSD1306_CMD_MULTIPLEX_RATIO       0xA8
+#define RTK_SSD1306_CMD_DISP_OFF              0xAE
+#define RTK_SSD1306_CMD_DISP_ON               0xAF
+#define RTK_SSD1306_CMD_MIRROR_Y_OFF          0xC0
+#define RTK_SSD1306_CMD_MIRROR_Y_ON           0xC8
+#define RTK_SSD1306_CMD_DISPLAY_OFFSET        0xD3
+#define RTK_SSD1306_CMD_CLOCK_DIVIDER         0xD5
+#define RTK_SSD1306_CMD_PRE_CHARGE            0xD9
+#define RTK_SSD1306_CMD_COM_PINS              0xDA
+#define RTK_SSD1306_CMD_SET_VCOMH_DESELECT    0xDB
 
 
 /* PACKETS / DATA FORWARDING */
@@ -191,7 +240,7 @@ static void prov_print_qr(const char *name, const char *pop, const char *transpo
 
     // Show qrcode
     esp_qrcode_config_t cfg = ESP_QRCODE_CONFIG_DEFAULT();
-    cfg.display_func = &lvgl_display_qr;
+    cfg.display_func = &display_qr;
     esp_qrcode_generate(&cfg, payload);
 }
 
@@ -344,7 +393,6 @@ static void ip_event_handler(void* arg, esp_event_base_t event_base, int32_t eve
         ESP_ERROR_CHECK(esp_wifi_internal_reg_rxcb(ESP_IF_WIFI_STA, &pkt_wifi2eth));
 
         snprintf(sta_ip, sizeof(sta_ip), "%s", inet_ntoa(event->ip_info.ip));
-        lvgl_scroll_text(sta_ip);
     }
 }
 
@@ -597,102 +645,71 @@ static esp_err_t initialize_flow_control(void)
     return ESP_OK;
 }
 
-static esp_err_t initialize_i2c(void)
+static void initialize_i2c(void)
 {
     ESP_LOGI(TAG, "Initialize I2C bus");
+
     i2c_config_t i2c_conf = {
         .mode = I2C_MODE_MASTER,
-        .sda_io_num = EXAMPLE_PIN_NUM_SDA,
-        .scl_io_num = EXAMPLE_PIN_NUM_SCL,
+        .sda_io_num = RTK_X5_PIN_NUM_SDA,
+        .scl_io_num = RTK_X5_PIN_NUM_SCL,
         .sda_pullup_en = GPIO_PULLUP_ENABLE,
         .scl_pullup_en = GPIO_PULLUP_ENABLE,
-        .master.clk_speed = EXAMPLE_LCD_PIXEL_CLOCK_HZ,
+        .master.clk_speed = RTK_X5_LCD_PIXEL_CLOCK_HZ,
     };
-    esp_err_t ret = i2c_param_config(I2C_HOST, &i2c_conf);
-    ESP_ERROR_CHECK(ret);
-    ret = i2c_driver_install(I2C_HOST, I2C_MODE_MASTER, 0, 0, 0);
-    ESP_ERROR_CHECK(ret);
-    return ret;
+    ESP_ERROR_CHECK(i2c_param_config(I2C_HOST, &i2c_conf));
+    ESP_ERROR_CHECK(i2c_driver_install(I2C_HOST, I2C_MODE_MASTER, 0, 0, 0));
 }
 
-static esp_err_t initialize_oled(void)
+static void initialize_oled(void)
 {
-    ESP_LOGI(TAG, "Install panel IO");
-    esp_lcd_panel_io_handle_t io_handle = NULL;
-    esp_lcd_panel_io_i2c_config_t io_config = {
-        .dev_addr = EXAMPLE_I2C_HW_ADDR,
-        .control_phase_bytes = 1,                 // According to SSD1306 datasheet
-        .lcd_cmd_bits = EXAMPLE_LCD_CMD_BITS,     // According to SSD1306 datasheet
-        .lcd_param_bits = EXAMPLE_LCD_PARAM_BITS, // According to SSD1306 datasheet
-        .dc_bit_offset = 6,                       // According to SSD1306 datasheet
-    };
-    esp_err_t ret = esp_lcd_new_panel_io_i2c((esp_lcd_i2c_bus_handle_t)I2C_HOST, &io_config, &io_handle);
-    ESP_ERROR_CHECK(ret);
+    ESP_LOGI(TAG, "OLED initialization");
 
-    ESP_LOGI(TAG, "Install SSD1306 panel driver");
-    esp_lcd_panel_handle_t panel_handle = NULL;
-    esp_lcd_panel_dev_config_t panel_config = {
-        .bits_per_pixel = 1,
-        .reset_gpio_num = EXAMPLE_PIN_NUM_RST,
-    };
-    ESP_ERROR_CHECK(esp_lcd_new_panel_ssd1306(io_handle, &panel_config, &panel_handle));
+    disp = ssd1306_create(I2C_HOST, RTK_X5_OLED_HW_ADDR);
+    if (!disp)
+    {
+        ESP_LOGE(TAG, "SSD1306 create returned error");
+        return;
+    }
 
-    ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
-    ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
-    ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_handle, true));
+    ssd1306_refresh_gram(disp);
 
-    ESP_LOGI(TAG, "Initialize LVGL");
-    const lvgl_port_cfg_t lvgl_cfg = ESP_LVGL_PORT_INIT_CONFIG();
-    lvgl_port_init(&lvgl_cfg);
+    clear_oled_text();
+    print_oled("RTK mosaic-X5 starting");
+}
 
-    lvgl_port_display_cfg_t disp_cfg = {
-        .io_handle = io_handle,
-        .panel_handle = panel_handle,
-        .buffer_size = EXAMPLE_LCD_H_RES * EXAMPLE_LCD_V_RES,
-        .double_buffer = true,
-        .hres = EXAMPLE_LCD_H_RES,
-        .vres = EXAMPLE_LCD_V_RES,
-        .monochrome = true,
-        .rotation = {
-            .swap_xy = false,
-            .mirror_x = false,
-            .mirror_y = false,
+void display_qr(esp_qrcode_handle_t qrcode)
+{
+    ESP_LOGI(TAG, "Display QR called");
+
+    const uint8_t x_border = 45;
+    const uint8_t y_border = 20; // 12;
+    const uint8_t magnify = 1;
+
+    ssd1306_clear_screen(disp, 0);
+    ssd1306_refresh_gram(disp);
+
+    uint8_t size = esp_qrcode_get_size(qrcode);
+
+    if (((size * magnify) + y_border) > 63)
+    {
+        ESP_LOGE(TAG, "QR code is too big for display: size %d magnify %d border %d", size, magnify, y_border);
+        return;
+    }
+
+    for (uint8_t y = 0; y < size; y++) {
+        for (uint8_t x = 0; x < size; x++) {
+            if (esp_qrcode_get_module(qrcode, x, y)) {
+                for (uint8_t mx = 0; mx < magnify; mx++) {
+                    for (uint8_t my = 0; my < magnify; my++) {
+                        ssd1306_fill_point(disp, x_border + (x * magnify) + mx, y_border + (y * magnify) + my, 1);
+                    }
+                }
+            }
         }
-    };
-    disp = lvgl_port_add_disp(&disp_cfg);
+    }
 
-    /* Rotation of the screen */
-    lv_disp_set_rotation(disp, LV_DISP_ROT_180);
-
-    return ret;
-}
-
-void lvgl_scroll_text(char *txt)
-{
-    ESP_LOGI(TAG, "LVGL Scroll Text called: %s", txt);
-
-    lv_obj_t *scr = lv_disp_get_scr_act(disp);
-    lv_obj_t *label = lv_label_create(scr);
-    lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR); /* Circular scroll */
-    lv_label_set_text(label, txt);
-    lv_obj_set_width(label, disp->driver->hor_res);
-    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
-}
-
-void lvgl_display_qr(esp_qrcode_handle_t qrcode)
-{
-    ESP_LOGI(TAG, "LVGL Display QR called");
-
-    static lv_style_t style;
-    lv_style_init(&style);
-
-    lv_obj_t *scr = lv_disp_get_scr_act(disp);
-    lv_obj_t * obj = lv_img_create(scr);
-    lv_obj_add_style(obj, &style, 0);
-
-    lv_img_set_src(obj, qrcode);
-
-    lv_obj_center(obj);
+    ssd1306_refresh_gram(disp);
 }
 
 /* APPLICATION MAIN */
