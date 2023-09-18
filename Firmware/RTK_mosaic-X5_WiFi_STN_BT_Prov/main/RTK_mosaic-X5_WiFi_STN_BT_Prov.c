@@ -83,12 +83,12 @@ typedef struct {
     uint16_t length;
 } flow_control_msg_t;
 
-// qrcode generation resources
+/* qrcode generation resources */
 #define PROV_QR_VERSION         "v1"
 #define PROV_TRANSPORT_BLE      "ble"
 #define QRCODE_BASE_URL         "https://espressif.github.io/esp-jumpstart/qrcode.html"
 
-/* Kconfig */
+/* These could be in Kconfig, but who will want to change them? */
 #define CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM (1)
 #define CONFIG_RTK_X5_MOSAIC_UART_BUF_SIZE (1024)
 #define CONFIG_RTK_X5_WIFI_GPIO_PIN (12)
@@ -125,6 +125,7 @@ const uint8_t oled_y_chars = 8;  // 64 / 8
 static char oled_text[25][8];
 void clear_oled_text(void); // Header
 void print_oled(char *txt); // Header
+void display_IP(void); // Header
 
 /* Extra SSD1306 commands - if needed */
 #define RTK_SSD1306_CMD_SET_MEMORY_ADDR_MODE  0x20
@@ -190,31 +191,6 @@ static esp_err_t pkt_eth2wifi(esp_eth_handle_t eth_handle, uint8_t *buffer, uint
     return ret;
 }
 
-static void prov_print_qr(const char *name, const char *pop, const char *transport)
-{
-    if (!name || !transport) {
-        ESP_LOGW(TAG, "Cannot generate QR code payload. Data missing.");
-        return;
-    }
-
-    char payload[150] = {0};
-    if (pop) {
-        snprintf(payload, sizeof(payload), "{\"ver\":\"%s\",\"name\":\"%s\"" \
-                    ",\"pop\":\"%s\",\"transport\":\"%s\"}",
-                    PROV_QR_VERSION, name, pop, transport);
-    }
-    
-    else {
-        snprintf(payload, sizeof(payload), "{\"ver\":\"%s\",\"name\":\"%s\"" \
-                    ",\"transport\":\"%s\"}",
-                    PROV_QR_VERSION, name, transport);
-    }
-
-    // Show qrcode
-    esp_qrcode_config_t cfg = ESP_QRCODE_CONFIG_DEFAULT();
-    cfg.display_func = &display_qr;
-    esp_qrcode_generate(&cfg, payload);
-}
 
 static void eth2wifi_flow_control_task(void *args)
 {
@@ -361,10 +337,11 @@ static void ip_event_handler(void* arg, esp_event_base_t event_base, int32_t eve
         wifi_is_connected = true;
         gpio_set_level(CONFIG_RTK_X5_WIFI_GPIO_PIN, true);
 
+        snprintf(sta_ip, sizeof(sta_ip), "%s", inet_ntoa(event->ip_info.ip));
+        display_IP();
+
         // Start forwarding WiFi and Ethernet data
         ESP_ERROR_CHECK(esp_wifi_internal_reg_rxcb(ESP_IF_WIFI_STA, &pkt_wifi2eth));
-
-        snprintf(sta_ip, sizeof(sta_ip), "%s", inet_ntoa(event->ip_info.ip));
     }
 }
 
@@ -388,6 +365,36 @@ void check_provisioned(void)
 {
     ESP_ERROR_CHECK(wifi_prov_mgr_is_provisioned(&provisioned));
 }
+
+
+/* Generate QR code for BLE provisioning */
+
+static void prov_print_qr(const char *name, const char *pop, const char *transport)
+{
+    if (!name || !transport) {
+        ESP_LOGW(TAG, "Cannot generate QR code payload. Data missing.");
+        return;
+    }
+
+    char payload[150] = {0};
+    if (pop) {
+        snprintf(payload, sizeof(payload), "{\"ver\":\"%s\",\"name\":\"%s\"" \
+                    ",\"pop\":\"%s\",\"transport\":\"%s\"}",
+                    PROV_QR_VERSION, name, pop, transport);
+    }
+    
+    else {
+        snprintf(payload, sizeof(payload), "{\"ver\":\"%s\",\"name\":\"%s\"" \
+                    ",\"transport\":\"%s\"}",
+                    PROV_QR_VERSION, name, transport);
+    }
+
+    // Show qrcode
+    esp_qrcode_config_t cfg = ESP_QRCODE_CONFIG_DEFAULT();
+    cfg.display_func = &display_qr; // Display it on the OLED instead of the console
+    esp_qrcode_generate(&cfg, payload);
+}
+
 
 /* INITIALIZATION */
 
@@ -666,6 +673,9 @@ static void initialize_oled(void)
     print_oled("RTK mosaic-X5 starting");
 }
 
+
+/* Display the QR code on the OLED */
+
 void display_qr(esp_qrcode_handle_t qrcode)
 {
     ESP_LOGI(TAG, "Display QR called");
@@ -700,6 +710,8 @@ void display_qr(esp_qrcode_handle_t qrcode)
 
     ssd1306_refresh_gram(disp);
 }
+
+/* Very simple 8-line scrolling text console on the OLED */
 
 void clear_oled_text(void) {
     for (uint8_t y = 0; y < oled_y_chars; y++)
@@ -753,6 +765,54 @@ void print_oled(char *txt) {
     }
     ssd1306_refresh_gram(disp);
 }
+
+/* Display the WiFi STN IP Address using the 1608 font */
+
+void ssd1306_draw_1608char(ssd1306_handle_t dev, uint8_t chXpos, uint8_t chYpos, uint8_t chChar)
+{
+    uint8_t i, j;
+    uint8_t chTemp = 0, chYpos0 = chYpos, chMode = 0;
+
+    for (i = 0; i < 16; i++) {
+        chTemp = c_chFont1608[chChar - 0x20][i];
+        for (j = 0; j < 8; j++) {
+            chMode = chTemp & 0x80 ? 1 : 0;
+            ssd1306_fill_point(dev, chXpos, chYpos, chMode);
+            chTemp <<= 1;
+            chYpos++;
+            if ((chYpos - chYpos0) == 16) {
+                chYpos = chYpos0;
+                chXpos++;
+                break;
+            }
+        }
+    }
+}
+
+void display_IP(void)
+{
+    ssd1306_clear_screen(disp, 0);
+
+    uint8_t ypos = 8;
+    char my_IP[] = "IP Address:";
+    uint8_t xpos = (SSD1306_WIDTH - (strlen(my_IP) * 8)) / 2;
+    char *ptr = my_IP;
+    for (uint8_t x = 0; x < strlen(my_IP); x++) {
+        ssd1306_draw_1608char(disp, xpos, ypos, *ptr++);
+        xpos += 8;
+    }
+
+    ypos = 40;
+    xpos = (SSD1306_WIDTH - (strlen(sta_ip) * 8)) / 2;
+    ptr = sta_ip;
+    for (uint8_t x = 0; x < strlen(sta_ip); x++) {
+        ssd1306_draw_1608char(disp, xpos, ypos, *ptr++);
+        xpos += 8;
+    }
+    
+    ssd1306_refresh_gram(disp);
+}
+
 
 /* APPLICATION MAIN */
 
