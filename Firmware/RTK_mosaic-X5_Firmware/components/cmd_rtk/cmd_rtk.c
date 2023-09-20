@@ -85,7 +85,7 @@ esp_err_t get_config_param_str(char* name, char** param)
             err = nvs_get_str(nvs, name, *param, &len);
             ESP_LOGI(TAG, "get_config_param_str %s: %s", name, *param);
         } else {
-            ESP_LOGE(TAG, "get_config_param_str could not get str %s", name);
+            ESP_LOGW(TAG, "get_config_param_str str %s not found in nvs", name); // nvs may be empty
         }
         nvs_close(nvs);
     } else {
@@ -108,7 +108,7 @@ esp_err_t get_config_param_int(char* name, int** param)
             **param = (int)i32;
             ESP_LOGI(TAG, "get_config_param_int %s: %d", name, **param);
         } else {
-            ESP_LOGE(TAG, "get_config_param_int could not get i32 %s", name);
+            ESP_LOGW(TAG, "get_config_param_int i32 %s not found in nvs", name); // nvs may be empty
         }
         nvs_close(nvs);
     } else {
@@ -131,12 +131,12 @@ esp_err_t get_config_param_blob(char* name, uint8_t* blob,  size_t blob_len)
             err = nvs_get_blob(nvs, name, blob, &len);
             ESP_LOGI(TAG, "get_config_param_blob %s: %d", name, len);
         } else {
-            ESP_LOGE(TAG, "get_config_param_blob could not get blob %s", name);
+            ESP_LOGW(TAG, "get_config_param_blob blob %s not found in nvs", name); // nvs may be empty
             return err;
         }
         nvs_close(nvs);
     } else {
-        ESP_LOGE(TAG, "get_config_param_blob could not open nvs"); // nvs may not have been initialized
+        ESP_LOGW(TAG, "get_config_param_blob could not open nvs"); // nvs may not have been initialized
         return err;
     }
     return ESP_OK;
@@ -156,6 +156,8 @@ static struct {
     struct arg_int* remember;
     struct arg_str* ap_ssid;
     struct arg_str* ap_password;
+    struct arg_int* ap_channel;
+    struct arg_int* ap_connections;
     struct arg_end* end;
 } set_rtk_arg;
 
@@ -189,7 +191,8 @@ int set_rtk(int argc, char **argv)
             err = nvs_set_i32(nvs, "mode", set_rtk_arg.mode->ival[0]);
             if (err == ESP_OK) {
                 ESP_LOGI(TAG, "mode stored: %d", set_rtk_arg.mode->ival[0]);
-                param_set_value_int(&mode, set_rtk_arg.mode->ival[0]); // Update the global in RAM
+                // Don't update the global in RAM - it causes badness... The change will happen at the next restart.
+                //param_set_value_int(&mode, set_rtk_arg.mode->ival[0]);
             }
         }
     }
@@ -223,6 +226,32 @@ int set_rtk(int argc, char **argv)
         }
     }
 
+    if (set_rtk_arg.ap_channel->count > 0) {
+        if ((set_rtk_arg.ap_channel->ival[0] < 1) || (set_rtk_arg.ap_channel->ival[0] > 13)) {
+            printf("AP Channel must be 1 to 13\n");
+        }
+        else {
+            err = nvs_set_i32(nvs, "ap_channel", set_rtk_arg.ap_channel->ival[0]);
+            if (err == ESP_OK) {
+                ESP_LOGI(TAG, "ap_channel stored: %d", set_rtk_arg.ap_channel->ival[0]);
+                param_set_value_int(&remember, set_rtk_arg.ap_channel->ival[0]); // Update the global in RAM
+            }
+        }
+    }
+
+    if (set_rtk_arg.ap_connections->count > 0) {
+        if ((set_rtk_arg.ap_connections->ival[0] < 1) || (set_rtk_arg.ap_connections->ival[0] > 3)) {
+            printf("AP Connections must be 1 to 3\n");
+        }
+        else {
+            err = nvs_set_i32(nvs, "ap_connections", set_rtk_arg.ap_connections->ival[0]);
+            if (err == ESP_OK) {
+                ESP_LOGI(TAG, "ap_connections stored: %d", set_rtk_arg.ap_connections->ival[0]);
+                param_set_value_int(&remember, set_rtk_arg.ap_connections->ival[0]); // Update the global in RAM
+            }
+        }
+    }
+
     nvs_close(nvs);
     return err;
 }
@@ -237,6 +266,8 @@ static void register_set_rtk(void)
         "\n\t\t0 = disabled");
     set_rtk_arg.ap_ssid = arg_str0(NULL, "ap_ssid", NULL, "WiFi SSID for AP mode (mode 2)");
     set_rtk_arg.ap_password = arg_str0(NULL, "ap_password", NULL, "WiFi Password for AP mode (mode 2)");
+    set_rtk_arg.ap_channel = arg_int0(NULL, "ap_channel", NULL, "WiFi channel for AP mode (mode 2)");
+    set_rtk_arg.ap_connections = arg_int0(NULL, "ap_connections", NULL, "Maximum simultaneous connections for AP mode (mode 2)");
     set_rtk_arg.end = arg_end(2);
 
     const esp_console_cmd_t cmd = {
@@ -251,17 +282,29 @@ static void register_set_rtk(void)
 
 static int show(int argc, char **argv)
 {
-    if (mode != NULL)
-        printf("mode:        %d\n", *mode);
+    int *new_mode = NULL;
+    get_config_param_int("mode", &new_mode);
+    if (new_mode != NULL) // Use the (updated) value from nvs if available
+        printf("mode:           %d\n", *new_mode);
+    else if (mode != NULL)
+        printf("mode:           %d\n", *mode);
     else
-        printf("mode:        <not defined>");
+        printf("mode:           <not defined>");
     if (remember != NULL)
-        printf("remember:    %d\n", *remember);
+        printf("remember:       %d\n", *remember);
     else
-        printf("remember:    <not defined>");
-    printf("ap_ssid:     %s\n", ap_ssid != NULL ? ap_ssid : "<not defined>");
-    printf("ap_password: %s\n", ap_password != NULL ? ap_password : "<not defined>");
-    printf("log_level:   %s\n", esp_log_level != NULL ? esp_log_level : "<not defined>");
+        printf("remember:       <not defined>");
+    printf("ap_ssid:        %s\n", ap_ssid != NULL ? ap_ssid : "<not defined>");
+    printf("ap_password:    %s\n", ap_password != NULL ? ap_password : "<not defined>");
+    if (ap_channel != NULL)
+        printf("ap_channel:     %d\n", *ap_channel);
+    else
+        printf("mode:           <not defined>");
+    if (ap_connections != NULL)
+        printf("ap_connections: %d\n", *ap_connections);
+    else
+        printf("mode:           <not defined>");
+    printf("log_level:      %s\n", esp_log_level != NULL ? esp_log_level : "<not defined>");
 
     return 0;
 }
@@ -368,7 +411,7 @@ static int set_log_level(int argc, char **argv)
 
 static void register_log_level(void)
 {
-    log_level_args.level = arg_str1(NULL, NULL, "<none|error|warn|debug|verbose>", "Log level to set. Abbreviated words are accepted.");
+    log_level_args.level = arg_str1(NULL, NULL, "<none|error|warn|info|debug|verbose>", "Log level to set. Abbreviated words are accepted.");
     log_level_args.end = arg_end(2);
 
     const esp_console_cmd_t cmd = {

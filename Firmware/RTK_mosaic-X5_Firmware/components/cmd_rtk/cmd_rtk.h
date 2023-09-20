@@ -17,6 +17,8 @@ extern int* mode;
 extern int* remember;
 extern char* ap_ssid;
 extern char* ap_password;
+extern int* ap_channel;
+extern int* ap_connections;
 extern char* esp_log_level;
 
 void param_set_value_str(char **param, const char* val);
