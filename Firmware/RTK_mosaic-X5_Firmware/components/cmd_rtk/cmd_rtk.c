@@ -85,11 +85,11 @@ esp_err_t get_config_param_str(char* name, char** param)
             err = nvs_get_str(nvs, name, *param, &len);
             ESP_LOGI(TAG, "get_config_param_str %s: %s", name, *param);
         } else {
-            ESP_LOGW(TAG, "get_config_param_str str %s not found in nvs", name); // nvs may be empty
+            ESP_LOGW(TAG, "get_config_param_str str %s not found in nvs - it may not have been set", name); // nvs may be empty
         }
         nvs_close(nvs);
     } else {
-        ESP_LOGW(TAG, "get_config_param_str could not open nvs"); // nvs may not have been initialized
+        ESP_LOGW(TAG, "get_config_param_str could not open nvs - it may not have been initialized"); // nvs may not have been initialized
     }
     return err;
 }
@@ -108,11 +108,11 @@ esp_err_t get_config_param_int(char* name, int** param)
             **param = (int)i32;
             ESP_LOGI(TAG, "get_config_param_int %s: %d", name, **param);
         } else {
-            ESP_LOGW(TAG, "get_config_param_int i32 %s not found in nvs", name); // nvs may be empty
+            ESP_LOGW(TAG, "get_config_param_int i32 %s not found in nvs - it may not have been set", name); // nvs may be empty
         }
         nvs_close(nvs);
     } else {
-        ESP_LOGW(TAG, "get_config_param_int could not open nvs"); // nvs may not have been initialized
+        ESP_LOGW(TAG, "get_config_param_int could not open nvs - it may not have been initialized"); // nvs may not have been initialized
     }
     return err;
 }
@@ -131,12 +131,12 @@ esp_err_t get_config_param_blob(char* name, uint8_t* blob,  size_t blob_len)
             err = nvs_get_blob(nvs, name, blob, &len);
             ESP_LOGI(TAG, "get_config_param_blob %s: %d", name, len);
         } else {
-            ESP_LOGW(TAG, "get_config_param_blob blob %s not found in nvs", name); // nvs may be empty
+            ESP_LOGW(TAG, "get_config_param_blob blob %s not found in nvs - it may not have been set", name); // nvs may be empty
             return err;
         }
         nvs_close(nvs);
     } else {
-        ESP_LOGW(TAG, "get_config_param_blob could not open nvs"); // nvs may not have been initialized
+        ESP_LOGW(TAG, "get_config_param_blob could not open nvs - it may not have been initialized"); // nvs may not have been initialized
         return err;
     }
     return ESP_OK;
@@ -153,11 +153,8 @@ void register_rtk(void)
 /** Arguments used by 'set_rtk' function */
 static struct {
     struct arg_int* mode;
-    struct arg_int* remember;
     struct arg_str* ap_ssid;
     struct arg_str* ap_password;
-    struct arg_int* ap_channel;
-    struct arg_int* ap_connections;
     struct arg_end* end;
 } set_rtk_arg;
 
@@ -184,8 +181,8 @@ int set_rtk(int argc, char **argv)
     }
 
     if (set_rtk_arg.mode->count > 0) {
-        if ((set_rtk_arg.mode->ival[0] < 1) || (set_rtk_arg.mode->ival[0] > 3)) {
-            printf("mode must be 1-3: 1 = WiFi STN with BLE provisioning; 2 = WiFi AP; 3 = OLED terminal only\n");
+        if ((set_rtk_arg.mode->ival[0] < 1) || (set_rtk_arg.mode->ival[0] > 2)) {
+            printf("mode must be 1 or 2: 1 = WiFi Bridge; 2 = mosaic-X5 COM4 UART NMEA GGA display\n");
         }
         else {
             err = nvs_set_i32(nvs, "mode", set_rtk_arg.mode->ival[0]);
@@ -193,19 +190,6 @@ int set_rtk(int argc, char **argv)
                 ESP_LOGI(TAG, "mode stored: %d", set_rtk_arg.mode->ival[0]);
                 // Don't update the global in RAM - it causes badness... The change will happen at the next restart.
                 //param_set_value_int(&mode, set_rtk_arg.mode->ival[0]);
-            }
-        }
-    }
-
-    if (set_rtk_arg.remember->count > 0) {
-        if ((set_rtk_arg.remember->ival[0] < 0) || (set_rtk_arg.remember->ival[0] > 1)) {
-            printf("remember BLE provisioning must be 0 or 1: 1 = enabled; 0 = disabled\n");
-        }
-        else {
-            err = nvs_set_i32(nvs, "remember", set_rtk_arg.remember->ival[0]);
-            if (err == ESP_OK) {
-                ESP_LOGI(TAG, "remember stored: %d", set_rtk_arg.remember->ival[0]);
-                param_set_value_int(&remember, set_rtk_arg.remember->ival[0]); // Update the global in RAM
             }
         }
     }
@@ -226,53 +210,21 @@ int set_rtk(int argc, char **argv)
         }
     }
 
-    if (set_rtk_arg.ap_channel->count > 0) {
-        if ((set_rtk_arg.ap_channel->ival[0] < 1) || (set_rtk_arg.ap_channel->ival[0] > 13)) {
-            printf("AP Channel must be 1 to 13\n");
-        }
-        else {
-            err = nvs_set_i32(nvs, "ap_channel", set_rtk_arg.ap_channel->ival[0]);
-            if (err == ESP_OK) {
-                ESP_LOGI(TAG, "ap_channel stored: %d", set_rtk_arg.ap_channel->ival[0]);
-                param_set_value_int(&remember, set_rtk_arg.ap_channel->ival[0]); // Update the global in RAM
-            }
-        }
-    }
-
-    if (set_rtk_arg.ap_connections->count > 0) {
-        if ((set_rtk_arg.ap_connections->ival[0] < 1) || (set_rtk_arg.ap_connections->ival[0] > 3)) {
-            printf("AP Connections must be 1 to 3\n");
-        }
-        else {
-            err = nvs_set_i32(nvs, "ap_connections", set_rtk_arg.ap_connections->ival[0]);
-            if (err == ESP_OK) {
-                ESP_LOGI(TAG, "ap_connections stored: %d", set_rtk_arg.ap_connections->ival[0]);
-                param_set_value_int(&remember, set_rtk_arg.ap_connections->ival[0]); // Update the global in RAM
-            }
-        }
-    }
-
     nvs_close(nvs);
     return err;
 }
 
 static void register_set_rtk(void)
 {
-    set_rtk_arg.mode = arg_int0(NULL, "mode", NULL, "\n\tmode: 1 = WiFi STN with BLE provisioning (default)"
-        "\n\t      2 = WiFi AP using ap_ssid and ap_password"
-        "\n\t      3 = OLED terminal only");
-    set_rtk_arg.remember = arg_int0(NULL, "remember", NULL, "\n\tremember BLE provisioning in STN mode (mode 1):"
-        "\n\t\t1 = enabled"
-        "\n\t\t0 = disabled");
-    set_rtk_arg.ap_ssid = arg_str0(NULL, "ap_ssid", NULL, "WiFi SSID for AP mode (mode 2)");
-    set_rtk_arg.ap_password = arg_str0(NULL, "ap_password", NULL, "WiFi Password for AP mode (mode 2)");
-    set_rtk_arg.ap_channel = arg_int0(NULL, "ap_channel", NULL, "WiFi channel for AP mode (mode 2)");
-    set_rtk_arg.ap_connections = arg_int0(NULL, "ap_connections", NULL, "Maximum simultaneous connections for AP mode (mode 2)");
+    set_rtk_arg.mode = arg_int0(NULL, "mode", NULL, "\n\tmode: 1 = WiFi Bridge (default)"
+        "\n\t      2 = mosaic-X5 COM4 UART NMEA GGA display");
+    set_rtk_arg.ap_ssid = arg_str0(NULL, "ap_ssid", NULL, "WiFi SSID");
+    set_rtk_arg.ap_password = arg_str0(NULL, "ap_password", NULL, "WiFi Password");
     set_rtk_arg.end = arg_end(2);
 
     const esp_console_cmd_t cmd = {
         .command = "set_rtk",
-        .help = "Set the RT mosaic-X5 operating mode\nplus the WiFi SSID and password for AP mode",
+        .help = "Set the RT mosaic-X5 operating mode\nplus the WiFi SSID and password",
         .hint = NULL,
         .func = &set_rtk,
         .argtable = &set_rtk_arg
@@ -290,20 +242,8 @@ static int show(int argc, char **argv)
         printf("mode:           %d\n", *mode);
     else
         printf("mode:           <not defined>");
-    if (remember != NULL)
-        printf("remember:       %d\n", *remember);
-    else
-        printf("remember:       <not defined>");
     printf("ap_ssid:        %s\n", ap_ssid != NULL ? ap_ssid : "<not defined>");
     printf("ap_password:    %s\n", ap_password != NULL ? ap_password : "<not defined>");
-    if (ap_channel != NULL)
-        printf("ap_channel:     %d\n", *ap_channel);
-    else
-        printf("mode:           <not defined>");
-    if (ap_connections != NULL)
-        printf("ap_connections: %d\n", *ap_connections);
-    else
-        printf("mode:           <not defined>");
     printf("log_level:      %s\n", esp_log_level != NULL ? esp_log_level : "<not defined>");
 
     return 0;
