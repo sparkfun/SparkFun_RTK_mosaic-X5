@@ -233,6 +233,14 @@ static esp_err_t pkt_eth2wifi(esp_eth_handle_t eth_handle, uint8_t *buffer, uint
         .packet = buffer,
         .length = len
     };
+
+    if(!eth_mac_is_set) {
+        memcpy(eth_mac, (uint8_t*)msg.packet + 6, sizeof(eth_mac));
+        eth_mac_is_set = true;
+        ESP_LOGI(TAG, "Extracted MAC address from packet: %02X:%02X:%02X:%02X:%02X:%02X", 
+            eth_mac[0], eth_mac[1], eth_mac[2], eth_mac[3], eth_mac[4], eth_mac[5]);
+    }
+
     if (xQueueSend(flow_control_queue, &msg, pdMS_TO_TICKS(CONFIG_RTK_X5_FLOW_CONTROL_QUEUE_TIMEOUT_MS)) != pdTRUE) {
         ESP_LOGE(TAG, "Send flow control message failed or timeout");
         free(buffer);
@@ -258,13 +266,6 @@ static void eth2wifi_flow_control_task(void *args)
             timeout = 0;
             if (msg.length) {
                 do {
-                    if(!eth_mac_is_set) {
-                        memcpy(eth_mac, (uint8_t*)msg.packet + 6, sizeof(eth_mac));
-                        eth_mac_is_set = true;
-                        ESP_LOGI(TAG, "Extracted MAC address from packet: %02X:%02X:%02X:%02X:%02X:%02X", 
-                            eth_mac[0], eth_mac[1], eth_mac[2], eth_mac[3], eth_mac[4], eth_mac[5]);
-                    }
-
                     vTaskDelay(pdMS_TO_TICKS(timeout));
                     timeout += 2;
                     if(wifi_is_connected) {
@@ -359,6 +360,9 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t e
 
             case WIFI_PROV_END:
                 ESP_LOGI(TAG, "Provisioning ended. Manager deinit");
+
+                vTaskDelay(10);
+
                 // De-initialize manager
                 wifi_prov_mgr_deinit();
                 break;
@@ -420,6 +424,11 @@ static void ip_event_handler(void* arg, esp_event_base_t event_base, int32_t eve
 
         // Start forwarding WiFi and Ethernet data
         ESP_ERROR_CHECK(esp_wifi_internal_reg_rxcb(ESP_IF_WIFI_STA, &pkt_wifi2eth));
+    }
+
+    else if (event_base == IP_EVENT && event_id == IP_EVENT_ETH_GOT_IP) {
+        ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
+        ESP_LOGI(TAG, "Ethernet connected with IP Address:" IPSTR, IP2STR(&event->ip_info.ip));
     }
 }
 
@@ -625,34 +634,38 @@ static void initialize_ethernet(void)
     // Initialize TCP/IP network interface (should be called only once in application)
     ESP_ERROR_CHECK(esp_netif_init());
 
-/*
-    // DHCP example from https://github.com/espressif/esp-idf/issues/4086#issuecomment-559530841
 
-    #define IP4TOADDR(a,b,c,d) esp_netif_htonl(ESP_IP4TOUINT32(a, b, c, d))
-    const esp_netif_ip_info_t my_ap_ip = {
-            .ip = { .addr = IP4TOADDR( 192, 168, 1, 1) },
-            .gw = { .addr = IP4TOADDR( 192, 168, 1, 1) },
-            .netmask = { .addr = IP4TOADDR( 255, 255, 255, 0) },
+    esp_netif_t *eth_netif = NULL;
 
-    };
+    if (*mode == 2)
+    {
+        // DHCP example from https://github.com/espressif/esp-idf/issues/4086#issuecomment-559530841
 
-    const esp_netif_inherent_config_t eth_behav_cfg = {
-            .get_ip_event = IP_EVENT_ETH_GOT_IP,
-            .lost_ip_event = 0,
-            .flags = ESP_NETIF_DHCP_SERVER | ESP_NETIF_FLAG_AUTOUP,
-            .ip_info = (esp_netif_ip_info_t*)& my_ap_ip,
-            .if_key = "ETH_DHCPS",
-            .if_desc = "eth",
-            .route_prio = 50
-    };
+        #define IP4TOADDR(a,b,c,d) esp_netif_htonl(ESP_IP4TOUINT32(a, b, c, d))
+        const esp_netif_ip_info_t my_ap_ip = {
+                .ip = { .addr = IP4TOADDR( 192, 168, 1, 1) },
+                .gw = { .addr = IP4TOADDR( 192, 168, 1, 1) },
+                .netmask = { .addr = IP4TOADDR( 255, 255, 255, 0) },
 
-    esp_netif_config_t eth_as_dhcps_cfg = {
-        .base = &eth_behav_cfg,
-        .stack = ESP_NETIF_NETSTACK_DEFAULT_ETH
-    };
+        };
 
-    esp_netif_t *eth_netif = esp_netif_new(&eth_as_dhcps_cfg);
-*/
+        const esp_netif_inherent_config_t eth_behav_cfg = {
+                .get_ip_event = IP_EVENT_ETH_GOT_IP,
+                .lost_ip_event = 0,
+                .flags = ESP_NETIF_DHCP_SERVER | ESP_NETIF_FLAG_AUTOUP,
+                .ip_info = (esp_netif_ip_info_t*)& my_ap_ip,
+                .if_key = "ETH_DHCPS",
+                .if_desc = "eth",
+                .route_prio = 50
+        };
+
+        esp_netif_config_t eth_as_dhcps_cfg = {
+            .base = &eth_behav_cfg,
+            .stack = ESP_NETIF_NETSTACK_DEFAULT_ETH
+        };
+
+        eth_netif = esp_netif_new(&eth_as_dhcps_cfg);
+    }
 
 
     eth_mac_config_t mac_config = ETH_MAC_DEFAULT_CONFIG();
@@ -674,15 +687,20 @@ static void initialize_ethernet(void)
 
     ESP_ERROR_CHECK(esp_eth_update_input_path(s_eth_handle, &pkt_eth2wifi, NULL));
 
+    // Enable promiscuous mode so we can read every packet
     bool eth_promiscuous = true;
     ESP_ERROR_CHECK(esp_eth_ioctl(s_eth_handle, ETH_CMD_S_PROMISCUOUS, &eth_promiscuous));
 
     bool auto_negociate = true;
     ESP_ERROR_CHECK(esp_eth_ioctl(s_eth_handle, ETH_CMD_S_AUTONEGO, &auto_negociate));
 
+    if (*mode == 2)
+    {
+        ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_ETH_GOT_IP, &ip_event_handler, NULL));
 
-    /* attach Ethernet driver to TCP/IP stack */
-    //ESP_ERROR_CHECK(esp_netif_attach(eth_netif, esp_eth_new_netif_glue(s_eth_handle)));
+        /* attach Ethernet driver to TCP/IP stack */
+        ESP_ERROR_CHECK(esp_netif_attach(eth_netif, esp_eth_new_netif_glue(s_eth_handle)));
+    }
 
     /*
     It is recommended to fully initialize the Ethernet driver and network interface before registering
@@ -739,18 +757,24 @@ static void initialize_ethernet(void)
     // Wait for Mosaic to report ist MAC address
     ESP_LOGI(TAG, "Waiting for Mosaic Ethernet MAC address");
     print_oled("Waiting for MAC address");
-    while(!eth_mac_is_set) {
+    int count = 0;
+    while(!eth_mac_is_set && count < 300) {
         vTaskDelay(10);
+        count++;
     }
 
-    // Mask ESP MAC address with Mosaic one
-    ESP_ERROR_CHECK(esp_base_mac_addr_set(eth_mac));
-    ESP_LOGI(TAG, "ESP base MAC address set as: %02X:%02X:%02X:%02X:%02X:%02X", 
-        eth_mac[0], eth_mac[1], eth_mac[2], eth_mac[3], eth_mac[4], eth_mac[5]);
     char mac_str[25];
     snprintf(mac_str, sizeof(mac_str), "MAC: %02X:%02X:%02X:%02X:%02X:%02X",
         eth_mac[0], eth_mac[1], eth_mac[2], eth_mac[3], eth_mac[4], eth_mac[5]);
+    ESP_LOGI(TAG, "Got Mosaic %s", mac_str);
     print_oled(mac_str);
+
+    if (*mode == 1)
+    {
+        // Mask ESP MAC address with Mosaic one - but only in Mode 1
+        ESP_ERROR_CHECK(esp_base_mac_addr_set(eth_mac));
+        ESP_LOGI(TAG, "ESP base MAC address set to mosaic-X5 address");
+    }
 }
 
 static void initialize_wifi(void)
@@ -837,15 +861,23 @@ static void initialize_wifi(void)
     {
         // Mode 2 - WiFi AP
         ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, wifi_event_handler, NULL));
+        
         wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
         ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+        ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
         ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
+
+        esp_netif_t *esp_netif_ap = esp_netif_create_default_wifi_ap();
+
         wifi_config_t wifi_config = {
             .ap = {
                 .ssid_len = strlen(ap_ssid),
                 .max_connection = *ap_connections,
                 .authmode = WIFI_AUTH_WPA_WPA2_PSK,
                 .channel = *ap_channel,
+                .pmf_cfg = {
+                    .required = false,
+                },
             },
         };
         strlcpy((char*)wifi_config.ap.ssid, ap_ssid, strlen(ap_ssid));
@@ -855,9 +887,14 @@ static void initialize_wifi(void)
         else {
             strlcpy((char*)wifi_config.ap.password, ap_password, strlen(ap_password));
         }
-        ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
+
         ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &wifi_config));
         ESP_ERROR_CHECK(esp_wifi_start());
+
+        /* Enable napt on the AP netif */
+        // if (esp_netif_napt_enable(esp_netif_ap) != ESP_OK) {
+        //     ESP_LOGE(TAG, "NAPT not enabled on the netif: %p", esp_netif_ap);
+        // }
     }
 }
 
