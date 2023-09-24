@@ -384,42 +384,59 @@ static void x5_uart_task(void *args)
         // Request NMEA GGA. The response is $GPGGA,,,,,*CS\r\n$R: enoc,COM4,GGA\r\n  NMEAOnce, COM4, GGA\r\nCOM4>
         ESP_ERROR_CHECK(uart_flush_input(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM));
         uart_write_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, (char*)MOSAIC_CMD_OUTPUT_GGA_ONCE, strlen(MOSAIC_CMD_OUTPUT_GGA_ONCE));
+        memset(uart_buf, 0, CONFIG_RTK_X5_MOSAIC_UART_BUF_SIZE);
         len = uart_read_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, uart_buf, CONFIG_RTK_X5_MOSAIC_UART_BUF_SIZE, pdMS_TO_TICKS(700)); // Force a timeout
         if(len <= 0 || strncmp((char *)uart_buf, MOSAIC_CMD_OUTPUT_GGA_ONCE_RESPONSE_START, strlen(MOSAIC_CMD_OUTPUT_GGA_ONCE_RESPONSE_START)) != 0) {
             ESP_LOGE(TAG, "Output NMEA GGA once failed");
         }
         else {
+#define tokenValid ((*token != ',') && (*token != '*') && (*token != 0))
+#define remainderValid ((*remainder != ',') && (*remainder != '*') && (*remainder != 0))
             char *remainder = (char *)uart_buf;
             char *token = strtok_r(remainder, ",", &remainder); // $GPGGA
+            if (!remainderValid) continue;
             char line[25];
             token = strtok_r(remainder, ",", &remainder); // Time
-            snprintf(line, sizeof(line), "Time: %s", token);
+            if (!remainderValid) continue;
+            snprintf(line, sizeof(line), "Time: %s", tokenValid ? token : "?");
             print_oled(line);
             token = strtok_r(remainder, ",", &remainder); // Latitude
-            snprintf(line, sizeof(line), "Lat:  %s %c", token, *remainder);
+            if (!remainderValid) continue;
+            snprintf(line, sizeof(line), "Lat:  %s %c", tokenValid ? token : "?", remainderValid ? *remainder : '?');
             print_oled(line);
             token = strtok_r(remainder, ",", &remainder); // N/S
+            if (!remainderValid) continue;
             token = strtok_r(remainder, ",", &remainder); // Longitude
-            snprintf(line, sizeof(line), "Long: %s %c", token, *remainder);
+            if (!remainderValid) continue;
+            snprintf(line, sizeof(line), "Long: %s %c", tokenValid ? token : "?", remainderValid ? *remainder : '?');
             print_oled(line);
             token = strtok_r(remainder, ",", &remainder); // E/W
+            if (!remainderValid) continue;
             token = strtok_r(remainder, ",", &remainder); // Fix
-            snprintf(line, sizeof(line), "Fix:  %s", token);
+            if (!remainderValid) continue;
+            snprintf(line, sizeof(line), "Fix:  %s", tokenValid ? token : "?");
             print_oled(line);
             token = strtok_r(remainder, ",", &remainder); // Num Sat
-            snprintf(line, sizeof(line), "Sat:  %s", token);
+            if (!remainderValid) continue;
+            snprintf(line, sizeof(line), "Sat:  %s", tokenValid ? token : "?");
             print_oled(line);
             token = strtok_r(remainder, ",", &remainder); // HDOP
-            snprintf(line, sizeof(line), "HDOP: %s", token);
+            if (!remainderValid) continue;
+            snprintf(line, sizeof(line), "HDOP: %s", tokenValid ? token : "?");
             print_oled(line);
             token = strtok_r(remainder, ",", &remainder); // Alt (Elev)
-            snprintf(line, sizeof(line), "Alt:  %s %c", token, *remainder);
+            if (!remainderValid) continue;
+            snprintf(line, sizeof(line), "Alt:  %s %c", tokenValid ? token : "?", remainderValid ? *remainder : '?');
             print_oled(line);
             token = strtok_r(remainder, ",", &remainder); // M
+            if (!remainderValid) continue;
             token = strtok_r(remainder, ",", &remainder); // Geoid
+            if (!remainderValid) continue;
             token = strtok_r(remainder, ",", &remainder); // M
+            if (!remainderValid) continue;
             token = strtok_r(remainder, ",", &remainder); // Age
-            snprintf(line, sizeof(line), "Age:  %s", token);
+            if (!remainderValid) continue;
+            snprintf(line, sizeof(line), "Age:  %s", tokenValid ? token : "?");
             print_oled(line);
         }
     }
@@ -938,11 +955,11 @@ void app_main(void)
     }
     get_config_param_str("ap_ssid", &ap_ssid);
     if (ap_ssid == NULL) {
-        param_set_value_str(&ap_ssid, "SPARKFUN_TEST");
+        param_set_value_str(&ap_ssid, "sparkfun-guest");
     }
     get_config_param_str("ap_password", &ap_password);
     if (ap_password == NULL) {
-        param_set_value_str(&ap_password, "SPARKFUN1234");
+        param_set_value_str(&ap_password, "");
     }
     get_config_param_str("log_level", &esp_log_level);
     if (esp_log_level == NULL) {

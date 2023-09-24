@@ -41,6 +41,9 @@ void param_set_value_int(int **param, const int val) {
 
 void preprocess_string(char* str)
 {
+    if (str == NULL)
+        return;
+
     char *p, *q;
 
     for (p = q = str; *p != 0; p++)
@@ -219,12 +222,13 @@ static void register_set_rtk(void)
     set_rtk_arg.mode = arg_int0(NULL, "mode", NULL, "\n\tmode: 1 = WiFi Bridge (default)"
         "\n\t      2 = mosaic-X5 COM4 UART NMEA GGA display");
     set_rtk_arg.ap_ssid = arg_str0(NULL, "ap_ssid", NULL, "WiFi SSID");
-    set_rtk_arg.ap_password = arg_str0(NULL, "ap_password", NULL, "WiFi Password");
+    set_rtk_arg.ap_password = arg_str0(NULL, "ap_password", NULL, "WiFi Password"
+        "\n\tTo set a NULL password, use: --ap_password=%00");
     set_rtk_arg.end = arg_end(2);
 
     const esp_console_cmd_t cmd = {
         .command = "set_rtk",
-        .help = "Set the RT mosaic-X5 operating mode\nplus the WiFi SSID and password",
+        .help = "Set the RT mosaic-X5 operating mode\n  plus the WiFi SSID and password",
         .hint = NULL,
         .func = &set_rtk,
         .argtable = &set_rtk_arg
