@@ -100,8 +100,8 @@ static bool wifi_is_connected = false;
 static char sta_ip[16];
 
 int* mode = NULL;
-char* ap_ssid = NULL;
-char* ap_password = NULL;
+char* ssid = NULL;
+char* password = NULL;
 char* esp_log_level = NULL;
 
 typedef struct {
@@ -130,6 +130,8 @@ const char MOSAIC_CMD_ETHERNET_ON[] = "seth,on\n\r";
 const char MOSAIC_CMD_ETHERNET_ON_RESPONSE_START[] = "$R: seth";
 const char MOSAIC_CMD_OUTPUT_GGA_ONCE[] = "enoc,COM4,GGA\n\r";
 const char MOSAIC_CMD_OUTPUT_GGA_ONCE_RESPONSE_START[] = "$GPGGA,";
+const char MOSAIC_CMD_IP_STATUS_ONCE[] = "esoc,COM4,IPStatus\n\r";
+const char MOSAIC_CMD_IP_STATUS_ONCE_RESPONSE_START[] = "$@";
 
 /* I2C OLED */
 #define I2C_HOST  0
@@ -147,6 +149,8 @@ const uint8_t oled_y_chars = 8;  // 64 / 8
 static char oled_text[25][8];
 void clear_oled_text(void); // Header
 void print_oled(char *txt); // Header
+void set_oled(char *txt); // Header
+void update_oled(void); // Header
 void display_IP(void); // Header
 
 /* Extra SSD1306 commands - if needed */
@@ -385,60 +389,87 @@ static void x5_uart_task(void *args)
         ESP_ERROR_CHECK(uart_flush_input(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM));
         uart_write_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, (char*)MOSAIC_CMD_OUTPUT_GGA_ONCE, strlen(MOSAIC_CMD_OUTPUT_GGA_ONCE));
         memset(uart_buf, 0, CONFIG_RTK_X5_MOSAIC_UART_BUF_SIZE);
-        len = uart_read_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, uart_buf, CONFIG_RTK_X5_MOSAIC_UART_BUF_SIZE, pdMS_TO_TICKS(700)); // Force a timeout
+        len = uart_read_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, uart_buf, CONFIG_RTK_X5_MOSAIC_UART_BUF_SIZE, pdMS_TO_TICKS(750)); // Force a timeout
         if(len <= 0 || strncmp((char *)uart_buf, MOSAIC_CMD_OUTPUT_GGA_ONCE_RESPONSE_START, strlen(MOSAIC_CMD_OUTPUT_GGA_ONCE_RESPONSE_START)) != 0) {
             ESP_LOGE(TAG, "Output NMEA GGA once failed");
         }
         else {
+            for (;;) {
 #define tokenValid ((*token != ',') && (*token != '*') && (*token != 0))
 #define remainderValid ((*remainder != ',') && (*remainder != '*') && (*remainder != 0))
-            char *remainder = (char *)uart_buf;
-            char *token = strtok_r(remainder, ",", &remainder); // $GPGGA
-            if (!remainderValid) continue;
-            char line[25];
-            token = strtok_r(remainder, ",", &remainder); // Time
-            if (!remainderValid) continue;
-            snprintf(line, sizeof(line), "Time: %s", tokenValid ? token : "?");
-            print_oled(line);
-            token = strtok_r(remainder, ",", &remainder); // Latitude
-            if (!remainderValid) continue;
-            snprintf(line, sizeof(line), "Lat:  %s %c", tokenValid ? token : "?", remainderValid ? *remainder : '?');
-            print_oled(line);
-            token = strtok_r(remainder, ",", &remainder); // N/S
-            if (!remainderValid) continue;
-            token = strtok_r(remainder, ",", &remainder); // Longitude
-            if (!remainderValid) continue;
-            snprintf(line, sizeof(line), "Long: %s %c", tokenValid ? token : "?", remainderValid ? *remainder : '?');
-            print_oled(line);
-            token = strtok_r(remainder, ",", &remainder); // E/W
-            if (!remainderValid) continue;
-            token = strtok_r(remainder, ",", &remainder); // Fix
-            if (!remainderValid) continue;
-            snprintf(line, sizeof(line), "Fix:  %s", tokenValid ? token : "?");
-            print_oled(line);
-            token = strtok_r(remainder, ",", &remainder); // Num Sat
-            if (!remainderValid) continue;
-            snprintf(line, sizeof(line), "Sat:  %s", tokenValid ? token : "?");
-            print_oled(line);
-            token = strtok_r(remainder, ",", &remainder); // HDOP
-            if (!remainderValid) continue;
-            snprintf(line, sizeof(line), "HDOP: %s", tokenValid ? token : "?");
-            print_oled(line);
-            token = strtok_r(remainder, ",", &remainder); // Alt (Elev)
-            if (!remainderValid) continue;
-            snprintf(line, sizeof(line), "Alt:  %s %c", tokenValid ? token : "?", remainderValid ? *remainder : '?');
-            print_oled(line);
-            token = strtok_r(remainder, ",", &remainder); // M
-            if (!remainderValid) continue;
-            token = strtok_r(remainder, ",", &remainder); // Geoid
-            if (!remainderValid) continue;
-            token = strtok_r(remainder, ",", &remainder); // M
-            if (!remainderValid) continue;
-            token = strtok_r(remainder, ",", &remainder); // Age
-            if (!remainderValid) continue;
-            snprintf(line, sizeof(line), "Age:  %s", tokenValid ? token : "?");
-            print_oled(line);
+                char *remainder = (char *)uart_buf;
+                char *token = strtok_r(remainder, ",", &remainder); // $GPGGA
+                if (!remainderValid) break;
+                char line[25];
+                token = strtok_r(remainder, ",", &remainder); // Time
+                if (!remainderValid) break;
+                snprintf(line, sizeof(line), "Time: %s", tokenValid ? token : "?");
+                set_oled(line);
+                token = strtok_r(remainder, ",", &remainder); // Latitude
+                if (!remainderValid) break;
+                snprintf(line, sizeof(line), "Lat:  %s %c", tokenValid ? token : "?", remainderValid ? *remainder : '?');
+                set_oled(line);
+                token = strtok_r(remainder, ",", &remainder); // N/S
+                if (!remainderValid) break;
+                token = strtok_r(remainder, ",", &remainder); // Longitude
+                if (!remainderValid) break;
+                snprintf(line, sizeof(line), "Long: %s %c", tokenValid ? token : "?", remainderValid ? *remainder : '?');
+                set_oled(line);
+                token = strtok_r(remainder, ",", &remainder); // E/W
+                if (!remainderValid) break;
+                token = strtok_r(remainder, ",", &remainder); // Fix
+                if (!remainderValid) break;
+                snprintf(line, sizeof(line), "Fix:  %s", tokenValid ? token : "?");
+                set_oled(line);
+                token = strtok_r(remainder, ",", &remainder); // Num Sat
+                if (!remainderValid) break;
+                snprintf(line, sizeof(line), "Sat:  %s", tokenValid ? token : "?");
+                set_oled(line);
+                token = strtok_r(remainder, ",", &remainder); // HDOP
+                if (!remainderValid) break;
+                snprintf(line, sizeof(line), "HDOP: %s", tokenValid ? token : "?");
+                set_oled(line);
+                token = strtok_r(remainder, ",", &remainder); // Alt (Elev)
+                if (!remainderValid) break;
+                snprintf(line, sizeof(line), "Alt:  %s %c", tokenValid ? token : "?", remainderValid ? *remainder : '?');
+                set_oled(line);
+                /*
+                token = strtok_r(remainder, ",", &remainder); // M
+                if (!remainderValid) break;
+                token = strtok_r(remainder, ",", &remainder); // Geoid
+                if (!remainderValid) break;
+                token = strtok_r(remainder, ",", &remainder); // M
+                if (!remainderValid) break;
+                token = strtok_r(remainder, ",", &remainder); // Age
+                if (!remainderValid) break;
+                snprintf(line, sizeof(line), "Age:  %s", tokenValid ? token : "?");
+                set_oled(line);
+                */
+                break;
+            }
         }
+
+        // Request IP Status so we can extract the IP Address
+        ESP_ERROR_CHECK(uart_flush_input(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM));
+        uart_write_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, (char*)MOSAIC_CMD_IP_STATUS_ONCE, strlen(MOSAIC_CMD_IP_STATUS_ONCE));
+        memset(uart_buf, 0, CONFIG_RTK_X5_MOSAIC_UART_BUF_SIZE);
+        len = uart_read_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, uart_buf, CONFIG_RTK_X5_MOSAIC_UART_BUF_SIZE, pdMS_TO_TICKS(750)); // Force a timeout
+        if(len <= 0 || strncmp((char *)uart_buf, MOSAIC_CMD_IP_STATUS_ONCE_RESPONSE_START, strlen(MOSAIC_CMD_IP_STATUS_ONCE_RESPONSE_START)) != 0) {
+            ESP_LOGE(TAG, "Output IPStatus once failed");
+        }
+        else {
+            // Check the ID bytes = 4058 (0xFDA)
+            if ((uart_buf[4] != 0xDA) || ((uart_buf[5] & 0x1F) != 0x0F))
+                ESP_LOGE(TAG, "IPStatus ID not recognised");
+            else {
+                char line[25];
+                // IPAddress (4 bytes) are in bytes 32-35
+                snprintf(line, sizeof(line), "IP:   %d.%d.%d.%d", uart_buf[32], uart_buf[33], uart_buf[34], uart_buf[35]);
+                set_oled(line);
+            }
+        }
+        
+        update_oled();
     }
 
     free(uart_buf);
@@ -612,10 +643,10 @@ static void initialize_wifi(void)
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
-    ESP_LOGI(TAG, "Starting WiFi STA. Connecting to %s", ap_ssid);
+    ESP_LOGI(TAG, "Starting WiFi STA. Connecting to %s", ssid);
     print_oled("Starting WiFi STA");
     print_oled("Connecting to:");
-    print_oled(ap_ssid);
+    print_oled(ssid);
 
     // Create WiFi config
     wifi_config_t wifi_config = {
@@ -624,8 +655,8 @@ static void initialize_wifi(void)
             .password = "",
         },
     };
-    strlcpy((char*)wifi_config.sta.ssid, ap_ssid, sizeof(wifi_config.sta.ssid));
-    strlcpy((char*)wifi_config.sta.password, ap_password, sizeof(wifi_config.sta.password));
+    strlcpy((char*)wifi_config.sta.ssid, ssid, sizeof(wifi_config.sta.ssid));
+    strlcpy((char*)wifi_config.sta.password, password, sizeof(wifi_config.sta.password));
 
     // Start WiFi station
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
@@ -855,6 +886,11 @@ void ssd1306_draw_58char(ssd1306_handle_t dev, uint8_t chXpos, uint8_t chYpos, u
 }
 
 void print_oled(char *txt) {
+    set_oled(txt);
+    update_oled();
+}
+
+void set_oled(char *txt) {
     // Scroll text up by one line
     for (uint8_t y = 0; y < (oled_y_chars - 1); y++)
         for (uint8_t x = 0; x < oled_x_chars; x++)
@@ -869,6 +905,9 @@ void print_oled(char *txt) {
     // Wipe to end of line
     for (; x < oled_x_chars; x++)
         oled_text[x][oled_y_chars - 1] = ' ';
+}
+
+void update_oled(void) {
     // Print the characters
     ssd1306_clear_screen(disp, 0);
     uint8_t ypos = 0;
@@ -953,13 +992,13 @@ void app_main(void)
     if (mode == NULL) {
         param_set_value_int(&mode, 1); // Default to WiFi Bridge
     }
-    get_config_param_str("ap_ssid", &ap_ssid);
-    if (ap_ssid == NULL) {
-        param_set_value_str(&ap_ssid, "sparkfun-guest");
+    get_config_param_str("ssid", &ssid);
+    if (ssid == NULL) {
+        param_set_value_str(&ssid, "sparkfun-guest");
     }
-    get_config_param_str("ap_password", &ap_password);
-    if (ap_password == NULL) {
-        param_set_value_str(&ap_password, "");
+    get_config_param_str("password", &password);
+    if (password == NULL) {
+        param_set_value_str(&password, "");
     }
     get_config_param_str("log_level", &esp_log_level);
     if (esp_log_level == NULL) {

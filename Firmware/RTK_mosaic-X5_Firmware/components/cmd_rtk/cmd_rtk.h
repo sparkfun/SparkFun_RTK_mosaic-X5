@@ -14,8 +14,8 @@ extern "C" {
 
 // Globals
 extern int* mode;
-extern char* ap_ssid;
-extern char* ap_password;
+extern char* ssid;
+extern char* password;
 extern char* esp_log_level;
 
 void param_set_value_str(char **param, const char* val);

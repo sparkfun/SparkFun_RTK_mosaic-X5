@@ -156,8 +156,8 @@ void register_rtk(void)
 /** Arguments used by 'set_rtk' function */
 static struct {
     struct arg_int* mode;
-    struct arg_str* ap_ssid;
-    struct arg_str* ap_password;
+    struct arg_str* ssid;
+    struct arg_str* password;
     struct arg_end* end;
 } set_rtk_arg;
 
@@ -173,10 +173,10 @@ int set_rtk(int argc, char **argv)
         return 1;
     }
 
-    if (set_rtk_arg.ap_ssid->count > 0)
-        preprocess_string((char*)set_rtk_arg.ap_ssid->sval[0]);
-    if (set_rtk_arg.ap_password->count > 0)
-        preprocess_string((char*)set_rtk_arg.ap_password->sval[0]);
+    if (set_rtk_arg.ssid->count > 0)
+        preprocess_string((char*)set_rtk_arg.ssid->sval[0]);
+    if (set_rtk_arg.password->count > 0)
+        preprocess_string((char*)set_rtk_arg.password->sval[0]);
 
     err = nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
     if (err != ESP_OK) {
@@ -197,19 +197,19 @@ int set_rtk(int argc, char **argv)
         }
     }
 
-    if (set_rtk_arg.ap_ssid->count > 0) {
-        err = nvs_set_str(nvs, "ap_ssid", set_rtk_arg.ap_ssid->sval[0]);
+    if (set_rtk_arg.ssid->count > 0) {
+        err = nvs_set_str(nvs, "ssid", set_rtk_arg.ssid->sval[0]);
         if (err == ESP_OK) {
-            ESP_LOGI(TAG, "ap_ssid stored: %s", set_rtk_arg.ap_ssid->sval[0]);
-            param_set_value_str(&ap_ssid, (const char *)set_rtk_arg.ap_ssid->sval[0]); // Update the global in RAM
+            ESP_LOGI(TAG, "ssid stored: %s", set_rtk_arg.ssid->sval[0]);
+            param_set_value_str(&ssid, (const char *)set_rtk_arg.ssid->sval[0]); // Update the global in RAM
         }
     }
 
-    if (set_rtk_arg.ap_password->count > 0) {
-        err = nvs_set_str(nvs, "ap_password", set_rtk_arg.ap_password->sval[0]);
+    if (set_rtk_arg.password->count > 0) {
+        err = nvs_set_str(nvs, "password", set_rtk_arg.password->sval[0]);
         if (err == ESP_OK) {            
-            ESP_LOGI(TAG, "ap_password stored: %s", set_rtk_arg.ap_password->sval[0]);
-            param_set_value_str(&ap_password, (const char *)set_rtk_arg.ap_password->sval[0]); // Update the global in RAM
+            ESP_LOGI(TAG, "password stored: %s", set_rtk_arg.password->sval[0]);
+            param_set_value_str(&password, (const char *)set_rtk_arg.password->sval[0]); // Update the global in RAM
         }
     }
 
@@ -221,14 +221,14 @@ static void register_set_rtk(void)
 {
     set_rtk_arg.mode = arg_int0(NULL, "mode", NULL, "\n\tmode: 1 = WiFi Bridge (default)"
         "\n\t      2 = mosaic-X5 COM4 UART NMEA GGA display");
-    set_rtk_arg.ap_ssid = arg_str0(NULL, "ap_ssid", NULL, "WiFi SSID");
-    set_rtk_arg.ap_password = arg_str0(NULL, "ap_password", NULL, "WiFi Password"
-        "\n\tTo set a NULL password, use: --ap_password=%00");
+    set_rtk_arg.ssid = arg_str0(NULL, "ssid", NULL, "WiFi SSID");
+    set_rtk_arg.password = arg_str0(NULL, "password", NULL, "WiFi Password"
+        "\n\tTo set a NULL password, use: --password=%00");
     set_rtk_arg.end = arg_end(2);
 
     const esp_console_cmd_t cmd = {
         .command = "set_rtk",
-        .help = "Set the RT mosaic-X5 operating mode\n  plus the WiFi SSID and password",
+        .help = "Set the RT mosaic-X5 operating mode plus the WiFi SSID and password",
         .hint = NULL,
         .func = &set_rtk,
         .argtable = &set_rtk_arg
@@ -241,14 +241,14 @@ static int show(int argc, char **argv)
     int *new_mode = NULL;
     get_config_param_int("mode", &new_mode);
     if (new_mode != NULL) // Use the (updated) value from nvs if available
-        printf("mode:           %d\n", *new_mode);
+        printf("mode:      %d\n", *new_mode);
     else if (mode != NULL)
-        printf("mode:           %d\n", *mode);
+        printf("mode:      %d\n", *mode);
     else
         printf("mode:           <not defined>");
-    printf("ap_ssid:        %s\n", ap_ssid != NULL ? ap_ssid : "<not defined>");
-    printf("ap_password:    %s\n", ap_password != NULL ? ap_password : "<not defined>");
-    printf("log_level:      %s\n", esp_log_level != NULL ? esp_log_level : "<not defined>");
+    printf("ssid:      %s\n", ssid != NULL ? ssid : "<not defined>");
+    printf("password:  %s\n", password != NULL ? password : "<not defined>");
+    printf("log_level: %s\n", esp_log_level != NULL ? esp_log_level : "<not defined>");
 
     return 0;
 }
