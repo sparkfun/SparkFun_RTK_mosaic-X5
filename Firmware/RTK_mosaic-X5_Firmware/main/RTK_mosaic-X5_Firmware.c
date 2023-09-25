@@ -843,7 +843,7 @@ static void start_console(void)
         prompt = PROMPT_STR "> ";
     }
 
-    BaseType_t ret = xTaskCreate(console_task, "console_task", 2048, NULL, (tskIDLE_PRIORITY + 2), NULL);
+    BaseType_t ret = xTaskCreate(console_task, "console_task", 4096, NULL, (tskIDLE_PRIORITY + 2), NULL);
     if (ret != pdTRUE) {
         ESP_LOGE(TAG, "Create console task failed");
     }
