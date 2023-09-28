@@ -153,7 +153,7 @@ void register_rtk(void)
     register_log_level();
 }
 
-/** Arguments used by 'set_rtk' function */
+/** Arguments used by 'set' function */
 static struct {
     struct arg_int* mode;
     struct arg_str* ssid;
@@ -161,7 +161,7 @@ static struct {
     struct arg_end* end;
 } set_rtk_arg;
 
-/* 'set_rtk' command */
+/* 'set' command */
 int set_rtk(int argc, char **argv)
 {
     esp_err_t err;
@@ -185,13 +185,13 @@ int set_rtk(int argc, char **argv)
 
     if (set_rtk_arg.mode->count > 0) {
         if ((set_rtk_arg.mode->ival[0] < 1) || (set_rtk_arg.mode->ival[0] > 2)) {
-            printf("mode must be 1 or 2: 1 = WiFi Bridge; 2 = mosaic-X5 COM4 UART NMEA GGA display\n");
+            printf("mode must be 1 or 2: 1 = Ethernet; 2 = WiFi\n");
         }
         else {
             err = nvs_set_i32(nvs, "mode", set_rtk_arg.mode->ival[0]);
             if (err == ESP_OK) {
                 ESP_LOGI(TAG, "mode stored: %d", set_rtk_arg.mode->ival[0]);
-                // Don't update the global in RAM - it causes badness... The change will happen at the next restart.
+                // Don't update the global in RAM - it could cause badness... The change will happen at the next restart.
                 //param_set_value_int(&mode, set_rtk_arg.mode->ival[0]);
             }
         }
@@ -219,15 +219,15 @@ int set_rtk(int argc, char **argv)
 
 static void register_set_rtk(void)
 {
-    set_rtk_arg.mode = arg_int0(NULL, "mode", NULL, "\n\tmode: 1 = WiFi Bridge (default)"
-        "\n\t      2 = mosaic-X5 COM4 UART NMEA GGA display");
-    set_rtk_arg.ssid = arg_str0(NULL, "ssid", NULL, "WiFi SSID");
-    set_rtk_arg.password = arg_str0(NULL, "password", NULL, "WiFi Password"
+    set_rtk_arg.mode = arg_int0("m", "mode", NULL, "\n\tmode: 1 = Ethernet (default)"
+        "\n\t      2 = WiFi");
+    set_rtk_arg.ssid = arg_str0("s", "ssid", NULL, "WiFi SSID");
+    set_rtk_arg.password = arg_str0("p", "password", NULL, "WiFi Password"
         "\n\tTo set a NULL password, use: --password=%00");
     set_rtk_arg.end = arg_end(2);
 
     const esp_console_cmd_t cmd = {
-        .command = "set_rtk",
+        .command = "set",
         .help = "Set the RT mosaic-X5 operating mode plus the WiFi SSID and password",
         .hint = NULL,
         .func = &set_rtk,
@@ -241,11 +241,11 @@ static int show(int argc, char **argv)
     int *new_mode = NULL;
     get_config_param_int("mode", &new_mode);
     if (new_mode != NULL) // Use the (updated) value from nvs if available
-        printf("mode:      %d\n", *new_mode);
+        printf("mode:      %d (%s)\n", *new_mode, *new_mode == 1 ? "Ethernet" : "WiFi");
     else if (mode != NULL)
-        printf("mode:      %d\n", *mode);
+        printf("mode:      %d (%s)\n", *mode, *mode == 1 ? "Ethernet" : "WiFi");
     else
-        printf("mode:           <not defined>");
+        printf("mode:      <not defined>");
     printf("ssid:      %s\n", ssid != NULL ? ssid : "<not defined>");
     printf("password:  %s\n", password != NULL ? password : "<not defined>");
     printf("log_level: %s\n", esp_log_level != NULL ? esp_log_level : "<not defined>");

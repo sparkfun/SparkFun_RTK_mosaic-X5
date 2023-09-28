@@ -3,20 +3,39 @@
    SparkFun RTK mosaic-X5 Firmware
 
    The firmware has two modes:
-   1 - WiFi Bridge (sets X5 Ethernet to DHCP) (default)
-   2 - mosaic-X5 UART COM4 NMEA GGA display (does not modify the Ethernet settings)
+   1 - Ethernet (default)
+   2 - WiFi
 
-   Mode 1 allows you to connect the mosaic-X5 to your WiFi network. The SSID and password
-   are set using the USB serial console. You need to link the mosaic-X5 and ESP32 Ethernet
-   ports using a standard Ethernet patch cable. The ESP32 becomes a Ethernet to WiFi bridge.
-   Once the ESP32 is connected, you can view the X5's web page at the address shown.
+   In Mode 1, the RTK mosaic-X5 should be connected directly to an Ethernet network. Use a
+   standard Ethernet patch cable to connect the MOSAIC ETHERNET port to your network.
+   The RTK mosaic-X5 supports Power-over-Ethernet (PoE), allowing it to be powered by the
+   network too.
+   In Mode 1 the ESP32 requests NMEA GGA information from the X5 over COM4. It displays the
+   GGA data (time and position) on the built-in OLED display, together with the X5's Ethernet
+   IP address. Open a web browser and navigate to that address to view the X5's internal web page.
+   In Mode 1 the ESP32 does not modify the X5's Ethernet settings, allowing you to change and
+   save the settings without them being overwritten.
 
-   Mode 2 displays simple NMEA GGA information from the X5 COM4 UART on the OLED display.
-   If you want to connect the mosaic-X5 directly to your Ethernet network, select Mode 2.
-   This avoids the X5 Ethernet being set to DHCP, so you can apply your own settings.
+   Mode 2 allows you to connect the RTK mosaic-X5 to your WiFi network. Link the MOSAIC and
+   ESP32 ETHERNET ports using a standard Ethernet patch cable. The ESP32 acts as a WiFi Bridge,
+   forwarding all traffic from X5 Ethernet to WiFi and vice versa.
+   The WiFi SSID and password are set using the CONFIG ESP32 USB serial console.
+   Once the ESP32 is connected to WiFi, you can view the X5's internal web page at the IP address
+   shown on the OLED display.
+   In Mode 2 the ESP32 sets the X5 Ethernet interface to DHCP, so that the X5 can request an IP
+   address from the WiFi router transparently through the ESP32.
 
-   The mode can be changed via the ESP32 USB serial console. Connect to the Config ESP32
-   port and open a terminal at 115200 baud to see the console. Type help for help.
+   The mode can be changed via the CONFIG ESP32 USB serial console. Connect to the CONFIG ESP32
+   USB port and open a terminal at 115200 baud to see the console. Type help for help.
+
+   E.g.:
+
+   help
+   show
+   set --mode=2 --ssid=SSID --password=PASSWORD
+   restart
+
+   ---
 
    Written for and tested on ESP IDF v5.1.1
 
@@ -97,7 +116,6 @@ static QueueHandle_t flow_control_queue = NULL;
 static uint8_t eth_mac[6];
 static bool eth_mac_is_set = false;
 static bool wifi_is_connected = false;
-static char sta_ip[16];
 
 int* mode = NULL;
 char* ssid = NULL;
@@ -139,7 +157,7 @@ const char MOSAIC_CMD_IP_STATUS_ONCE_RESPONSE_START[] = "$@";
 #define RTK_X5_PIN_NUM_SDA           15
 #define RTK_X5_PIN_NUM_SCL           14
 #define RTK_X5_PIN_NUM_RST           -1
-#define RTK_X5_OLED_HW_ADDR          0x3C
+#define RTK_X5_OLED_HW_ADDR          0x3D
 
 void print_text(char *txt); // Header
 static ssd1306_handle_t disp;
@@ -329,9 +347,6 @@ static void ip_event_handler(void* arg, esp_event_base_t event_base, int32_t eve
         wifi_is_connected = true;
         gpio_set_level(CONFIG_RTK_X5_WIFI_GPIO_PIN, true);
 
-        snprintf(sta_ip, sizeof(sta_ip), "%s", inet_ntoa(event->ip_info.ip));
-        display_IP();
-
         // Start forwarding WiFi and Ethernet data
         ESP_ERROR_CHECK(esp_wifi_internal_reg_rxcb(ESP_IF_WIFI_STA, &pkt_wifi2eth));
     }
@@ -391,7 +406,7 @@ static void x5_uart_task(void *args)
         memset(uart_buf, 0, CONFIG_RTK_X5_MOSAIC_UART_BUF_SIZE);
         len = uart_read_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, uart_buf, CONFIG_RTK_X5_MOSAIC_UART_BUF_SIZE, pdMS_TO_TICKS(750)); // Force a timeout
         if(len <= 0 || strncmp((char *)uart_buf, MOSAIC_CMD_OUTPUT_GGA_ONCE_RESPONSE_START, strlen(MOSAIC_CMD_OUTPUT_GGA_ONCE_RESPONSE_START)) != 0) {
-            ESP_LOGE(TAG, "Output NMEA GGA once failed");
+            ESP_LOGW(TAG, "Output NMEA GGA once failed");
         }
         else {
             for (;;) {
@@ -419,7 +434,45 @@ static void x5_uart_task(void *args)
                 if (!remainderValid) break;
                 token = strtok_r(remainder, ",", &remainder); // Fix
                 if (!remainderValid) break;
-                snprintf(line, sizeof(line), "Fix:  %s", tokenValid ? token : "?");
+                char fixType[17] = { 0 };
+                if (tokenValid) {
+                    switch (*token) {
+                        default:
+                            snprintf(fixType, sizeof(fixType), "Unknown");
+                            break;
+                        case '0':
+                            snprintf(fixType, sizeof(fixType), "Invalid");
+                            break;
+                        case '1':
+                            snprintf(fixType, sizeof(fixType), "Autonomous");
+                            break;
+                        case '2':
+                            snprintf(fixType, sizeof(fixType), "Differential");
+                            break;
+                        case '3':
+                            snprintf(fixType, sizeof(fixType), "PPS");
+                            break;
+                        case '4':
+                            snprintf(fixType, sizeof(fixType), "RTK Fixed");
+                            break;
+                        case '5':
+                            snprintf(fixType, sizeof(fixType), "RTK Float");
+                            break;
+                        case '6':
+                            snprintf(fixType, sizeof(fixType), "Dead Reckoning");
+                            break;
+                        case '7':
+                            snprintf(fixType, sizeof(fixType), "Manual");
+                            break;
+                        case '8':
+                            snprintf(fixType, sizeof(fixType), "Simulation");
+                            break;
+                        case '9':
+                            snprintf(fixType, sizeof(fixType), "WAAS");
+                            break;
+                    }
+                }
+                snprintf(line, sizeof(line), "Fix:  %s %s", tokenValid ? token : "?", fixType);
                 set_oled(line);
                 token = strtok_r(remainder, ",", &remainder); // Num Sat
                 if (!remainderValid) break;
@@ -455,7 +508,7 @@ static void x5_uart_task(void *args)
         memset(uart_buf, 0, CONFIG_RTK_X5_MOSAIC_UART_BUF_SIZE);
         len = uart_read_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, uart_buf, CONFIG_RTK_X5_MOSAIC_UART_BUF_SIZE, pdMS_TO_TICKS(750)); // Force a timeout
         if(len <= 0 || strncmp((char *)uart_buf, MOSAIC_CMD_IP_STATUS_ONCE_RESPONSE_START, strlen(MOSAIC_CMD_IP_STATUS_ONCE_RESPONSE_START)) != 0) {
-            ESP_LOGE(TAG, "Output IPStatus once failed");
+            ESP_LOGW(TAG, "Output IPStatus once failed");
         }
         else {
             // Check the ID bytes = 4058 (0xFDA)
@@ -824,9 +877,9 @@ static void start_console(void)
      */
     prompt = LOG_COLOR_I PROMPT_STR "> " LOG_RESET_COLOR;
 
-    printf("\n"
-           "RTK mosaic-X5 ESP-IDF console.\n"
-           "\nType 'help' to get the list of commands.\n"
+    printf("\nRTK mosaic-X5 ESP-IDF console\n");
+    printf(VERSION);
+    printf("\n\nType 'help' to get the list of commands.\n"
            "Use UP/DOWN arrows to navigate through command history.\n"
            "Press TAB when typing command name to auto-complete.\n\n");
 
@@ -945,30 +998,6 @@ void ssd1306_draw_1608char(ssd1306_handle_t dev, uint8_t chXpos, uint8_t chYpos,
     }
 }
 
-void display_IP(void)
-{
-    ssd1306_clear_screen(disp, 0);
-
-    uint8_t ypos = 8;
-    char my_IP[] = "IP Address:";
-    uint8_t xpos = (SSD1306_WIDTH - (strlen(my_IP) * 8)) / 2;
-    char *ptr = my_IP;
-    for (uint8_t x = 0; x < strlen(my_IP); x++) {
-        ssd1306_draw_1608char(disp, xpos, ypos, *ptr++);
-        xpos += 8;
-    }
-
-    ypos = 40;
-    xpos = (SSD1306_WIDTH - (strlen(sta_ip) * 8)) / 2;
-    ptr = sta_ip;
-    for (uint8_t x = 0; x < strlen(sta_ip); x++) {
-        ssd1306_draw_1608char(disp, xpos, ypos, *ptr++);
-        xpos += 8;
-    }
-    
-    ssd1306_refresh_gram(disp);
-}
-
 
 /* APPLICATION MAIN */
 
@@ -990,15 +1019,16 @@ void app_main(void)
     /* Default settings */
     get_config_param_int("mode", &mode);
     if (mode == NULL) {
-        param_set_value_int(&mode, 1); // Default to WiFi Bridge
+        // Default to NMEA GGA display - leave X5 Ethernet configuration unchanged
+        param_set_value_int(&mode, 1);
     }
     get_config_param_str("ssid", &ssid);
     if (ssid == NULL) {
-        param_set_value_str(&ssid, "sparkfun-guest");
+        param_set_value_str(&ssid, "sparkfun-guest"); // Default SSID
     }
     get_config_param_str("password", &password);
     if (password == NULL) {
-        param_set_value_str(&password, "");
+        param_set_value_str(&password, ""); // Default password
     }
     get_config_param_str("log_level", &esp_log_level);
     if (esp_log_level == NULL) {
@@ -1018,24 +1048,21 @@ void app_main(void)
     // Start the console
     start_console();
 
-
     // Check the mode
     if (*mode == 1) {
-        ESP_LOGI(TAG, "Firmware is in mode 1: WiFi Bridge");
-        print_oled("Firmware is in mode 1");
-        print_oled(" WiFi Bridge");
+        ESP_LOGI(TAG, "Firmware is in mode 1: Ethernet");
+        print_oled("Mode 1: Ethernet");
+    }
+    else
+    {
+        ESP_LOGI(TAG, "Firmware is in mode 2: WiFi");
+        print_oled("Mode 2: WiFi");
 
         // Initialize flow control and main peripherals
         ESP_ERROR_CHECK(initialize_flow_control());
         initialize_ethernet();
         initialize_wifi();
     }
-    else
-    {
-        ESP_LOGI(TAG, "Firmware is in mode 2: mosaic-X5 UART terminal");
-        print_oled("Firmware is in mode 2");
-        print_oled(" mosaic-X5 COM4 UART GGA");
 
-        initialize_x5_uart_task(); // In mode 3, run the simple uart-oled-terminal task
-    }
+    initialize_x5_uart_task();
 }
