@@ -165,6 +165,8 @@ static ssd1306_handle_t disp;
 const uint8_t oled_x_chars = 25; // 128 / 5
 const uint8_t oled_y_chars = 8;  // 64 / 8
 static char oled_text[25][8];
+static bool oled_ready = false;
+void x5_not_ready(void); // Header
 void clear_oled_text(void); // Header
 void print_oled(char *txt); // Header
 void set_oled(char *txt); // Header
@@ -299,7 +301,10 @@ static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t ev
         break;
 
     case ETHERNET_EVENT_DISCONNECTED:
-        ESP_LOGE(TAG, "Ethernet Link Down");
+        ESP_LOGE(TAG, "Ethernet Link Down. Restarting...");
+        print_oled("Ethernet Link Down");
+        print_oled("Restarting...");
+        vTaskDelay(pdMS_TO_TICKS(2000));
         esp_restart();
         break;
 
@@ -532,6 +537,15 @@ static void x5_uart_task(void *args)
 
 /* INITIALIZATION */
 
+void x5_not_ready(void)
+{
+    ESP_LOGE(TAG, "mosaic-X5 not ready. Restarting...");
+    print_oled("mosaic-X5 not ready");
+    print_oled("Restarting...");
+    vTaskDelay(pdMS_TO_TICKS(2000));
+    esp_restart();
+}
+
 static void initialize_leds(void)
 {
     // Configure WiFi LED GPIO
@@ -635,7 +649,7 @@ static void initialize_ethernet(void)
     len = uart_read_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, uart_buf, strlen(MOSAIC_CMD_ETHERNET_OFF_RESPONSE_START), 500);
     if(len <= 0 || strncmp((char *)uart_buf, MOSAIC_CMD_ETHERNET_OFF_RESPONSE_START, strlen(MOSAIC_CMD_ETHERNET_OFF_RESPONSE_START)) != 0) {
         ESP_LOGE(TAG, "Disable Mosaic Ethernet response failed");
-        esp_restart();
+        x5_not_ready();
     }
 
     // Set Mosaic Ethernet DHCP with MTU
@@ -644,7 +658,7 @@ static void initialize_ethernet(void)
     len = uart_read_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, uart_buf, strlen(MOSAIC_CMD_IP_DHCP_RESPONSE_START), 500);
     if(len <= 0 || strncmp((char *)uart_buf, MOSAIC_CMD_IP_DHCP_RESPONSE_START, strlen(MOSAIC_CMD_IP_DHCP_RESPONSE_START)) != 0) {
         ESP_LOGE(TAG, "Set Mosaic Ethernet DHCP response failed");
-        esp_restart();
+        x5_not_ready();
     }
 
     // Start ESP ethernet
@@ -656,7 +670,7 @@ static void initialize_ethernet(void)
     len = uart_read_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, uart_buf, strlen(MOSAIC_CMD_ETHERNET_ON_RESPONSE_START), 500);
     if(len <= 0 || strncmp((char *)uart_buf, MOSAIC_CMD_ETHERNET_ON_RESPONSE_START, strlen(MOSAIC_CMD_ETHERNET_ON_RESPONSE_START)) != 0) {
         ESP_LOGE(TAG, "Enable Mosaic Ethernet response failed");
-        esp_restart();
+        x5_not_ready();
     }
 
     // Ethernet configured, temporary buffer no longer needed
@@ -765,6 +779,8 @@ static void initialize_oled(void)
         ESP_LOGE(TAG, "SSD1306 create returned error");
         return;
     }
+
+    oled_ready = true;
 
     ssd1306_refresh_gram(disp);
 
@@ -961,43 +977,24 @@ void set_oled(char *txt) {
 }
 
 void update_oled(void) {
-    // Print the characters
-    ssd1306_clear_screen(disp, 0);
-    uint8_t ypos = 0;
-    for (uint8_t y = 0; y < oled_y_chars; y++) {
-        uint8_t xpos = 0;
-        for (uint8_t x = 0; x < oled_x_chars; x++) {
-            ssd1306_draw_58char(disp, xpos, ypos, oled_text[x][y]);
-            xpos += 5;
-        }
-        ypos += 8;
-    }
-    ssd1306_refresh_gram(disp);
-}
-
-/* Display the WiFi STN IP Address using the 1608 font */
-
-void ssd1306_draw_1608char(ssd1306_handle_t dev, uint8_t chXpos, uint8_t chYpos, uint8_t chChar)
-{
-    uint8_t i, j;
-    uint8_t chTemp = 0, chYpos0 = chYpos, chMode = 0;
-
-    for (i = 0; i < 16; i++) {
-        chTemp = c_chFont1608[chChar - 0x20][i];
-        for (j = 0; j < 8; j++) {
-            chMode = chTemp & 0x80 ? 1 : 0;
-            ssd1306_fill_point(dev, chXpos, chYpos, chMode);
-            chTemp <<= 1;
-            chYpos++;
-            if ((chYpos - chYpos0) == 16) {
-                chYpos = chYpos0;
-                chXpos++;
-                break;
+    if (oled_ready) {
+        // Print the characters
+        ssd1306_clear_screen(disp, 0);
+        uint8_t ypos = 0;
+        for (uint8_t y = 0; y < oled_y_chars; y++) {
+            uint8_t xpos = 0;
+            for (uint8_t x = 0; x < oled_x_chars; x++) {
+                ssd1306_draw_58char(disp, xpos, ypos, oled_text[x][y]);
+                xpos += 5;
             }
+            ypos += 8;
         }
+        ssd1306_refresh_gram(disp);
+    }
+    else {
+        ESP_LOGE(TAG, "OLED not ready");
     }
 }
-
 
 /* APPLICATION MAIN */
 
@@ -1019,7 +1016,7 @@ void app_main(void)
     /* Default settings */
     get_config_param_int("mode", &mode);
     if (mode == NULL) {
-        // Default to NMEA GGA display - leave X5 Ethernet configuration unchanged
+        // Default to Ethernet - leave X5 Ethernet configuration unchanged
         param_set_value_int(&mode, 1);
     }
     get_config_param_str("ssid", &ssid);
