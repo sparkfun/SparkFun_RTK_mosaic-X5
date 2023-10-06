@@ -56,7 +56,7 @@ Connect your computer, tablet or phone to the same network, open a web browser a
         Subnet 3 is reserved for the mosaic-X5's USB-C connection (Ethernet-over-USB). If your router / switch is allocating addresses using subnet 3 (192.168.3.***), please change its settings so it uses a different subnet.
 
 	??? info "No web page?"
-        If you can not see the mosaic-X5's internal web page, please check that your computer / tablet / phone is connected to the same network. Most broadband routers support both Ethernet and WiFi using the same subnet. If you are using a phone, check it is connected to the router WiFi - and not using its mobile data connection.
+        If you can not see the mosaic-X5's internal web page, please check that your computer / tablet / phone is connected to the same network. Most broadband routers support both Ethernet and WiFi simultaneously using the same subnet. If you are using a phone, check it is connected to the router WiFi - and not using its mobile data connection.
 
         Subnet 3 is reserved for the mosaic-X5's USB-C connection (Ethernet-over-USB). If your router / switch is allocating addresses using subnet 3 (192.168.3.***), please change its settings so it uses a different subnet. If it is using subnet 3, both the mosaic-X5 and your device will appear to have valid IP addresses but will not be able to communicate.
 
@@ -65,16 +65,9 @@ Connect your computer, tablet or phone to the same network, open a web browser a
 
 ## :material-wifi:&nbsp;WiFi
 
+The mosaic-X5 GNSS module supports multiple communication interfaces: multiple UARTs; Ethernet; and USB-C (with Ethernet-over-USB). But it does not support WiFi directly. The RTK mosaic-X5 contains an ESP32-WROVER processor which can act as a Ethernet to WiFi bridge. By linking the **MOSAIC ETHERNET (PoE)** port to the **ESP32 ETHERNET** port and putting the ESP32 firmare into WiFi mode, the mosaic-X5 can join your WiFi network.
+
 To connect your RTK mosaic-X5 to WiFi, you need to do a little more work including changing the mode of the firmware running on the ESP32 processor.
-
-<figure markdown>
-[![WiFi Connections](./assets/img/hookup_guide/WiFi_Connections.jpg){ width="400" }](./assets/img/hookup_guide/WiFi_Connections.jpg "Click to enlarge")
-<figcaption markdown>
-[WiFi Connections (JPG)](./assets/img/hookup_guide/WiFi_Connections.jpg) for the RTK mosaic-X5.
-</figcaption>
-</figure>
-
-The mosaic-X5 GNSS module supports multiple communication interfaces: multiple UARTs; Ethernet; and USB-C (with Ethernet-over-USB). But it does not support WiFi directly. The RTK mosaic-X5 contains an ESP32-WROVER processor which can act as a Ethernet to WiFi bridge. By linking the **MOSAIC ETHERNET (PoE)** port to the **ESP32 ETHERNET** port an putting the ESP32 firmare into WiFi mode, the mosaic-X5 can join your WiFi network.
 
 * **`1`** - Connect the GNSS antenna
 	* Inside your RTK mosaic-X5 kit, you will find the L1/L2/L5 GNSS "UFO" antenna. It has a TNC connection. Use the supplied TNC-SMA cable to connect the antenna to the mosaic-X5 **MOSAIC** SMA connection.
@@ -82,13 +75,20 @@ The mosaic-X5 GNSS module supports multiple communication interfaces: multiple U
 * **`2`** - Attach the WiFi antenna
     * Screw the supplied WiFi/BT antenna onto the **ESP32** SMA connection.
     * To minimise wear of the SMA connector, we recommend: holding the antenna body with one hand - to prevent it rotating - while screwing the SMA connector into place with your other hand.
-    * If the RTK mosaic-X5 is laid flat (horizontal), fold the antenna up so the antenna body is vertical.
+    * Fold the antenna up if needed, so the antenna body is vertical.
 * **`3`** - Link the Ethernet ports
     * Link the **MOSAIC ETHERNET (PoE)** and **ESP32 ETHERNET** ports using the supplied cable.
-    * The Ethernet ports support Auto-MDIX. YOu can use a standard Ethernet patch cable to link the ports. You do not need a crossover cable.
+    * The Ethernet ports support Auto-MDIX. You can use a standard Ethernet patch cable to link the ports. You do not need a crossover cable.
 * **`4`** - Connect to the CONFIG ESP32 USB port
     * To change the ESP32 firmware mode, you need to connect a computer to the **CONFIG ESP32** USB-C port and use a Serial Terminal to change the mode.
     * You may need to install a driver first, so that the CH340 serial interface chip is recognized. Please click the bar below for more details.
+
+<figure markdown>
+[![WiFi Mode](./assets/img/hookup_guide/WiFi_Mode.jpg){ width="400" }](./assets/img/hookup_guide/WiFi_Mode.jpg "Click to enlarge")
+<figcaption markdown>
+[WiFi Mode (JPG)](./assets/img/hookup_guide/WiFi_Mode.jpg) for the RTK mosaic-X5.
+</figcaption>
+</figure>
 
 ??? tip "CH340 driver install"
 
@@ -105,7 +105,7 @@ The mosaic-X5 GNSS module supports multiple communication interfaces: multiple U
     * If you are using Windows, we still recommend the [Tera Term](https://learn.sparkfun.com/tutorials/terminal-basics/tera-term-windows) serial terminal but there are plenty of alternatives. Please see our [Serial Terminal Basics tutorial](https://learn.sparkfun.com/tutorials/terminal-basics) for more details.
     * Open the connection to the CH340 using **115200 baud** 
 * **`6`** - Put the ESP32 firmware into WiFi mode
-    * When you have the Serial Terminal open, you should see the **RTK_X5>** console prompt. If you do not, hit enter on your keyboard. If needed, click the **RESET** button on the front of the RTK mosaic-X5 to restart the ESP32 firmware.
+    * When you have the Serial Terminal open, you should see the **RTK_X5>** console prompt. If you do not, hit Enter on your keyboard. If needed, click the **RESET** button on the front of the RTK mosaic-X5 to restart the ESP32 firmware.
 
 <figure markdown>
 [![Console Prompt](./assets/img/hookup_guide/Console_Prompt.png){ width="400" }](./assets/img/hookup_guide/Console_Prompt.png "Click to enlarge")
@@ -154,7 +154,7 @@ The mosaic-X5 GNSS module supports multiple communication interfaces: multiple U
 		set --ssid=YOUR_SSID
 	```
 
-    * Likewise, to set the WiFi password:
+    * Likewise, to set the WiFi password, type one of:
 
 !!! code
 	``` c++
@@ -162,7 +162,7 @@ The mosaic-X5 GNSS module supports multiple communication interfaces: multiple U
 		set --password=YOUR_PASSWORD
 	```
 
-    * To save time, you can set all three together:
+    * To save time, you can set all three together with one of:
 
 !!! code
 	``` c++
@@ -240,7 +240,7 @@ The mosaic-X5 has a built-in high-speed USB port which supports Ethernet-over-US
 	* Inside your RTK mosaic-X5 kit, you will find the L1/L2/L5 GNSS "UFO" antenna. It has a TNC connection. Use the supplied TNC-SMA cable to connect the antenna to the mosaic-X5 **MOSAIC** SMA connection.
     * The antenna needs a clear view of the sky. If you are working indoors, put the antenna outside and pass the cable through a window. (Insulating double-glazed windows have a coating which can block the GNSS signal. For best results, put the antenna outside.)
 * **`2`** - Download and install Septentrio RxTools
-    * The [Septentrio mosaic-X5 Resources page]((https://www.septentrio.com/en/products/gps/gnss-receiver-modules/mosaic-x5#resources) has download links for the mosaic-X5 datasheet, firmware, firmware guide, hardware manual, how-to videos and the **RxTools** support tool suite.
+    * The [Septentrio mosaic-X5 Resources page](https://www.septentrio.com/en/products/gps/gnss-receiver-modules/mosaic-x5#resources) has download links for the mosaic-X5 datasheet, firmware, firmware guide, hardware manual, how-to videos and the **RxTools** support tool suite.
     * **RxTools** includes the driver for the USB-C port plus several tools which you can use to control and configure the mosaic-X5, forward data, log data, analyze the log files, convert the log files to other formats, and configure the module for use with other GIS software.
     * Download and install **RxTools**.
 * **`3`** - Connect the RTK mosaic-X5 to your computer
@@ -257,7 +257,7 @@ You can now use the RxTools suite to take full advantage of the sophisticated mo
 		The red power (PWR) LED will light up when the RTK mosaic-X5 has power. If the PWR LED is off, make sure the USB cable is connected.
 
 	??? info "No position information?"
-		The OLED dsplay will only show position information (Lat, Long, Alt etc.) once a satellite signal has been acquired. If you see only the IP address on the display, check the SMA to TNC cable is connected correctly and that the antenna is outside with a clear view of the sky. Use a [male-female SMA extension cable](https://www.sparkfun.com/products/21281) if needed to increase the cable length.
+		The OLED dsplay will only show position information (Lat, Long, Alt etc.) once a satellite signal has been acquired. If you see only an IP address on the display, check the SMA to TNC cable is connected correctly and that the antenna is outside with a clear view of the sky. Use a [male-female SMA extension cable](https://www.sparkfun.com/products/21281) if needed to increase the cable length.
 
 	??? info "No web page?"
         If you can not see the mosaic-X5's internal web page at **192.168.3.1**, please check that your computer / tablet / phone is connected correctly to the USB-C port.
