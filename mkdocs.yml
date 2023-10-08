@@ -289,7 +289,7 @@ nav:
     - Introduction: introduction.md
     - Quick Start Guide: quick_start.md
     - Hardware Overview: hardware_overview.md
-    - Fix That Base: base.md
+    - RTK Base: base.md
     - L5 Reception: L5.md
   - Resources:
     - Hardware Resources: resources.md
