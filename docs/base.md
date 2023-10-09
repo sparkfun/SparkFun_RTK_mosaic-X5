@@ -33,7 +33,7 @@ There are some great articles written about PPP. Here we are just covering the e
 
 Once the precise antenna position is known, it can be programmed into the module. The corrections the module generates will then be based on that precise, fixed antenna position.
 
-First, let's check what Datum the module is using. It defaults to WGS84/ITRS. In North America, it might be better to select NAD83 but we'll go with the default.
+First, let's check what Datum the module is using. It defaults to **WGS84/ITRS**. In North America, it might be better to select NAD83 but we'll go with the default.
 
 <figure markdown>
 [![Board Dimensions](./assets/img/RINEX0.png){ width="400" }](./assets/img/RINEX0.png "Click to enlarge")
@@ -69,7 +69,7 @@ Use the **Enable Logging** radio button to start logging data, or press the **LO
 
 The **IGS24H** Naming Type is useful. When selected, the mosaic-X5 will log data in intervals of 24 hours, opening a new file at UTC midnight.
 
-Use the **Disk Contents** tab to download the SBF data to your computer. Click the green arrow to download an individual file. Or - if the file is large - dismount the disk, eject it and use your computer to copy the files manually.
+Use the **Disk Contents** tab to download the SBF data to your computer. Click the green arrow to download an individual file. Or - if the file is large - dismount the disk, eject it and use your computer to copy the files from microSD manually.
 
 <figure markdown>
 [![Board Dimensions](./assets/img/RINEX4.png){ width="400" }](./assets/img/RINEX4.png "Click to enlarge")
@@ -87,9 +87,7 @@ Use the **RxTools** \ **SBF Converter** utility to convert the data to RINEX for
 </figcaption>
 </figure>
 
-Upload the RINEX data to your chosen PPP post-process service. We have found [NRCAN](https://webapp.csrs-scrs.nrcan-rncan.gc.ca/geod/tools-outils/ppp.php) is very easy to use and produces excellent results. Both OPUS and APPS have file size limits, you may need to log data much slower than 1Hz if you want to use OPUS or APPS.
-
-We select the **ITRF** tab because we are using the WGS84/ITRS datum. (If you are using NAD83, select that tab instead.)
+Upload the RINEX data to your chosen PPP post-process service. We have found [NRCAN](https://webapp.csrs-scrs.nrcan-rncan.gc.ca/geod/tools-outils/ppp.php) is very easy to use and produces excellent results. We select the **ITRF** tab because we are using the WGS84/ITRS datum. (If you are using NAD83, select that tab instead.)
 
 <figure markdown>
 [![Board Dimensions](./assets/img/CSRS-PPP.png){ width="400" }](./assets/img/CSRS-PPP.png "Click to enlarge")
@@ -102,6 +100,24 @@ We select the **ITRF** tab because we are using the WGS84/ITRS datum. (If you ar
 [![Board Dimensions](./assets/img/RINEX6.png){ width="400" }](./assets/img/RINEX6.png "Click to enlarge")
 <figcaption markdown>
 [Precise antenna position (PNG)](./assets/img/RINEX6.png).
+</figcaption>
+</figure>
+
+Both [OPUS](https://www.ngs.noaa.gov/OPUS/) and [APPS](https://pppx.gdgps.net/) have file size limits. You can shrink the size of the RINEX file by selecting (e.g.) a 30-second Epoch Interval in **SBF Converter**:
+
+<figure markdown>
+[![Board Dimensions](./assets/img/epoch_30.png){ width="400" }](./assets/img/epoch_30.png "Click to enlarge")
+<figcaption markdown>
+[Setting the Epoch interval (PNG)](./assets/img/epoch_30.png).
+</figcaption>
+</figure>
+
+Using a smaller, 30-second file [OPUS](https://www.ngs.noaa.gov/OPUS/)' ITRF results match NRCAN to within a cm:
+
+<figure markdown>
+[![Board Dimensions](./assets/img/OPUS.png){ width="400" }](./assets/img/OPUS.png "Click to enlarge")
+<figcaption markdown>
+[Precise antenna position (PNG)](./assets/img/OPUS.png).
 </figcaption>
 </figure>
 
