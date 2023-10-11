@@ -289,7 +289,10 @@ nav:
     - Introduction: introduction.md
     - Quick Start Guide: quick_start.md
     - Hardware Overview: hardware_overview.md
+    - Using a Correction Service: correction_service.md
     - RTK Base: base.md
+    - NTRIP Server: ntrip_server.md
+    - NTRIP Client: ntrip_client.md
     - L5 Reception: L5.md
   - Resources:
     - Hardware Resources: resources.md

@@ -33,7 +33,7 @@ There are some great articles written about PPP. Here we are just covering the e
 
 Once the precise antenna position is known, it can be programmed into the module. The corrections the module generates will then be based on that precise, fixed antenna position.
 
-First, let's check what Datum the module is using. It defaults to **WGS84/ITRS**. In North America, it might be better to select NAD83 but we'll go with the default.
+First, let's check what Datum the module is using. It defaults to **WGS84/ITRS**. In North America, it might be better to select **NAD83** but we'll go with the default.
 
 <figure markdown>
 [![Board Dimensions](./assets/img/RINEX0.png){ width="400" }](./assets/img/RINEX0.png "Click to enlarge")
@@ -58,6 +58,8 @@ Set up an SBF logging stream to log **PostProcess**, **Rinex**, **Rinex (meas3)*
 </figcaption>
 </figure>
 
+The **IGS24H** Naming Type is useful. When selected, the mosaic-X5 will log data in intervals of 24 hours, opening a new file at UTC midnight.
+
 <figure markdown>
 [![Board Dimensions](./assets/img/RINEX3.png){ width="400" }](./assets/img/RINEX3.png "Click to enlarge")
 <figcaption markdown>
@@ -65,9 +67,7 @@ Set up an SBF logging stream to log **PostProcess**, **Rinex**, **Rinex (meas3)*
 </figcaption>
 </figure>
 
-Use the **Enable Logging** radio button to start logging data, or press the **LOG** button. The red LOG LED will blink while data is being logged.
-
-The **IGS24H** Naming Type is useful. When selected, the mosaic-X5 will log data in intervals of 24 hours, opening a new file at UTC midnight.
+Use the **Enable Logging** radio button to start logging data, or press the **LOG** pushbutton. The red LOG LED will blink while data is being logged.
 
 Use the **Disk Contents** tab to download the SBF data to your computer. Click the green arrow to download an individual file. Or - if the file is large - dismount the disk, eject it and use your computer to copy the files from microSD manually.
 
