@@ -13,7 +13,7 @@ icon: material/printer
 # Hardware Overview
 --8<-- "./docs/hardware_overview.md:5"
 
-# Using a Correction Service
+# Using a RTK Correction Service
 --8<-- "./docs/correction_service.md:5"
 
 # RTK Base

@@ -2,7 +2,9 @@
 icon: material/cog
 ---
 
-In Real Time Kinematic (RTK) positioning, a Rover uses corrections from a local Base station to accurately augment its position to centimeter or millimeter level. This is done by using carrier-phase measurements of the received GNSS signals and differencing techniques. The Base station antenna location is needed to calculate an accurate and reliable position.
+Commercial RTK correction services are great. But there will be times when you want to generate your own correction data so you can share it with your Rover(s) with the shortest baselines. Put simply, an RTK Base knows where it is and - based on its location - can share satellite signal correction data with local Rovers, to allow them to achieve centimeter-level positioning.
+
+For RTK to work, the Base station antenna location is needed to calculate an accurate and reliable position. How do we do that?
 
 In this section, we discuss two different ways of establishing the Base station antenna position: temporary and fixed.
 
@@ -33,7 +35,7 @@ There are some great articles written about PPP. Here we are just covering the e
 
 Once the precise antenna position is known, it can be programmed into the module. The corrections the module generates will then be based on that precise, fixed antenna position.
 
-First, let's check what Datum the module is using. It defaults to **WGS84/ITRS**. In North America, it might be better to select **NAD83** but we'll go with the default.
+First, let's check what Datum the module is using. It defaults to **WGS84/ITRS**. In North America, it might be better to select **NAD83** but here we'll go with the default.
 
 <figure markdown>
 [![Board Dimensions](./assets/img/RINEX0.png){ width="400" }](./assets/img/RINEX0.png "Click to enlarge")
@@ -95,6 +97,8 @@ Upload the RINEX data to your chosen PPP post-process service. We have found [NR
 [Select the datum for post-processing (PNG)](./assets/img/CSRS-PPP.png).
 </figcaption>
 </figure>
+
+After you have uploaded your RINEX data, it only takes a few minutes to receive your antenna position:
 
 <figure markdown>
 [![Board Dimensions](./assets/img/RINEX6.png){ width="400" }](./assets/img/RINEX6.png "Click to enlarge")
