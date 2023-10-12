@@ -138,6 +138,12 @@ typedef struct {
 #define CONFIG_RTK_X5_ETHERNET_ERST_GPIO (5)
 #define CONFIG_RTK_X5_ETHERNET_MDC_GPIO (23)
 #define CONFIG_RTK_X5_ETHERNET_MDIO_GPIO (18)
+// Unused IO UART pins
+#define CONFIG_RTK_X5_IO_TX_GPIO_PIN (32)
+#define CONFIG_RTK_X5_IO_RTS_GPIO_PIN (33)
+#define CONFIG_RTK_X5_IO_RX_GPIO_PIN (34)
+#define CONFIG_RTK_X5_IO_CTS_GPIO_PIN (35)
+
 
 /* mosaic-X5 serial commands */
 const char MOSAIC_CMD_ETHERNET_OFF[] = "seth,off\n\r";
@@ -531,6 +537,16 @@ static void x5_uart_task(void *args)
     }
 
     free(uart_buf);
+    vTaskDelete(NULL);
+}
+
+static void production_test_task(void *args)
+{
+    while (true) {
+        gpio_set_level(CONFIG_RTK_X5_IO_TX_GPIO_PIN, gpio_get_level(CONFIG_RTK_X5_IO_RX_GPIO_PIN));
+        gpio_set_level(CONFIG_RTK_X5_IO_RTS_GPIO_PIN, gpio_get_level(CONFIG_RTK_X5_IO_CTS_GPIO_PIN));
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
     vTaskDelete(NULL);
 }
 
@@ -928,6 +944,34 @@ static void initialize_x5_uart_task(void)
     }
 }
 
+// Test the unused TX/RX/RTS/CTS pins: TX follows RX, RTS follows CTS
+static void production_test(void)
+{
+
+    // Set unused pins to inputs and outputs
+    gpio_config_t io_conf;
+    io_conf.intr_type = GPIO_INTR_DISABLE;
+    io_conf.mode = GPIO_MODE_OUTPUT;
+    io_conf.pin_bit_mask = 1ULL << CONFIG_RTK_X5_IO_TX_GPIO_PIN;
+    io_conf.pull_down_en = false;
+    io_conf.pull_up_en = false;
+    gpio_config(&io_conf);
+    io_conf.pin_bit_mask = 1ULL << CONFIG_RTK_X5_IO_RTS_GPIO_PIN;
+    gpio_config(&io_conf);
+    io_conf.mode = GPIO_MODE_INPUT;
+    io_conf.pin_bit_mask = 1ULL << CONFIG_RTK_X5_IO_RX_GPIO_PIN;
+    gpio_config(&io_conf);
+    io_conf.pin_bit_mask = 1ULL << CONFIG_RTK_X5_IO_CTS_GPIO_PIN;
+    gpio_config(&io_conf);
+
+    ESP_LOGI(TAG, "Initializing production test task");
+
+    BaseType_t ret = xTaskCreate(production_test_task, "production_test_task", 2048, NULL, (tskIDLE_PRIORITY + 1), NULL);
+    if (ret != pdTRUE) {
+        ESP_LOGE(TAG, "Create production test task failed");
+    }
+}
+
 /* Very simple 8-line scrolling text console on the OLED */
 
 void clear_oled_text(void) {
@@ -1044,6 +1088,9 @@ void app_main(void)
 
     // Start the console
     start_console();
+
+    // SparkFun production test for the unused TX/RX/RTS/CTS pins
+    production_test();
 
     // Check the mode
     if (*mode == 1) {
