@@ -114,7 +114,7 @@ const char MOSAIC_CMD_ETHERNET_ON_RESPONSE_START[] = "$R: seth";
 #define RTK_X5_PIN_NUM_SDA           15
 #define RTK_X5_PIN_NUM_SCL           14
 #define RTK_X5_PIN_NUM_RST           -1
-#define RTK_X5_OLED_HW_ADDR          0x3C
+#define RTK_X5_OLED_HW_ADDR          0x3D
 
 void print_text(char *txt); // Header
 void display_qr(esp_qrcode_handle_t qrcode); // Header

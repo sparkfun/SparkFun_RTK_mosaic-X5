@@ -27,6 +27,7 @@ Repository Contents
 * **[/Rear_Panel](/Rear_Panel/)** - Eagle design files (.brd, .sch) for the prototype (PCB) enclosure panel used to validate the dimensions
 * **[/Firmware](/Firmware/)** - ESP IDF source code and binaries for the firmware which runs on the ESP32-WROVER
 * **[/Test_Sketches](/Test_Sketches/)** - Additional code used to validate and test the RTK mosaic-X5
+* **[/Documents](/Documents/)** - Component datasheets etc.
 
 Documentation
 --------------
