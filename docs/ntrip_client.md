@@ -44,3 +44,12 @@ Just for giggles, I placed the Rover and Base antennas 3' (3 feet = 0.914m) apar
 </figcaption>
 </figure>
 
+If you want to temporarily disable an NTRIP client, click the **Edit NTRIP settings** icon and then set the **Mode** to **off**. If you have two clients configured, this allows you to disable one and use the corrections from the other.
+
+<figure markdown>
+[![Disable NTRIP client](./assets/img/NTRIP_client_9.png){ width="400" }](./assets/img/NTRIP_client_9.png "Click to enlarge")
+<figcaption markdown>
+[Disable NTRIP client (PNG)](./assets/img/NTRIP_client_9.png).
+</figcaption>
+</figure>
+
