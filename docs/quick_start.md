@@ -19,14 +19,14 @@ The simplest way to get your RTK mosaic-X5 up and running is to connect it to yo
 * **`2`** - Connect the RTK mosaic-X5 to your Ethernet network or router
     * Use the supplied CAT-6 Ethernet cable to connect the **MOSAIC ETHERNET (PoE)** port to your network or an Ethernet port on your router.
     * If your router provides Power-over-Ethernet (PoE), you're all set! You should see the red power (PWR) LED light up and text start to scroll up the OLED display.
-    * If you router does not provide PoE, move on to step 3.
+    * If your router does not provide PoE, move on to step 3.
 * **`3`** - Provide power
     * You can power the RTK mosaic-X5 using the supplied USB power supply (5V 1A wall charger).
     * Plug the power supply into the wall.
     * Use the supplied USB-C cable to connect the power supply to either the **CONFIG MOSAIC** or the **CONFIG ESP32** USB-C port. It does not matter which.
     * You should see the red power (PWR) LED light up and text start to scroll up the OLED display.
 
-Once the mosaic-X5 has aquired a satellite signal and is connected to the Ethernet network, the OLED will display: the antenna's position as Latitude (Lat), Longitude (Long) and Altitude (Alt); the Ethernet IP (Internet Protocol) network address.
+Once the mosaic-X5 has acquired a satellite signal and is connected to the Ethernet network, the OLED will display: the antenna's position as Latitude (Lat), Longitude (Long) and Altitude (Alt); the Ethernet IP (Internet Protocol) network address.
 
 Connect your computer, tablet or phone to the same network, open a web browser and navigate to the IP address shown on the OLED display. You should see the mosaic-X5's internal web page. The web page displays a lot of helpful information and can also be used to fully configure the mosaic-X5.
 
@@ -65,7 +65,7 @@ Connect your computer, tablet or phone to the same network, open a web browser a
 
 ## :material-wifi:&nbsp;WiFi
 
-The mosaic-X5 GNSS module supports multiple communication interfaces: multiple UARTs; Ethernet; and USB-C (with Ethernet-over-USB). But it does not support WiFi directly. The RTK mosaic-X5 contains an ESP32-WROVER processor which can act as a Ethernet to WiFi bridge. By linking the **MOSAIC ETHERNET (PoE)** port to the **ESP32 ETHERNET** port and putting the ESP32 firmare into WiFi mode, the mosaic-X5 can join your WiFi network.
+The mosaic-X5 GNSS module supports multiple communication interfaces: multiple UARTs; Ethernet; and USB-C (with Ethernet-over-USB). But it does not support WiFi directly. The RTK mosaic-X5 contains an ESP32-WROVER processor which can act as a Ethernet to WiFi bridge. By linking the **MOSAIC ETHERNET (PoE)** port to the **ESP32 ETHERNET** port and putting the ESP32 firmware into WiFi mode, the mosaic-X5 can join your WiFi network.
 
 To connect your RTK mosaic-X5 to WiFi, you need to do a little more work including changing the mode of the firmware running on the ESP32 processor.
 
