@@ -5,18 +5,18 @@ icon: material/cog
 Now we know the Base's antenna position accurately, we can generate and share RTK corrections in a number of ways. The mosaic-X5 is a very clever module and is able to share corrections through an NTRIP Caster, or direct using Serial, USB, or an IP connection. For example, here are the output options available for RTCMv3:
 
 <figure markdown>
-[![Selecting the RTCMv3 Output Type](./assets/img/RTCM_output.png){ width="400" }](./assets/img/RTCM_output.png "Click to enlarge")
+[![Selecting the RTCMv3 Output Type](./assets/img/hookup_guide/RTCM_output.png){ width="400" }](./assets/img/hookup_guide/RTCM_output.png "Click to enlarge")
 <figcaption markdown>
-[Selecting the RTCMv3 Output Type (PNG)](./assets/img/RTCM_output.png).
+[Selecting the RTCMv3 Output Type (PNG)](./assets/img/hookup_guide/RTCM_output.png).
 </figcaption>
 </figure>
 
 In the Advanced Settings, you can also define which messages to output and at what internal:
 
 <figure markdown>
-[![Advanced settings for RTCMv3 Output](./assets/img/RTCM_output_2.png){ width="400" }](./assets/img/RTCM_output_2.png "Click to enlarge")
+[![Advanced settings for RTCMv3 Output](./assets/img/hookup_guide/RTCM_output_2.png){ width="400" }](./assets/img/hookup_guide/RTCM_output_2.png "Click to enlarge")
 <figcaption markdown>
-[Advanced settings for RTCMv3 Output (PNG)](./assets/img/RTCM_output_2.png).
+[Advanced settings for RTCMv3 Output (PNG)](./assets/img/hookup_guide/RTCM_output_2.png).
 </figcaption>
 </figure>
 
@@ -37,9 +37,9 @@ The mosaic-X5 is a high end receiver so be sure to select **NTRIP Rev2** as the 
 The registration process typically takes under 8 hours to complete, somewhat longer on weekends. Once your mount point has been set up, RTK2go wil send you a nice email confirming the mount point (**mountPt**) name, password and other details (Country, Country Code etc..). Make a note of those details, as we need to enter them into the mosaic-X5 NTRIP Server configuration.
 
 <figure markdown>
-[![RTK 2 Go Confirmation Email](./assets/img/NTRIP_server_0.png){ width="400" }](./assets/img/NTRIP_server_0.png "Click to enlarge")
+[![RTK 2 Go Confirmation Email](./assets/img/hookup_guide/NTRIP_server_0.png){ width="400" }](./assets/img/hookup_guide/NTRIP_server_0.png "Click to enlarge")
 <figcaption markdown>
-[RTK 2 Go Confirmation Email (PNG)](./assets/img/NTRIP_server_0.png).
+[RTK 2 Go Confirmation Email (PNG)](./assets/img/hookup_guide/NTRIP_server_0.png).
 </figcaption>
 </figure>
 
@@ -48,45 +48,45 @@ The registration process typically takes under 8 hours to complete, somewhat lon
 Check that the **Position Mode** is set to **Static**, using either the precise position from your RINEX post-process data or an *automatic* **Reference Position**.
 
 <figure markdown>
-[![Configuring the Reference Position](./assets/img/NTRIP_server_1.png){ width="400" }](./assets/img/NTRIP_server_1.png "Click to enlarge")
+[![Configuring the Reference Position](./assets/img/hookup_guide/NTRIP_server_1.png){ width="400" }](./assets/img/hookup_guide/NTRIP_server_1.png "Click to enlarge")
 <figcaption markdown>
-[Configuring the Reference Position (PNG)](./assets/img/NTRIP_server_1.png).
+[Configuring the Reference Position (PNG)](./assets/img/hookup_guide/NTRIP_server_1.png).
 </figcaption>
 </figure>
 
 In the **Corrections** tab, select **New NTRIP server**:
 
 <figure markdown>
-[![Configuring the NTRIP server](./assets/img/NTRIP_server_2.png){ width="400" }](./assets/img/NTRIP_server_2.png "Click to enlarge")
+[![Configuring the NTRIP server](./assets/img/hookup_guide/NTRIP_server_2.png){ width="400" }](./assets/img/hookup_guide/NTRIP_server_2.png "Click to enlarge")
 <figcaption markdown>
-[Configuring the NTRIP server (PNG)](./assets/img/NTRIP_server_2.png).
+[Configuring the NTRIP server (PNG)](./assets/img/hookup_guide/NTRIP_server_2.png).
 </figcaption>
 </figure>
 
 Enter the details from the confirmation email:
 
 <figure markdown>
-[![Configuring the NTRIP server](./assets/img/NTRIP_server_3.png){ width="400" }](./assets/img/NTRIP_server_3.png "Click to enlarge")
+[![Configuring the NTRIP server](./assets/img/hookup_guide/NTRIP_server_3.png){ width="400" }](./assets/img/hookup_guide/NTRIP_server_3.png "Click to enlarge")
 <figcaption markdown>
-[Configuring the NTRIP server (PNG)](./assets/img/NTRIP_server_3.png).
+[Configuring the NTRIP server (PNG)](./assets/img/hookup_guide/NTRIP_server_3.png).
 </figcaption>
 </figure>
 
 Then use the **Configure Output** button to select the RTCM Output Type and which RTCM messages to send. Here we select **RTCMv3**. The mosaic-X5 supports both **RTCMv2** and **RTCMv3**, but **v3** has better data compression and message integrity so we will use that.
 
 <figure markdown>
-[![Configure Output](./assets/img/NTRIP_server_4.png){ width="400" }](./assets/img/NTRIP_server_4.png "Click to enlarge")
+[![Configure Output](./assets/img/hookup_guide/NTRIP_server_4.png){ width="400" }](./assets/img/hookup_guide/NTRIP_server_4.png "Click to enlarge")
 <figcaption markdown>
-[Configure Output (PNG)](./assets/img/NTRIP_server_4.png).
+[Configure Output (PNG)](./assets/img/hookup_guide/NTRIP_server_4.png).
 </figcaption>
 </figure>
 
 We also need to select which type of RTCM message to send. Here we select **MSM7** since these are the longest highest precision messages. The message length does not matter since we are using Ethernet and WiFi, but it could be important if we were using Serial (UART) or LoRa to carry the correction messages.
 
 <figure markdown>
-[![Configure Output](./assets/img/NTRIP_server_5.png){ width="400" }](./assets/img/NTRIP_server_5.png "Click to enlarge")
+[![Configure Output](./assets/img/hookup_guide/NTRIP_server_5.png){ width="400" }](./assets/img/hookup_guide/NTRIP_server_5.png "Click to enlarge")
 <figcaption markdown>
-[Configure Output (PNG)](./assets/img/NTRIP_server_5.png).
+[Configure Output (PNG)](./assets/img/hookup_guide/NTRIP_server_5.png).
 </figcaption>
 </figure>
 
@@ -95,27 +95,27 @@ Remember to press **OK** after each change - and save the configuration.
 All being well, you should see a green line for NTRIP showing that your corrections are being forwarded to the caster:
 
 <figure markdown>
-[![NTRIP connection](./assets/img/NTRIP_server_6.png){ width="400" }](./assets/img/NTRIP_server_6.png "Click to enlarge")
+[![NTRIP connection](./assets/img/hookup_guide/NTRIP_server_6.png){ width="400" }](./assets/img/hookup_guide/NTRIP_server_6.png "Click to enlarge")
 <figcaption markdown>
-[NTRIP connection (PNG)](./assets/img/NTRIP_server_6.png).
+[NTRIP connection (PNG)](./assets/img/hookup_guide/NTRIP_server_6.png).
 </figcaption>
 </figure>
 
 We can check [RTK2go.com:2101](http://www.rtk2go.com:2101/) to see if the corrections are being received:
 
 <figure markdown>
-[![Caster Status](./assets/img/NTRIP_server_7.png){ width="400" }](./assets/img/NTRIP_server_7.png "Click to enlarge")
+[![Caster Status](./assets/img/hookup_guide/NTRIP_server_7.png){ width="400" }](./assets/img/hookup_guide/NTRIP_server_7.png "Click to enlarge")
 <figcaption markdown>
-[Caster Status (PNG)](./assets/img/NTRIP_server_7.png).
+[Caster Status (PNG)](./assets/img/hookup_guide/NTRIP_server_7.png).
 </figcaption>
 </figure>
 
 We can see more detail by opening the Caster Status Report. Here I am using the Mount Point **paulAtSparkFun**, so the full report is available at [rtk2go.com:2101/SNIP::MOUNTPT?baseName=paulAtSparkFun](http://rtk2go.com:2101/SNIP::MOUNTPT?baseName=paulAtSparkFun):
 
 <figure markdown>
-[![Caster Status Report](./assets/img/NTRIP_server_8.png){ width="400" }](./assets/img/NTRIP_server_8.png "Click to enlarge")
+[![Caster Status Report](./assets/img/hookup_guide/NTRIP_server_8.png){ width="400" }](./assets/img/hookup_guide/NTRIP_server_8.png "Click to enlarge")
 <figcaption markdown>
-[Caster Status Report (PNG)](./assets/img/NTRIP_server_8.png).
+[Caster Status Report (PNG)](./assets/img/hookup_guide/NTRIP_server_8.png).
 </figcaption>
 </figure>
 
