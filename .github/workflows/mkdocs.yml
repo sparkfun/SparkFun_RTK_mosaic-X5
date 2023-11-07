@@ -1,11 +1,7 @@
 name: Run mkdocs
 on:
-  #push:
-  #  branches:
-  #    - main
-
-  workflow_dispatch:
-    branches: 
+  push:
+    branches:
       - main
 
 permissions:
