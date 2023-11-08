@@ -39,8 +39,10 @@ The board dimensions are illustrated in the drawing below; the listed measuremen
 		<center>
 		<div class="video">
 		<iframe src="https://www.youtube.com/embed/dZLNd1FtNB8" title="EAGLE Dimension Tool" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		</center>
 		</div>
-		![QR code to play video](./assets/img/qr_code/dimension_tool.png){ .qr }
+		<center>
+		![QR code to play video](./assets/img/qr_code/dimension_tool.png)
 		</center>
 
 ## Septentrio mosaic-X5
@@ -99,7 +101,7 @@ The RTK mosaic-X5 can draw power from either or both USB ports, in addition to P
 <figcaption markdown>USB-C connectors: mosaic-X5 (left) and ESP32 (right).</figcaption>
 </figure>
 
-The CH340 allows the ESP32-WROVER to communicate with a computer/host device through the USB-C connection. This allows the ESP32 to show up as a device on the serial (or COM) port of the computer. Users will need to install the latest drivers for the computer to recognize the CH340 *(see [**Quick Start**](./quick_start/#WiFi) section)*.
+The CH340 allows the ESP32-WROVER to communicate with a computer/host device through the USB-C connection. This allows the ESP32 to show up as a device on the serial (or COM) port of the computer. Users will need to install the latest drivers for the computer to recognize the CH340 *(see [**Quick Start**](./quick_start.md#WiFi) section)*.
 
 ## Power Options
 The mosaic-X5 and the ESP32 both required 3.3V power. To simplify the power circuitry, the four power sources are combined into a common 5V rail which then feeds individual 3.3V 1A regulators for the mosaic-X5 and the ESP32. Diodes are used to combine and protect the power sources from each other.
