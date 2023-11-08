@@ -40,12 +40,6 @@ The board dimensions are illustrated in the drawing below; the listed measuremen
 		<div class="video">
 		<iframe src="https://www.youtube.com/embed/dZLNd1FtNB8" title="EAGLE Dimension Tool" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 		</center>
-		</div>
-		<center>
-		<figure markdown>
-		![QR code to play video](./assets/img/qr_code/dimension_tool.png){ width="200" }
-		</figure>
-		</center>
 
 ## Septentrio mosaic-X5
 The heart of our product is of course the mosaic-X5 GNSS module from Septentrio. It is a _very_ sophisticated chip with multiple interfaces: UARTS, USB and Ethernet. The COM2 and COM3 UART pins, plus GPIO1 and GPIO2, are available as 0.1" test points should you need access to them.
