@@ -43,7 +43,7 @@ The board dimensions are illustrated in the drawing below; the listed measuremen
 		</div>
 		<center>
 		<figure markdown>
-		![QR code to play video](./assets/img/qr_code/dimension_tool.png){ .tinyqr }
+		![QR code to play video](./assets/img/qr_code/dimension_tool.png){ width="200" }
 		</figure>
 		</center>
 
