@@ -6,7 +6,7 @@ icon: material/book-open-page-variant
 
 * :sfe-logo: [Product Page](https://www.sparkfun.com/products/23748)
 * :material-folder-cog: Design Files:
-	* :fontawesome-solid-file-png: [Board Dimensions](./assets/board_files/dimensions.png)
+	* :fontawesome-solid-file-image: [Board Dimensions](./assets/board_files/dimensions.png)
 	* :fontawesome-solid-file-pdf: [Schematic](./assets/board_files/schematic.pdf)
 * :material-youtube: [SFE Product Showcase]()
 * :material-github: [Hardware Repo](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5)
