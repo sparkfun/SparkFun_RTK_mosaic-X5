@@ -7,9 +7,9 @@ icon: material/run-fast
 The simplest way to get your RTK mosaic-X5 up and running is to connect it to your Ethernet network or an Ethernet port on your broadband router:
 
 <figure markdown>
-[![Ethernet Connections](./assets/img/hookup_guide/Ethernet_Connections.jpg){ width="400" }](./assets/img/hookup_guide/Ethernet_Connections.jpg "Click to enlarge")
+[![Ethernet Connections](./assets/img/hookup_guide/Ethernet_Connections.png){ width="400" }](./assets/img/hookup_guide/Ethernet_Connections.png "Click to enlarge")
 <figcaption markdown>
-[Ethernet Connections (JPG)](./assets/img/hookup_guide/Ethernet_Connections.jpg) for the RTK mosaic-X5.
+[Ethernet Connections (PNG)](./assets/img/hookup_guide/Ethernet_Connections.png) for the RTK mosaic-X5.
 </figcaption>
 </figure>
 
@@ -84,9 +84,9 @@ To connect your RTK mosaic-X5 to WiFi, you need to do a little more work includi
     * You may need to install a driver first, so that the CH340 serial interface chip is recognized. Please click the bar below for more details.
 
 <figure markdown>
-[![WiFi Mode](./assets/img/hookup_guide/WiFi_Mode.jpg){ width="400" }](./assets/img/hookup_guide/WiFi_Mode.jpg "Click to enlarge")
+[![WiFi Mode](./assets/img/hookup_guide/WiFi_Mode.png){ width="400" }](./assets/img/hookup_guide/WiFi_Mode.png "Click to enlarge")
 <figcaption markdown>
-[WiFi Mode (JPG)](./assets/img/hookup_guide/WiFi_Mode.jpg) for the RTK mosaic-X5.
+[WiFi Mode (PNG)](./assets/img/hookup_guide/WiFi_Mode.png) for the RTK mosaic-X5.
 </figcaption>
 </figure>
 
@@ -196,9 +196,9 @@ Connect your computer, tablet or phone to the same network, open a web browser a
 The firmware mode, SSID and password are stored in flash (non-volatile) memory. After changing them, you can disconnect the computer and power the RTK mosaic-X5 using the supplied wall adapter.
 
 <figure markdown>
-[![WiFi Connections](./assets/img/hookup_guide/WiFi_Connections.jpg){ width="400" }](./assets/img/hookup_guide/WiFi_Connections.jpg "Click to enlarge")
+[![WiFi Connections](./assets/img/hookup_guide/WiFi_Connections.png){ width="400" }](./assets/img/hookup_guide/WiFi_Connections.png "Click to enlarge")
 <figcaption markdown>
-[WiFi Connections (JPG)](./assets/img/hookup_guide/WiFi_Connections.jpg) for the RTK mosaic-X5.
+[WiFi Connections (PNG)](./assets/img/hookup_guide/WiFi_Connections.png) for the RTK mosaic-X5.
 </figcaption>
 </figure>
 
@@ -230,9 +230,9 @@ The firmware mode, SSID and password are stored in flash (non-volatile) memory. 
 The mosaic-X5 has a built-in high-speed USB port which supports Ethernet-over-USB. To take advantage of this interface, you first need to install the Septentrio drivers.
 
 <figure markdown>
-[![USB Connections](./assets/img/hookup_guide/USB_Connections.jpg){ width="400" }](./assets/img/hookup_guide/USB_Connections.jpg "Click to enlarge")
+[![USB Connections](./assets/img/hookup_guide/USB_Connections.png){ width="400" }](./assets/img/hookup_guide/USB_Connections.png "Click to enlarge")
 <figcaption markdown>
-[USB Connections (JPG)](./assets/img/hookup_guide/USB_Connections.jpg) for the RTK mosaic-X5.
+[USB Connections (PNG)](./assets/img/hookup_guide/USB_Connections.png) for the RTK mosaic-X5.
 </figcaption>
 </figure>
 
