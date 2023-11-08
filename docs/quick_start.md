@@ -21,7 +21,7 @@ The simplest way to get your RTK mosaic-X5 up and running is to connect it to yo
     * If your router provides Power-over-Ethernet (PoE), you're all set! You should see the red power (PWR) LED light up and text start to scroll up the OLED display.
     * If your router does not provide PoE, move on to step 3.
 * **`3`** - Provide power
-    * You can power the RTK mosaic-X5 using the supplied USB power supply (5V 1A wall charger).
+    * You can power the RTK mosaic-X5 using the supplied USB power supply (5V 1A wall adapter).
     * Plug the power supply into the wall.
     * Use the supplied USB-C cable to connect the power supply to either the **CONFIG MOSAIC** or the **CONFIG ESP32** USB-C port. It does not matter which.
     * You should see the red power (PWR) LED light up and text start to scroll up the OLED display.
@@ -41,7 +41,7 @@ Connect your computer, tablet or phone to the same network, open a web browser a
 	The following sections will help if your RTK mosaic-X5 is not working as expected:
 
 	??? info "No power?"
-		The red power (PWR) LED will light up when the RTK mosaic-X5 has power. If the PWR LED is off, make sure the wall charger has power and the USB cable is connected.
+		The red power (PWR) LED will light up when the RTK mosaic-X5 has power. If the PWR LED is off, make sure the wall adapter has power and the USB cable is connected.
 
         If you use your own Ethernet cable for Power-over-Ethernet, check it has all eight pins connected. Some cables only have four pins connected and do not support Power-over-Ethernet.
 
@@ -193,7 +193,7 @@ When powering the RTK mosaic-X5 on for the first time, you may see the firmware 
 
 Connect your computer, tablet or phone to the same network, open a web browser and navigate to the IP address shown on the OLED display. You should see the mosaic-X5's internal web page. The web page displays a lot of helpful information and can also be used to fully configure the mosaic-X5.
 
-The firmware mode, SSID and password are stored in flash (non-volatile) memory. After changing them, you can disconnect the computer and power the RTK mosaic-X5 using the supplied wall charger.
+The firmware mode, SSID and password are stored in flash (non-volatile) memory. After changing them, you can disconnect the computer and power the RTK mosaic-X5 using the supplied wall adapter.
 
 <figure markdown>
 [![WiFi Connections](./assets/img/hookup_guide/WiFi_Connections.jpg){ width="400" }](./assets/img/hookup_guide/WiFi_Connections.jpg "Click to enlarge")
@@ -207,7 +207,7 @@ The firmware mode, SSID and password are stored in flash (non-volatile) memory. 
 	The following sections will help if your RTK mosaic-X5 is not working as expected:
 
 	??? info "No power?"
-		The red power (PWR) LED will light up when the RTK mosaic-X5 has power. If the PWR LED is off, make sure the wall charger has power and the USB cable is connected.
+		The red power (PWR) LED will light up when the RTK mosaic-X5 has power. If the PWR LED is off, make sure the wall adapter has power and the USB cable is connected.
 
 	??? info "No position information?"
 		The OLED dsplay will only show position information (Lat, Long, Alt etc.) once a satellite signal has been acquired. If you see only the IP address on the display, check the SMA to TNC cable is connected correctly and that the antenna is outside with a clear view of the sky. Use a [male-female SMA extension cable](https://www.sparkfun.com/products/21281) if needed to increase the cable length.
