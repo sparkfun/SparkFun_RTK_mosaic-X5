@@ -21,6 +21,7 @@ In the Advanced Settings, you can also define which messages to output and at wh
 </figure>
 
 In this section, we are going to concentrate on sharing the corrections using an NTRIP Caster. Think of an NTRIP Caster as an intermediary, a way of sharing RTCM corrections between Bases and Rovers. There are several good free-to-use NTRIP Caster services available, including:
+
 * [RTK2go](http://rtk2go.com/)
 * [Emlid Caster](https://emlid.com/ntrip-caster/)
 
@@ -30,7 +31,7 @@ Here we are going to use RTK2go.
 
 Creating a New Reservation for your base station is really easy. Simply follow [the instructions](http://rtk2go.com/sample-page/new-reservation/)...
 
-At SparkFun, we use **MountPt Name**s like **bldr_dwntwn2**, **bldr_dwntwn3**, **bldr_SparkFun1** - bldr is short for Boulder. Choose a name which is short, easy to remember and - we suggest - includes clues about who you are or where your server is. You can see the full list of all active bases at [rtk2go.com:2101](http://www.rtk2go.com:2101/).
+At SparkFun, we use **MountPt** names like **bldr_dwntwn2** , **bldr_dwntwn3** , **bldr_SparkFun1** - bldr is short for Boulder. Choose a name which is short, easy to remember and - we suggest - includes clues about who you are or where your server is. You can see the full list of all active bases at [rtk2go.com:2101](http://www.rtk2go.com:2101/).
 
 The mosaic-X5 is a high end receiver so be sure to select **NTRIP Rev2** as the protocol and provide a login user name. IBAN - the banking network - provide a handy list of [three-letter country codes](https://www.iban.com/country-codes).
 
