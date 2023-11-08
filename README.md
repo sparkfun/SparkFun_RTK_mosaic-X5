@@ -11,6 +11,15 @@ The RTK mosaic-X5 can be configured as a Real Time Kinematic (RTK) Base, where i
 
 Under the hood, the RTK mosaic-X5 is based on the mosaic-X5 GNSS module from Septentrio, plus the Espressif ESP32-WROVER processor (16MB flash, 8MB PSRAM). The mosaic-X5 has USB-C connectivity (with Ethernet-over-USB), multiple UARTs and supports full Ethernet connectivity. The only interface it doesn't offer is WiFi and that's why we've included the ESP32 with its own Ethernet connection. You can connect the mosaic-X5 directly to your Ethernet network - our product supports Power-over-Ethernet too. Or you can link the mosaic-X5 Ethernet port to the ESP32 Ethernet port and have the ESP32 provide WiFi connectivity. In that mode, the ESP32 becomes an Ethernet to WiFi Bridge, seamlessly passing WiFi traffic to and from the mosaic-X5 via Ethernet.
 
+Documentation
+--------------
+
+* **[Product Manual (mkdocs)](http://docs.sparkfun.com/SparkFun_RTK_mosaic-X5/)** - Product manual for the RTK mosaic-X5 hosted by GitHub pages.
+
+*Need to download or print our hookup guide?*
+
+* [Print *(Print to PDF)* from Single-Page View](http://docs.sparkfun.com/SparkFun_RTK_mosaic-X5/print_view)
+
 Repository Contents
 -------------------
 
@@ -19,7 +28,7 @@ Repository Contents
         * [board_files](/docs/assets/board_files/) - Files for the product design
             * [Schematic](/docs/assets/board_files/schematic.pdf) (.pdf)
             * [Dimensions](/docs/assets/board_files/dimensions.png) (.png)
-            * [Eagle files](./assets/board_files/eagle_files.zip) (.zip)
+            * [Eagle files](/docs/assets/board_files/eagle_files.zip) (.zip)
         * [img/hookup_guide/](/docs/assets/img/hookup_guide/) - Images for hookup guide documentation
 * **[/Hardware](/Hardware/)** - Eagle design files (.brd, .sch)
 * **[/Production](/Production/)** - PCB panel production files
@@ -30,15 +39,6 @@ Repository Contents
 * **[/Firmware](/Firmware/)** - ESP IDF source code and binaries for the firmware which runs on the ESP32-WROVER
 * **[/Test_Sketches](/Test_Sketches/)** - Additional code used to validate and test the RTK mosaic-X5
 * **[/Documents](/Documents/)** - Component datasheets etc.
-
-Documentation
---------------
-
-* **[Product Manual (mkdocs)](http://docs.sparkfun.com/SparkFun_RTK_mosaic-X5/)** - Product manual for the RTK mosaic-X5 hosted by GitHub pages.
-
-*Need to download or print our hookup guide?*
-
-* [Print *(Print to PDF)* from Single-Page View](http://docs.sparkfun.com/SparkFun_RTK_mosaic-X5/print_view)
 
 Product Variants
 ----------------
@@ -56,7 +56,7 @@ License Information
 
 This product is ***open source***!
 
-Please review the [`LICENSE.md`](./LICENSE.md) file for license information.
+Please review the [LICENSE.md](./LICENSE.md) file for license information.
 
 If you have any questions or concerns about licensing, please contact technical support on our [SparkFun forums](https://forum.sparkfun.com/viewforum.php?f=152).
 
