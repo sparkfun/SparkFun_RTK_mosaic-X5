@@ -11,7 +11,7 @@ You can of course modify the hardware too, should you want to. The design is com
 In this section we walk you through the hardware design, interfaces, I/O connections, power options and more.
 
 ## Schematic
-Users can download the [full schematic for the RTK mosaic-X5](/docs/assets/board_files/schematic.pdf) in .pdf format.
+Users can download the [full schematic for the RTK mosaic-X5](./assets/board_files/schematic.pdf) in .pdf format.
 
 ## Board Dimensions
 The board dimensions are illustrated in the drawing below; the listed measurements are in inches.
@@ -24,7 +24,7 @@ The board dimensions are illustrated in the drawing below; the listed measuremen
 </figure>
 
 ??? tip "Need more measurements?"
-	For more information about the board's dimensions, users can download the [Eagle files](./assets/board_files/eagle_files.zip) for the board. These files can be opened in Eagle and additional measurements can be made with the dimensions tool.
+	For more information about the board's dimensions, users can download the [**Eagle files**](./assets/board_files/eagle_files.zip) for the board. These files can be opened in Eagle and additional measurements can be made with the dimensions tool.
 
 	??? info ":octicons-download-16:{ .heart } Eagle - Free Download!"
 		Eagle is a [CAD]("computer-aided design") program for electronics that is free to use for hobbyists and students. However, it does require an account registration to utilize the software.
@@ -99,7 +99,7 @@ The RTK mosaic-X5 can draw power from either or both USB ports, in addition to P
 <figcaption markdown>USB-C connectors: mosaic-X5 (left) and ESP32 (right).</figcaption>
 </figure>
 
-The CH340 allows the ESP32-WROVER to communicate with a computer/host device through the USB-C connection. This allows the ESP32 to show up as a device on the serial (or COM) port of the computer. Users will need to install the latest drivers for the computer to recognize the CH340 *(see [**Quick Start**](/SparkFun_RTK_mosaic-X5/quick_start/#WiFi) section)*.
+The CH340 allows the ESP32-WROVER to communicate with a computer/host device through the USB-C connection. This allows the ESP32 to show up as a device on the serial (or COM) port of the computer. Users will need to install the latest drivers for the computer to recognize the CH340 *(see [**Quick Start**](./quick_start/#WiFi) section)*.
 
 ## Power Options
 The mosaic-X5 and the ESP32 both required 3.3V power. To simplify the power circuitry, the four power sources are combined into a common 5V rail which then feeds individual 3.3V 1A regulators for the mosaic-X5 and the ESP32. Diodes are used to combine and protect the power sources from each other.
@@ -114,6 +114,7 @@ A 2A resettable fuse (green) provides additional protection.
 </figure>
 
 The RTK mosaic-X5 can draw power from any or all of:
+
 * **`MOSAIC CONFIG (USB-C)`** - **5V**.
 * **`ESP32 CONFIG (USB-C)`** - **5V**.
 * **`Power-over-Ethernet`** - **Min: 36V**; **Max: 57V**; delivered via the **MOSAIC ETHERNET** RJ45 magjack.
@@ -245,7 +246,7 @@ These terminals are described in the tabs below. For more information on the I/O
 		An easy way to observe the events is with **RxTools** \ **RxControl** \ **Expert Console** (under **Tools**) \ **ExEvent** tab:
 
 		<figure markdown>
-		[![External Events](./assets/img/hookup_guide/Event.png){ width="400" }](./assets/img/hookup_guide/Event.png "Click to enlarge")
+		[![External Events](./assets/img/hookup_guide/EVENT.png){ width="400" }](./assets/img/hookup_guide/EVENT.png "Click to enlarge")
 		<figcaption markdown>Capturing external events from EVENTA and EVENTB.</figcaption>
 		</figure>
 
