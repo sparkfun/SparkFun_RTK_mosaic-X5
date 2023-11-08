@@ -36,7 +36,7 @@ The RTK mosaic-X5 comes with everything you need to get up and running. Our kit 
 * Reinforced RG58 TNC-SMA Cable (10m)
 * SMA WiFi / Bluetooth Antenna
 * 32GB microSD Card (Class 10)
-* USB-C Power Supply (5V 1A wall charger)
+* USB-C Power Supply (5V 1A wall adapter)
 * USB-C Cable (A to C, 2m)
 * Ethernet Cable (CAT-6, 1m)
 
