@@ -26,7 +26,7 @@ Under the hood, the RTK mosaic-X5 is based on the mosaic-X5 GNSS module from Sep
 
 <center>
 <figure markdown>
-![QR code to product page](./assets/img/qr_code/product-low.png)
+![QR code to product page](./assets/img/qr_code/product-low.png){ .tinyqr }
 </figure>
 </center>
 
