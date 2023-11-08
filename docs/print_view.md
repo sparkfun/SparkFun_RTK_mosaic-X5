@@ -29,7 +29,7 @@ icon: material/printer
 --8<-- "./docs/L5.md:5"
 
 # Resources
---8<-- "./docs/resources.md"
+--8<-- "./docs/resources.md:5"
 
 # Troubleshooting Tips
 --8<-- "./docs/troubleshooting_tips.md:5"
