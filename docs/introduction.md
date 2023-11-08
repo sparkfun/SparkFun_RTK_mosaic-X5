@@ -18,15 +18,15 @@ icon: material/book-open-page-variant
 
 -	Designed and manufactured in Boulder, Colorado, USA, the SparkFun RTK mosaic-X5 is the perfect solution for your high-precision positioning and navigation needs. Based around the multi-constellation, multi-frequency, L5-ready mosaic-X5 from Septentrio, this is our most advanced RTK product to date. It supports GNSS signals from GPS (USA), GLONASS (Russia), Beidou (China), Galileo (Europe), Navic (India) plus special additional satellites (e.g. SBAS and QZSS). The mosaic-X5 also has built-in on-module support for other L-band correction services.
 
+</div>
+
 The RTK mosaic-X5 can be configured as a Real Time Kinematic (RTK) Base, where it feeds corrections to other RTK Rovers, or as an RTK Rover where it can use corrections to achieve a horizontal positioning accuracy of 6 millimeters (0.6cm) (plus 0.5 PPM). For applications like robotics and autonomous systems, the mosaic-X5 can deliver position updates at 100Hz (100 times per second). The mosaic-X5 is a _very_ sophisticated chip running a full internal web page server; the position can be monitored and the module fully configured through that web page using a standard browser.
 
 Under the hood, the RTK mosaic-X5 is based on the mosaic-X5 GNSS module from Septentrio, plus the Espressif ESP32-WROVER processor (16MB flash, 8MB PSRAM). The mosaic-X5 has USB-C connectivity (with Ethernet-over-USB), multiple UARTs and supports full Ethernet connectivity. The only interface it doesn't offer is WiFi and that's why we've included the ESP32 with its own Ethernet connection. You can connect the mosaic-X5 directly to your Ethernet network - our product supports Power-over-Ethernet too. Or you can link the mosaic-X5 Ethernet port to the ESP32 Ethernet port and have the ESP32 provide WiFi connectivity. In that mode, the ESP32 becomes an Ethernet to WiFi Bridge, seamlessly passing WiFi traffic to and from the mosaic-X5 via Ethernet.
 
-	<center>
-	[![QR code to product page](./assets/img/qr_code/product-low.png){ .tinyqr }&nbsp;&nbsp;&nbsp;Purchase from SparkFun :fontawesome-solid-cart-plus:{ .heart }](https://www.sparkfun.com/products/23748){ .md-button .md-button--primary }
-	</center>
-
-</div>
+<center>
+![QR code to product page](./assets/img/qr_code/product-low.png){ .tinyqr }&nbsp;&nbsp;&nbsp;[Purchase from SparkFun :fontawesome-solid-cart-plus:{ .heart }](https://www.sparkfun.com/products/23748){ .md-button .md-button--primary }
+</center>
 
 ## :fontawesome-solid-list-check:&nbsp;Required Materials
 The RTK mosaic-X5 comes with everything you need to get up and running. Our kit includes:
