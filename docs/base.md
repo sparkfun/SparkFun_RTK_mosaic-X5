@@ -25,11 +25,13 @@ The mosaic-X5 can be set to "Static" mode and can determine the antenna location
 ## Fixed Base
 
 The best way to determine the base antenna location is to: log raw GNSS signal data for typically 24 hours, convert it to RINEX format and then submit it to a Precise Point Positioning (PPP) post-processing service such as:
+
 * [NRCAN](https://webapp.csrs-scrs.nrcan-rncan.gc.ca/geod/tools-outils/ppp.php)
 * [OPUS](https://www.ngs.noaa.gov/OPUS/)
 * [APPS](https://pppx.gdgps.net/)
 
 There are some great articles written about PPP. Here we are just covering the essentials. For more information check out:
+
 * Gary Miller’s great [PPP HOWTO](https://gpsd.gitlab.io/gpsd/ppp-howto.html)
 * Suelynn Choy, [GNSS PPP](https://www.unoosa.org/documents/pdf/icg/2018/ait-gnss/16_PPP.pdf)
 
