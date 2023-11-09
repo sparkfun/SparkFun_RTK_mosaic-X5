@@ -141,56 +141,56 @@ To connect your RTK mosaic-X5 to WiFi, you need to do a little more work includi
 
 	* By default the firmware will be in mode **1** (Ethernet). To change the mode to mode **2** (WiFi), we type:
 
-		!!! code
-			``` c++
-				set -m 2
+		!!! terminal
+			``` bash
+			set -m 2
 			```
 
-			!!! code "Long Arguments"
+			!!! terminal "Long Arguments"
 				The console supports both short and long args, so we could type:
 
-				``` c++
-					set --mode=2
+				``` bash
+				set --mode=2
 				```
 
 	* To set the WiFi SSID type one of:
 
-		!!! code
-			``` c++
-				set -s YOUR_SSID
-				set --ssid=YOUR_SSID
+		!!! terminal
+			``` bash
+			set -s YOUR_SSID
+			set --ssid=YOUR_SSID
 			```
 
 		* Likewise, to set the WiFi password, type one of:
 	
-			!!! code
-				``` c++
-					set -p YOUR_PASSWORD
-					set --password=YOUR_PASSWORD
+			!!! terminal
+				``` bash
+				set -p YOUR_PASSWORD
+				set --password=YOUR_PASSWORD
 				```
 	
 		* To save time, you can set all three together with one of:
 	
-			!!! code
-				``` c++
-					set -m 2 -s YOUR_SSID -p YOUR_PASSWORD
-					set --mode=2 --ssid=YOUR_SSID --password=YOUR_PASSWORD
+			!!! terminal
+				``` bash
+				set -m 2 -s YOUR_SSID -p YOUR_PASSWORD
+				set --mode=2 --ssid=YOUR_SSID --password=YOUR_PASSWORD
 				```
 
 	* Finally, type **restart** to restart the firmware with the new settings:
 
-		!!! code
-			``` c++
-				restart
+		!!! terminal
+			``` bash
+			restart
 			```
 
 		??? tip "NULL (empty) password"
 			To clear the password - making it NULL / empty - type one of:
 	
-			!!! code
-				``` c++
-					set -p %00
-					set --password=%00
+			!!! terminal
+				``` bash
+				set -p %00
+				set --password=%00
 				```
 
 
