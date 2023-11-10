@@ -16,6 +16,7 @@ The simplest way to get your RTK mosaic-X5 up and running is to connect it to yo
 **`1`** - **Connect the GNSS antenna**
 : * Inside your RTK mosaic-X5 kit, you will find the L1/L2/L5 GNSS "UFO" antenna. It has a TNC connection. Use the supplied TNC-SMA cable to connect the antenna to the mosaic-X5 **MOSAIC** SMA connection.
 	* The antenna needs a clear view of the sky. If you are working indoors, put the antenna outside and pass the cable through a window. (Insulating double-glazed windows have a coating which can block the GNSS signal. For best results, put the antenna outside.)
+	* If you are going to use your RTK mosaic-X5 as an RTK Base, the antenna needs to be securely mounted to a structure so that it cannot be moved and has a clear view of the sky. Any movement in the antenna will cause inaccurate readings by RTK rovers. Please see the [Required Materials](./introduction.md#required-materials) for links to our [GNSS Antenna Mounting Hardware Kit](https://www.sparkfun.com/products/22197) and [GNSS Magnetic Antenna Mount - 5/8" 11-TPI](https://www.sparkfun.com/products/21257)
 **`2`** - **Connect the RTK mosaic-X5 to your Ethernet network or router**
 : * Use the supplied CAT-6 Ethernet cable to connect the **MOSAIC ETHERNET (PoE)** port to your network or an Ethernet port on your router.
 	* If your router provides Power-over-Ethernet (PoE), you're all set! You should see the red power (PWR) LED light up and text start to scroll up the OLED display.
@@ -69,23 +70,18 @@ The mosaic-X5 GNSS module supports multiple communication interfaces: multiple U
 
 To connect your RTK mosaic-X5 to WiFi, you need to do a little more work including changing the mode of the firmware running on the ESP32 processor.
 
-**Step 1** - Connect the GNSS antenna
-
+`1` - **Connect the GNSS antenna**
 :	* Inside your RTK mosaic-X5 kit, you will find the L1/L2/L5 GNSS "UFO" antenna. It has a TNC connection. Use the supplied TNC-SMA cable to connect the antenna to the mosaic-X5 **MOSAIC** SMA connection.
 	* The antenna needs a clear view of the sky. If you are working indoors, put the antenna outside and pass the cable through a window. (Insulating double-glazed windows have a coating which can block the GNSS signal. For best results, put the antenna outside.)
-
-**Step 2** - Attach the WiFi antenna
-
+	* If you are going to use your RTK mosaic-X5 as an RTK Base, the antenna needs to be securely mounted to a structure so that it cannot be moved and has a clear view of the sky. Any movement in the antenna will cause inaccurate readings by RTK rovers. Please see the [Required Materials](./introduction.md#required-materials) for links to our [GNSS Antenna Mounting Hardware Kit](https://www.sparkfun.com/products/22197) and [GNSS Magnetic Antenna Mount - 5/8" 11-TPI](https://www.sparkfun.com/products/21257)
+`2` - **Attach the WiFi antenna**
 : * Screw the supplied WiFi/BT antenna onto the **ESP32** SMA connection.
 	* To minimise wear of the SMA connector, we recommend: holding the antenna body with one hand - to prevent it rotating - while screwing the SMA connector into place with your other hand.
 	* Fold the antenna up if needed, so the antenna body is vertical.
-
-**Step 3** - Link the Ethernet ports
-
+`3` - **Link the Ethernet ports**
 : * Link the **MOSAIC ETHERNET (PoE)** and **ESP32 ETHERNET** ports using the supplied cable.
 	* The Ethernet ports support Auto-MDIX. You can use a standard Ethernet patch cable to link the ports. You do not need a crossover cable.
-
-**Step 4** - Connect to the CONFIG ESP32 USB port
+`4` - **Connect to the CONFIG ESP32 USB port**
 : * To change the ESP32 firmware mode, you need to connect a computer to the **CONFIG ESP32** USB-C port and use a Serial Terminal to change the mode.
 	* You may need to install a driver first, so that the CH340 serial interface chip is recognized. Please click the bar below for more details.
 
@@ -106,12 +102,10 @@ To connect your RTK mosaic-X5 to WiFi, you need to do a little more work includi
 			<figcaption markdown>[**How to Install CH340 Drivers**](https://learn.sparkfun.com/tutorials/908)</figcaption>
 			</figure>
 
-**Step 5** - Open a Serial Terminal
-
+`5` - **Open a Serial Terminal**
 : * If you are using Windows, we still recommend the [Tera Term](https://learn.sparkfun.com/tutorials/terminal-basics/tera-term-windows) serial terminal but there are plenty of alternatives. Please see our [Serial Terminal Basics tutorial](https://learn.sparkfun.com/tutorials/terminal-basics) for more details.
 	* Open the connection to the CH340 using **115200 baud** 
-
-**Step 6** - Put the ESP32 firmware into WiFi mode
+`6` - **Put the ESP32 firmware into WiFi mode**
 : * When you have the Serial Terminal open, you should see the **RTK_X5>** console prompt. If you do not, hit Enter on your keyboard. If needed, click the **RESET** button on the front of the RTK mosaic-X5 to restart the ESP32 firmware.
 
 	<figure markdown>
@@ -146,7 +140,7 @@ To connect your RTK mosaic-X5 to WiFi, you need to do a little more work includi
 			set -m 2
 			```
 
-			!!! terminal "Long Arguments"
+			!!! tip "Long Arguments"
 				The console supports both short and long args, so we could type:
 
 				``` bash
@@ -243,16 +237,17 @@ The mosaic-X5 has a built-in high-speed USB port which supports Ethernet-over-US
 </figcaption>
 </figure>
 
-1. Connect the GNSS antenna
+`1` - **Connect the GNSS antenna**
 	* Inside your RTK mosaic-X5 kit, you will find the L1/L2/L5 GNSS "UFO" antenna. It has a TNC connection. Use the supplied TNC-SMA cable to connect the antenna to the mosaic-X5 **MOSAIC** SMA connection.
 	* The antenna needs a clear view of the sky. If you are working indoors, put the antenna outside and pass the cable through a window. (Insulating double-glazed windows have a coating which can block the GNSS signal. For best results, put the antenna outside.)
-2. Download and install Septentrio RxTools
+	* If you are going to use your RTK mosaic-X5 as an RTK Base, the antenna needs to be securely mounted to a structure so that it cannot be moved and has a clear view of the sky. Any movement in the antenna will cause inaccurate readings by RTK rovers. Please see the [Required Materials](./introduction.md#required-materials) for links to our [GNSS Antenna Mounting Hardware Kit](https://www.sparkfun.com/products/22197) and [GNSS Magnetic Antenna Mount - 5/8" 11-TPI](https://www.sparkfun.com/products/21257)
+`2` - **Download and install Septentrio RxTools**
 	* The [Septentrio mosaic-X5 Resources page](https://www.septentrio.com/en/products/gps/gnss-receiver-modules/mosaic-x5#resources) has download links for the mosaic-X5 datasheet, firmware, firmware guide, hardware manual, how-to videos and the **RxTools** support tool suite.
 	* **RxTools** includes the driver for the USB-C port plus several tools which you can use to control and configure the mosaic-X5, forward data, log data, analyze the log files, convert the log files to other formats, and configure the module for use with other GIS software.
 	* Download and install **RxTools**.
-3. Connect the RTK mosaic-X5 to your computer
+`3` - **Connect the RTK mosaic-X5 to your computer**
 	* Use the supplied USB-C cable to connect the **CONFIG MOSAIC** port to your computer.
-4. Open the X5 web page
+`4` - **Open the X5 web page**
 	* Open a web browser on your computer and navigate to **192.168.3.1** to view the mosaic-X5's internal web page.
 
 You can now use the RxTools suite to take full advantage of the sophisticated mosaic-X5.
