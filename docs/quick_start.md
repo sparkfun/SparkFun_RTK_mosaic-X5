@@ -238,17 +238,18 @@ The mosaic-X5 has a built-in high-speed USB port which supports Ethernet-over-US
 </figure>
 
 `1` - **Connect the GNSS antenna**
-	* Inside your RTK mosaic-X5 kit, you will find the L1/L2/L5 GNSS "UFO" antenna. It has a TNC connection. Use the supplied TNC-SMA cable to connect the antenna to the mosaic-X5 **MOSAIC** SMA connection.
+: * Inside your RTK mosaic-X5 kit, you will find the L1/L2/L5 GNSS "UFO" antenna. It has a TNC connection. Use the supplied TNC-SMA cable to connect the antenna to the mosaic-X5 **MOSAIC** SMA connection.
 	* The antenna needs a clear view of the sky. If you are working indoors, put the antenna outside and pass the cable through a window. (Insulating double-glazed windows have a coating which can block the GNSS signal. For best results, put the antenna outside.)
 	* If you are going to use your RTK mosaic-X5 as an RTK Base, the antenna needs to be securely mounted to a structure so that it cannot be moved and has a clear view of the sky. Any movement in the antenna will cause inaccurate readings by RTK rovers. Please see the [Required Materials](./introduction.md#required-materials) for links to our [GNSS Antenna Mounting Hardware Kit](https://www.sparkfun.com/products/22197) and [GNSS Magnetic Antenna Mount - 5/8" 11-TPI](https://www.sparkfun.com/products/21257)
 `2` - **Download and install Septentrio RxTools**
-	* The [Septentrio mosaic-X5 Resources page](https://www.septentrio.com/en/products/gps/gnss-receiver-modules/mosaic-x5#resources) has download links for the mosaic-X5 datasheet, firmware, firmware guide, hardware manual, how-to videos and the **RxTools** support tool suite.
+: * The [Septentrio mosaic-X5 Resources page](https://www.septentrio.com/en/products/gps/gnss-receiver-modules/mosaic-x5#resources) has download links for the mosaic-X5 datasheet, firmware, firmware guide, hardware manual, how-to videos and the **RxTools** support tool suite.
 	* **RxTools** includes the driver for the USB-C port plus several tools which you can use to control and configure the mosaic-X5, forward data, log data, analyze the log files, convert the log files to other formats, and configure the module for use with other GIS software.
 	* Download and install **RxTools**.
 `3` - **Connect the RTK mosaic-X5 to your computer**
-	* Use the supplied USB-C cable to connect the **CONFIG MOSAIC** port to your computer.
+: * Use the supplied USB-C cable to connect the **CONFIG MOSAIC** port to your computer.
+<!-- Needed to break from list -->
 `4` - **Open the X5 web page**
-	* Open a web browser on your computer and navigate to **192.168.3.1** to view the mosaic-X5's internal web page.
+: * Open a web browser on your computer and navigate to **192.168.3.1** to view the mosaic-X5's internal web page.
 
 You can now use the RxTools suite to take full advantage of the sophisticated mosaic-X5.
 
