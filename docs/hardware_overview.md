@@ -45,7 +45,7 @@ The board dimensions are illustrated in the drawing below; the listed measuremen
 The heart of our product is of course the mosaic-X5 GNSS module from Septentrio. It is a _very_ sophisticated chip with multiple interfaces: UARTS, USB and Ethernet. The COM2 and COM3 UART pins, plus GPIO1 and GPIO2, are available as 0.1" test points should you need access to them.
 
 <figure markdown>
-[![mosaic X5](./assets/img/hookup_guide/X5.jpg){ width="400" }](./assets/img/hookup_guide/X5.jpg "Click to enlarge")
+[![mosaic X5](./assets/img/hookup_guide/X5.png){ width="400" }](./assets/img/hookup_guide/X5.png "Click to enlarge")
 <figcaption markdown>The Septentrio mosaic-X5 GNSS module.</figcaption>
 </figure>
 
@@ -53,7 +53,7 @@ The heart of our product is of course the mosaic-X5 GNSS module from Septentrio.
 The only interface the mosaic-X5 doesn't offer is WiFi and that's why we've included an Espressif ESP32-WROVER processor (16MB flash, 8MB PSRAM) with its own Ethernet connection. You can connect the mosaic-X5 directly to your Ethernet network - our product supports Power-over-Ethernet too. Or you can link the mosaic-X5 Ethernet port to the ESP32 Ethernet port and have the ESP32 provide WiFi connectivity. In that mode, the ESP32 becomes an Ethernet to WiFi Bridge, seamlessly passing WiFi traffic to and from the mosaic-X5 via Ethernet.
 
 <figure markdown>
-[![Espressif ESP32](./assets/img/hookup_guide/ESP32.jpg){ width="400" }](./assets/img/hookup_guide/ESP32.jpg "Click to enlarge")
+[![Espressif ESP32](./assets/img/hookup_guide/ESP32.png){ width="400" }](./assets/img/hookup_guide/ESP32.png "Click to enlarge")
 <figcaption markdown>The Espressif ESP32-WROVER processor.</figcaption>
 </figure>
 
@@ -63,15 +63,15 @@ Think of the ESP32 as a co-processor, or riding shotgun... The mosaic-X5 COM4 UA
 The mosaic-X5 and ESP32 have identical KSZ8041NLI Ethernet PHY interfaces, both connected using Reduced Media-Independent Interfaces (RMII). These allow the mosaic-X5 and ESP32 to be linked directly to your Ethernet network or router, or to each other when the ESP32 is acting as an Ethernet-to-WiFi Bridge.
 
 <figure markdown>
-[![KSZ8041NLI Ethernet PHY](./assets/img/hookup_guide/PHY.jpg){ width="400" }](./assets/img/hookup_guide/PHY.jpg "Click to enlarge")
-<figcaption markdown>The dual Ethernet physical layer interfaces anbd connections.</figcaption>
+[![KSZ8041NLI Ethernet PHY](./assets/img/hookup_guide/PHY.png){ width="400" }](./assets/img/hookup_guide/PHY.png "Click to enlarge")
+<figcaption markdown>The dual Ethernet physical layer interfaces and connections.</figcaption>
 </figure>
 
 ## Power-over-Ethernet (PoE)
 The mosaic-X5 Ethernet port supports Power-over-Ethernet (PoE), allowing the RTK mosaic-X5 to be powered by the network. This is very useful when the RTK mosaic-X5 is mounted remotely - perhaps in a weatherproof box up on the roof. Data and power can be delivered through a single cable, avoiding the need for a separate power connection.
 
 <figure markdown>
-[![Power over Ethernet](./assets/img/hookup_guide/POE.jpg){ width="400" }](./assets/img/hookup_guide/POE.jpg "Click to enlarge")
+[![Power over Ethernet](./assets/img/hookup_guide/POE.png){ width="400" }](./assets/img/hookup_guide/POE.png "Click to enlarge")
 <figcaption markdown>The Power-over-Ethernet (PoE) circuit.</figcaption>
 </figure>
 
@@ -83,7 +83,7 @@ For 12V or 24V vehicle power: connect 12V or 24V to the **VIN+** screw cage term
 If desired, you can link **VIN-** to the adjacent **GND** screw cage terminal. But doing so bypasses the voltage isolation and could introduce an unwanted ground loop, particularly if the GNSS antenna ground (shield, 0V) is also connected to the chassis.
 
 <figure markdown>
-[![External DC power input](./assets/img/hookup_guide/VIN.jpg){ width="400" }](./assets/img/hookup_guide/VIN.jpg "Click to enlarge")
+[![External DC power input](./assets/img/hookup_guide/VIN.png){ width="400" }](./assets/img/hookup_guide/VIN.png "Click to enlarge")
 <figcaption markdown>The DC-DC converter and external power screw terminals.</figcaption>
 </figure>
 
@@ -93,7 +93,7 @@ The mosaic-X5 and ESP32 both have USB-C connections. The MOSAIC USB port is high
 The RTK mosaic-X5 can draw power from either or both USB ports, in addition to Power-over-Ethernet and the DC-DC external input described above.
 
 <figure markdown>
-[![USB-C Connectors](./assets/img/hookup_guide/USB.jpg){ width="400" }](./assets/img/hookup_guide/USB.jpg "Click to enlarge")
+[![USB-C Connectors](./assets/img/hookup_guide/USB.png){ width="400" }](./assets/img/hookup_guide/USB.png "Click to enlarge")
 <figcaption markdown>USB-C connectors: mosaic-X5 (left) and ESP32 (right).</figcaption>
 </figure>
 
@@ -107,7 +107,7 @@ If you want to measure the board's current draw, you can open the **MEAS** jumpe
 A 2A resettable fuse (green) provides additional protection.
 
 <figure markdown>
-[![Power connections](./assets/img/hookup_guide/Power.jpg){ width="400" }](./assets/img/hookup_guide/Power.jpg "Click to enlarge")
+[![Power connections](./assets/img/hookup_guide/Power.png){ width="400" }](./assets/img/hookup_guide/Power.png "Click to enlarge")
 <figcaption markdown>RTK mosaic-X5 power connections.</figcaption>
 </figure>
 
@@ -125,7 +125,7 @@ The RTK mosaic-X5 can draw power from any or all of:
 The microSD socket is connected directly to the mosaic-X5 via a one-bit SDIO interface for fast data logging. The mosaic-X5 supports FAT32 cards up to 32GB in size.
 
 <figure markdown>
-[![micro SD socket and log button](./assets/img/hookup_guide/Log.jpg){ width="400" }](./assets/img/hookup_guide/Log.jpg "Click to enlarge")
+[![micro SD socket and log button](./assets/img/hookup_guide/Log.png){ width="400" }](./assets/img/hookup_guide/Log.png "Click to enlarge")
 <figcaption markdown>microSD socket and Log button.</figcaption>
 </figure>
 
@@ -146,7 +146,7 @@ A long press (> 5 seconds) on the Log button will dismount or mount the SD card.
 The RTK mosaic-X5 has robust SMA connectors for the mosaic-X5 GNSS antenna and the ESP32 WiFi / BT antenna.
 
 <figure markdown>
-[![SMA RF Connections](./assets/img/hookup_guide/RF.jpg){ width="400" }](./assets/img/hookup_guide/RF.jpg "Click to enlarge")
+[![SMA RF Connections](./assets/img/hookup_guide/RF.png){ width="400" }](./assets/img/hookup_guide/RF.png "Click to enlarge")
 <figcaption markdown>SMA RF Connections.</figcaption>
 </figure>
 
@@ -158,7 +158,7 @@ The ESP32 WiFi / BT SMA connector is reverse-polarity (RP). A short u.FL cable c
 The RTK moasic-X5 is equipped with two 10-way 3.5mm screw cage terminal connectors.
 
 <figure markdown>
-[![IO Connections](./assets/img/hookup_guide/IO.jpg){ width="400" }](./assets/img/hookup_guide/IO.jpg "Click to enlarge")
+[![IO Connections](./assets/img/hookup_guide/IO.png){ width="400" }](./assets/img/hookup_guide/IO.png "Click to enlarge")
 <figcaption markdown>I/O Screw Terminal Connections.</figcaption>
 </figure>
 
@@ -184,7 +184,7 @@ These terminals are described in the tabs below. For more information on the I/O
 	The I/O terminal voltage can be set to 3.3V or 5V via the small internal slide switch highlighted below:
 
 	<figure markdown>
-	[![VIO selection switch](./assets/img/hookup_guide/VCCIO.jpg){ width="400" }](./assets/img/hookup_guide/VCCIO.jpg "Click to enlarge")
+	[![VIO selection switch](./assets/img/hookup_guide/VCCIO.png){ width="400" }](./assets/img/hookup_guide/VCCIO.png "Click to enlarge")
 	<figcaption markdown>I/O voltage selection switch.</figcaption>
 	</figure>
 
@@ -359,6 +359,11 @@ These terminals are described in the tabs below. For more information on the I/O
 				It’s time to leverage the power of the I<sup>2</sup>C bus! Most Qwiic boards will have two or more connectors on them, allowing multiple devices to be connected.
 
 ## Status LEDs
+
+<div class="grid" markdown>
+
+<div markdown>
+
 There are six status LEDs on the RTK mosaic-X5:
 
 * `PWR` - Power *(Red)*
@@ -382,12 +387,26 @@ There are six status LEDs on the RTK mosaic-X5:
 	* Blinking Yellow: the mosaic-X5 has a RTK Float solution
 	* Off : no RTK solution
 
+</div>
+
+<div markdown>
+
 <figure markdown>
-[![LEDs](./assets/img/hookup_guide/LEDs.jpg){ width="400" }](./assets/img/hookup_guide/LEDs.jpg "Click to enlarge")
+[![LEDs](./assets/img/hookup_guide/LEDs.png){ width="400" }](./assets/img/hookup_guide/LEDs.png "Click to enlarge")
 <figcaption markdown>
 The status indicator LEDs on the RTK mosaic-X5.
 </figcaption>
 </figure>
+
+<figure markdown>
+[![LEDs](./assets/img/hookup_guide/LEDs-PCB.png){ width="400" }](./assets/img/hookup_guide/LEDs-PCB.png "Click to enlarge")
+<figcaption markdown>
+The status indicator LEDs on the RTK mosaic-X5 PCB.
+</figcaption>
+</figure>
+</div>
+
+</div>
 
 ## OLED Display
 The RTK mosaic-X5 has a 128x64 pixel OLED display, controlled by the ESP32 via I<sup>2</sup>C. After some initial diagnostic messages, the display will show position, time and other data from the mosaic-X5 NMEA **GGA** message, plus the Ethernet / WiFi IP address.
@@ -409,10 +428,23 @@ The RTK mosaic-X5 has a 128x64 pixel OLED display, controlled by the ESP32 via I
 ## Buttons
 There are three buttons on the RTK mosaic-X5: ++"RST"++, ++"BOOT"++, and ++"LOG"++.
 
+<div class="grid" markdown>
+
+<div markdown>
 <figure markdown>
-[![Buttons](./assets/img/hookup_guide/buttons.jpg){ width="400" }](./assets/img/hookup_guide/buttons.jpg "Click to enlarge")
+[![Buttons](./assets/img/hookup_guide/Buttons.png){ width="400" }](./assets/img/hookup_guide/Buttons.png "Click to enlarge")
 <figcaption markdown>Buttons on the RTK mosaic-X5.</figcaption>
 </figure>
+</div>
+
+<div markdown>
+<figure markdown>
+[![Buttons](./assets/img/hookup_guide/Buttons-PCB.png){ width="400" }](./assets/img/hookup_guide/Buttons-PCB.png "Click to enlarge")
+<figcaption markdown>Buttons on the RTK mosaic-X5 PCB.</figcaption>
+</figure>
+</div>
+
+</div>
 
 ### Reset Button
 The ++"RST"++ *(reset)* button allows users to reset the firmware running on the ESP32-WROVER module without disconnectng the power.
@@ -460,7 +492,7 @@ A long press (> 5 seconds) on the ++"Log"++ button will dismount or mount the SD
 There are several jumpers on the RTK moasic-X5 PCB which can be used to (e.g.) disable the LEDs or allow measurement of the board's current draw.
 
 <figure markdown>
-[![Jumpers](./assets/img/hookup_guide/jumpers_top.jpg){ width="400" }](./assets/img/hookup_guide/jumpers_top.jpg "Click to enlarge")
+[![Jumpers](./assets/img/hookup_guide/Jumpers-top.png){ width="400" }](./assets/img/hookup_guide/Jumpers-top.png "Click to enlarge")
 <figcaption markdown>
 The jumpers on the top of the RTK mosaic-X5 PCB.
 </figcaption>
@@ -470,7 +502,7 @@ The jumpers on the top of the RTK mosaic-X5 PCB.
 	* The PoE module has a minimum load of 100mA. We included the 50 Ohm load to ensure this is met. If you can ensure this by other means, open this jumper to disconnect the load.
 
 <figure markdown>
-[![Jumpers](./assets/img/hookup_guide/jumpers_bottom.jpg){ width="400" }](./assets/img/hookup_guide/jumpers_bottom.jpg "Click to enlarge")
+[![Jumpers](./assets/img/hookup_guide/Jumpers-bottom.png){ width="400" }](./assets/img/hookup_guide/Jumpers-bottom.png "Click to enlarge")
 <figcaption markdown>
 The jumpers on the bottom of the RTK mosaic-X5 PCB.
 </figcaption>
