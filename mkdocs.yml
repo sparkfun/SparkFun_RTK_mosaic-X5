@@ -195,7 +195,10 @@ markdown_extensions:
   # Allows the use of tabs in the document
   - pymdownx.tabbed:
       alternate_style: true 
-  
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+
   # Allows the use of Markup syntax
   - pymdownx.betterem:
       smart_enable: all
