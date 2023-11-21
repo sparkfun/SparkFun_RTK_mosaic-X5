@@ -166,7 +166,24 @@ plugins:
   
   # Enables use of Git submodules and larger code base
   - monorepo
+  
+  # Enables improved security for external links
+  - privacy:
+      # Disables cache mechanism, so that external assets can be updated during rebuilds
+      cache: false
 
+      # # Allows for external assets to be used
+      # assets: true
+      # assets_fetch: true
+
+      # Provide domains for assets that are retrieved from external sites
+      assets_include:
+        - https://docs.sparkfun.com/*
+      
+      # External links open in a new tab
+      links_attr_map:
+        target: _blank
+      links_noopener: true
 
 
 # Included Markdown extensions
