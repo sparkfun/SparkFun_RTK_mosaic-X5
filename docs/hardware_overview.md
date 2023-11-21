@@ -130,20 +130,28 @@ The mosaic-X5 and ESP32 both have USB-C connections. The MOSAIC USB port is high
 
 
 
+<div class="grid" markdown>
 
+<div markdown>
 <figure markdown>
+[![micro SD socket and log button](./assets/img/hookup_guide/Log.png){ width="750" }](./assets/img/hookup_guide/Log.png "Click to enlarge")
+<figcaption markdown>microSD socket and ++"LOG"++ button.</figcaption>
 </figure>
+</div>
 
+<div markdown>
+<figure markdown>
+[![micro SD socket and log button](./assets/img/hookup_guide/Log-PCB.png){ width="400" }](./assets/img/hookup_guide/Log-PCB.png "Click to enlarge")
+<figcaption markdown>microSD socket and ++"Log"++ button on the RTK mosaic-X5 PCB.</figcaption>
+</figure>
+</div>
 
+</div>
 
 
 ## microSD storage and Log button
 The microSD socket is connected directly to the mosaic-X5 via a one-bit SDIO interface for fast data logging. The mosaic-X5 supports FAT32 cards up to 32GB in size.
 
-<figure markdown>
-[![micro SD socket and log button](./assets/img/hookup_guide/Log.png){ width="400" }](./assets/img/hookup_guide/Log.png "Click to enlarge")
-<figcaption markdown>microSD socket and Log button.</figcaption>
-</figure>
 
 Before logging can take place, it is necessary to define a "logging stream" using the **Logging** page or **RxTools**. Streams can contain NMEA or SBF (Septentrio Binary Format) data; SBF can contain RTCM and/or RINEX.
 
@@ -161,22 +169,56 @@ A long press (> 5 seconds) on the Log button will dismount or mount the SD card.
 ## SMA RF Connections
 The RTK mosaic-X5 has robust SMA connectors for the mosaic-X5 GNSS antenna and the ESP32 WiFi / BT antenna.
 
+<div class="grid" markdown>
+
+<div markdown>
 <figure markdown>
-[![SMA RF Connections](./assets/img/hookup_guide/RF.png){ width="400" }](./assets/img/hookup_guide/RF.png "Click to enlarge")
-<figcaption markdown>SMA RF Connections.</figcaption>
+[![SMA RF Connections](./assets/img/hookup_guide/RF-GNSS.png){ width="400" }](./assets/img/hookup_guide/RF-GNSS.png "Click to enlarge")
+<figcaption markdown>The SMA connector for the GNSS antenna.</figcaption>
 </figure>
 
 The mosaic-X5 SMA connector is standard polarity and provides 5V power for an active antenna.
+</div>
+
+<div markdown>
+<figure markdown>
+[![SMA RF Connections](./assets/img/hookup_guide/RF-WiFi.png){ width="400" }](./assets/img/hookup_guide/RF-WiFi.png "Click to enlarge")
+<figcaption markdown>The RP-SMA connector for the WiFi / BLE antenna.</figcaption>
+</figure>
 
 The ESP32 WiFi / BT SMA connector is reverse-polarity (RP). A short u.FL cable connects the SMA connector to the ESP32-WROVER itself.
+</div>
+
+</div>
+
+!!! tip "Polarity"
+	When selecting antennas and/or cables for the RTK mosaic-X5, double-check the polarity of all the connections.
+
 
 ## I/O Terminals
 The RTK moasic-X5 is equipped with two 10-way 3.5mm screw cage terminal connectors.
 
+<div class="grid" markdown>
+
+<div markdown>
+
 <figure markdown>
-[![IO Connections](./assets/img/hookup_guide/IO.png){ width="400" }](./assets/img/hookup_guide/IO.png "Click to enlarge")
+[![IO Connections](./assets/img/hookup_guide/IO.png){ width="750" }](./assets/img/hookup_guide/IO.png "Click to enlarge")
 <figcaption markdown>I/O Screw Terminal Connections.</figcaption>
 </figure>
+
+</div>
+
+<div markdown>
+
+<figure markdown>
+[![IO Connections](./assets/img/hookup_guide/IO-PCB.png){ width="400" }](./assets/img/hookup_guide/IO-PCB.png "Click to enlarge")
+<figcaption markdown>I/O Screw Terminal Connections on the RTK mosaic-X5 PCB.</figcaption>
+</figure>
+
+</div>
+
+</div>
 
 These terminals are described in the tabs below. For more information on the I/O terminals, you can refer to the [schematic](./assets/board_files/schematic.pdf).
 
@@ -420,14 +462,23 @@ The status indicator LEDs on the RTK mosaic-X5.
 The status indicator LEDs on the RTK mosaic-X5 PCB.
 </figcaption>
 </figure>
+
 </div>
 
 </div>
+
 
 ## OLED Display
 The RTK mosaic-X5 has a 128x64 pixel OLED display, controlled by the ESP32 via I<sup>2</sup>C. After some initial diagnostic messages, the display will show position, time and other data from the mosaic-X5 NMEA **GGA** message, plus the Ethernet / WiFi IP address.
 
-* **Time:** - Universal Time Coordinate (UTC) in HHMMSS.SS format
+<figure markdown>
+[![LEDs](./assets/img/hookup_guide/OLED3.png){ width="750" }](./assets/img/hookup_guide/OLED3.png "Click to enlarge")
+<figcaption markdown>
+The OLED display on the RTK mosaic-X5.
+</figcaption>
+</figure>
+
+* **Time:** - Universal Time Coordinate (UTC) in `HHMMSS.SS` format
 	* Note: the display is updated approximately every 2 seconds. The time shown may not be precise.
 * **Lat:** - Latitude in DDMM.MMMMMMM N/S format (this is the format used by the GGA message)
 * **Long:** - Longitude in DDDMM.MMMMMMM E/W format (this is the format used by the GGA message)
@@ -441,23 +492,63 @@ The RTK mosaic-X5 has a 128x64 pixel OLED display, controlled by the ESP32 via I
 * **IP:** - the mosaic-X5 IP address, obtained via Ethernet or WiFi
 	* The X5's internal configuration page can be viewed at this address
 
+??? example "Example Data"
+	Below, is an example data set recorded on the RTK mosaic-X5 at SparkFun HQ; where the antenna was located on the roof of the building. The antenna was above the loading dock, just about where it is displayed on the map. The table below, is an example of how to convert the information on the display into the time and coordinate values.
+
+	<div class="grid">
+
+	<div markdown>
+
+	<figure markdown>
+	[![LEDs](./assets/img/hookup_guide/OLED-sparkfun.png){ width="500" }](./assets/img/hookup_guide/OLED-sparkfun.png "Click to enlarge")
+	<figcaption markdown>
+	Example information on the OLED display of the RTK mosaic-X5.
+	</figcaption>
+	</figure>
+
+	</div>
+
+	<div markdown>
+
+	|    | Data | Format | Value |
+	| :- | :--- | :----- | :---- |
+	| Time | `191525.90` | `HHMMSS.SS` | 7:15:25.90 PM (UTC)<br>12:15:25.90 PM (MST) |
+	| Latitude | `4005.4192485 N` | `DDMM.MMMMMMM` `N`/`S` | 40&deg; 5.4162485' N<br>40&deg; 5' 24.97491" N<br>40.090270808&deg; N |
+	| Longitude | `10511.0873663 W` | `DDDMM.MMMMMMM` `E`/`W` | 105&deg; 11.0873663' W<br>105&deg; 11' 5.241978" W<br>105.184789438&deg; W |
+
+	</div>
+
+	</div>
+
+	<figure markdown>
+	<iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d642.644955184578!2d-105.18511963541232!3d40.0903902657445!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNDDCsDA1JzI1LjAiTiAxMDXCsDExJzA1LjIiVw!5e1!3m2!1sen!2sus!4v1700260975996!5m2!1sen!2sus" width="800" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+	<figcaption markdown>
+	The location of the antenna on Google Maps, as determined from the coordinates on the OLED display. Source: [Google Maps](https://www.google.com/maps/@40.0838666,-105.18528,15z?entry=ttu)
+	</figcaption>
+	</figure>
+
+
 ## Buttons
 There are three buttons on the RTK mosaic-X5: ++"RST"++, ++"BOOT"++, and ++"LOG"++.
 
 <div class="grid" markdown>
 
 <div markdown>
+
 <figure markdown>
-[![Buttons](./assets/img/hookup_guide/Buttons.png){ width="400" }](./assets/img/hookup_guide/Buttons.png "Click to enlarge")
+[![Buttons](./assets/img/hookup_guide/Buttons.png){ width="750" }](./assets/img/hookup_guide/Buttons.png "Click to enlarge")
 <figcaption markdown>Buttons on the RTK mosaic-X5.</figcaption>
 </figure>
+
 </div>
 
 <div markdown>
+
 <figure markdown>
 [![Buttons](./assets/img/hookup_guide/Buttons-PCB.png){ width="400" }](./assets/img/hookup_guide/Buttons-PCB.png "Click to enlarge")
 <figcaption markdown>Buttons on the RTK mosaic-X5 PCB.</figcaption>
 </figure>
+
 </div>
 
 </div>
@@ -507,6 +598,10 @@ A long press (> 5 seconds) on the ++"Log"++ button will dismount or mount the SD
 
 There are several jumpers on the RTK moasic-X5 PCB which can be used to (e.g.) disable the LEDs or allow measurement of the board's current draw.
 
+<div class="grid" markdown>
+
+<div markdown>
+
 <figure markdown>
 [![Jumpers](./assets/img/hookup_guide/Jumpers-top.png){ width="400" }](./assets/img/hookup_guide/Jumpers-top.png "Click to enlarge")
 <figcaption markdown>
@@ -516,6 +611,9 @@ The jumpers on the top of the RTK mosaic-X5 PCB.
 
 * **POE LOAD** - This jumper can be used to disconnect the Power-over-Ethernet (PoE) module 50 Ohm load.
 	* The PoE module has a minimum load of 100mA. We included the 50 Ohm load to ensure this is met. If you can ensure this by other means, open this jumper to disconnect the load.
+</div>
+
+<div markdown>
 
 <figure markdown>
 [![Jumpers](./assets/img/hookup_guide/Jumpers-bottom.png){ width="400" }](./assets/img/hookup_guide/Jumpers-bottom.png "Click to enlarge")
@@ -546,3 +644,6 @@ The jumpers on the bottom of the RTK mosaic-X5 PCB.
 * **MEAS**
 	* Open the **MEAS** jumper if you wish to measure the total current drawn by the RTK mosaic-X5, or (e.g.) wish to add an ON/OFF switch. The breakout pads can then be used to attach a multimeter or a mechanical power switch.
 	* **MEAS** is _upstream_ of the two 3.3V regulators, _downstream_ of the four power source combination and protection diodes.
+</div>
+
+</div>
