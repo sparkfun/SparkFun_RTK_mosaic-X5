@@ -67,44 +67,8 @@ The mosaic-X5 and ESP32 have identical KSZ8041NLI Ethernet PHY interfaces, both 
 <figcaption markdown>The dual Ethernet physical layer interfaces and connections.</figcaption>
 </figure>
 
-## Power-over-Ethernet (PoE)
-The mosaic-X5 Ethernet port supports Power-over-Ethernet (PoE), allowing the RTK mosaic-X5 to be powered by the network. This is very useful when the RTK mosaic-X5 is mounted remotely - perhaps in a weatherproof box up on the roof. Data and power can be delivered through a single cable, avoiding the need for a separate power connection.
-
-<figure markdown>
-[![Power over Ethernet](./assets/img/hookup_guide/POE.png){ width="400" }](./assets/img/hookup_guide/POE.png "Click to enlarge")
-<figcaption markdown>The Power-over-Ethernet (PoE) circuit.</figcaption>
-</figure>
-
-## External DC Power (VIN)
-The RTK mosaic-X5 includes a fully-isolated DC-DC converter, for applications where you may want to power the unit from a vehicle. The DC-DC converter accepts DC voltages between 9V and 36V, regulating this down to 5V. The converter is fully isolated to 1.5kV and operates with ~90% efficiency.
-
-For 12V or 24V vehicle power: connect 12V or 24V to the **VIN+** screw cage terminal; connect 0V (chassis) to the **VIN-** screw cage terminal.
-
-If desired, you can link **VIN-** to the adjacent **GND** screw cage terminal. But doing so bypasses the voltage isolation and could introduce an unwanted ground loop, particularly if the GNSS antenna ground (shield, 0V) is also connected to the chassis.
-
-<figure markdown>
-[![External DC power input](./assets/img/hookup_guide/VIN.png){ width="400" }](./assets/img/hookup_guide/VIN.png "Click to enlarge")
-<figcaption markdown>The DC-DC converter and external power screw terminals.</figcaption>
-</figure>
-
-## USB-C Connectors
-The mosaic-X5 and ESP32 both have USB-C connections. The MOSAIC USB port is high-speed and connected to the X5 through a balancing transformer. The ESP32 USB port is connected through a CH340 USB-UART IC.
-
-The RTK mosaic-X5 can draw power from either or both USB ports, in addition to Power-over-Ethernet and the DC-DC external input described above.
-
-<figure markdown>
-[![USB-C Connectors](./assets/img/hookup_guide/USB.png){ width="400" }](./assets/img/hookup_guide/USB.png "Click to enlarge")
-<figcaption markdown>USB-C connectors: mosaic-X5 (left) and ESP32 (right).</figcaption>
-</figure>
-
-The CH340 allows the ESP32-WROVER to communicate with a computer/host device through the USB-C connection. This allows the ESP32 to show up as a device on the serial (or COM) port of the computer. Users will need to install the latest drivers for the computer to recognize the CH340 *(see [**Quick Start**](./quick_start.md#WiFi) section)*.
-
 ## Power Options
-The mosaic-X5 and the ESP32 both required 3.3V power. To simplify the power circuitry, the four power sources are combined into a common 5V rail which then feeds individual 3.3V 1A regulators for the mosaic-X5 and the ESP32. Diodes are used to combine and protect the power sources from each other.
-
-If you want to measure the board's current draw, you can open the **MEAS** jumper and measure the current via a pair of breakout pads *(see the **[Jumpers](#jumpers)** section)*.
-
-A 2A resettable fuse (green) provides additional protection.
+The mosaic-X5 and the ESP32 both required 3.3V power. To simplify the power circuitry, the four power sources are combined into a common 5V rail which then feeds individual 3.3V 1A regulators for the mosaic-X5 and the ESP32.
 
 <figure markdown>
 [![Power connections](./assets/img/hookup_guide/Power.png){ width="400" }](./assets/img/hookup_guide/Power.png "Click to enlarge")
@@ -115,11 +79,63 @@ The RTK mosaic-X5 can draw power from any or all of:
 
 * **`MOSAIC CONFIG (USB-C)`** - **5V**.
 * **`ESP32 CONFIG (USB-C)`** - **5V**.
-* **`Power-over-Ethernet`** - **Min: 36V**; **Max: 57V**; delivered via the **MOSAIC ETHERNET** RJ45 magjack.
-* **`External DC Power`** - **Min: 9V**; **Max: 36V**; delivered via the **VIN+** and **VIN-** screw cage terminals.
+* **`Power-over-Ethernet`** - **Range: 36 to 57V**; delivered via the `MOSAIC ETHERNET` RJ45 MagJack connector.
+* **`External DC Power`** - **Range: 9 to 36V**; delivered via the `VIN+` and `VIN-` screw cage terminals.
+
+??? tip "Measure Current Draw"
+	If you want to measure the board's current draw, you can open the `MEAS` jumper and measure the current via a pair of breakout pads *(see the **[Jumpers](#jumpers)** section)*.
+
+??? info "Protection Components"
+	Diodes are used to combine and protect the power sources from each other. Also, a 2A resettable fuse (green) provides additional protection.
 
 !!! info
 	For more details, users can reference the [schematic](./assets/board_files/schematic.pdf) and the datasheets of the individual components on the board.
+
+
+### Power-over-Ethernet (PoE)
+The mosaic-X5 Ethernet port supports Power-over-Ethernet ([PoE](https://en.wikipedia.org/wiki/Power_over_Ethernet "Power Over Ethernet")), allowing the RTK mosaic-X5 to be powered by the network. This is very useful when the RTK mosaic-X5 is mounted remotely - perhaps in a weatherproof box up on the roof. Data and power can be delivered through a single cable, avoiding the need for a separate power connection.
+
+<figure markdown>
+[![Power over Ethernet](./assets/img/hookup_guide/POE.png){ width="400" }](./assets/img/hookup_guide/POE.png "Click to enlarge")
+<figcaption markdown>The Power-over-Ethernet (PoE) circuit.</figcaption>
+</figure>
+
+### External DC Power (VIN)
+The RTK mosaic-X5 includes a fully-isolated DC-DC converter, for applications where you may want to power the unit from a vehicle. The DC-DC converter accepts DC voltages between **9V and 36V**, regulating this down to 5V. The converter is fully isolated to 1.5kV and operates with ~90% efficiency.
+
+<figure markdown>
+[![External DC power input](./assets/img/hookup_guide/VIN.png){ width="400" }](./assets/img/hookup_guide/VIN.png "Click to enlarge")
+<figcaption markdown>The DC-DC converter and external power screw terminals.</figcaption>
+</figure>
+
+!!! tip
+	For **12V** or **24V** vehicle power: connect 12V or 24V to the `VIN+` screw cage terminal; connect 0V (chassis) to the `VIN-` screw cage terminal.
+
+!!! info
+	If desired, you can link `VIN-` to the adjacent `GND` screw cage terminal. But doing so bypasses the voltage isolation and could introduce an unwanted ground loop, particularly if the GNSS antenna ground (shield, 0V) is also connected to the chassis.
+
+### USB-C Connectors
+The mosaic-X5 and ESP32 both have USB-C connections. The MOSAIC USB port is high-speed and connected to the X5 through a balancing transformer. The ESP32 USB port is connected through a CH340 USB-UART IC.
+
+<figure markdown>
+[![USB-C Connectors](./assets/img/hookup_guide/USB.png){ width="400" }](./assets/img/hookup_guide/USB.png "Click to enlarge")
+<figcaption markdown>USB-C connectors: mosaic-X5 (left) and ESP32 (right).</figcaption>
+</figure>
+
+!!! info
+	The RTK mosaic-X5 can draw power from either or both USB ports, in addition to Power-over-Ethernet and the DC-DC external input described above.
+
+!!! info "CH340 Driver"
+	The CH340 allows the ESP32-WROVER to communicate with a computer/host device through the USB-C connection. This allows the ESP32 to show up as a device on the serial (or COM) port of the computer. Users will need to install the latest drivers for the computer to recognize the CH340 *(see [**Quick Start**](./quick_start.md#WiFi) section)*.
+
+
+
+
+<figure markdown>
+</figure>
+
+
+
 
 ## microSD storage and Log button
 The microSD socket is connected directly to the mosaic-X5 via a one-bit SDIO interface for fast data logging. The mosaic-X5 supports FAT32 cards up to 32GB in size.
