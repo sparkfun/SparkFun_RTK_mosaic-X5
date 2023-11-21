@@ -226,6 +226,9 @@ markdown_extensions:
   
   # Allows the use of definition list formatting in Markdown syntax
   - def_list
+
+  # Allows the use of footnotes
+  - footnotes
   
   # Allows the use of bundled and custom icons and emojis
   - pymdownx.emoji:
