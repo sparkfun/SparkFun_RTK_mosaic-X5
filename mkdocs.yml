@@ -205,6 +205,7 @@ markdown_extensions:
   
   # Allows the use of in-text highlighting in Markdown syntax
   - pymdownx.mark
+  - pymdownx.critic
   
   # Allows the use of superscript/subscript formatting in Markdown syntax
   - pymdownx.caret
