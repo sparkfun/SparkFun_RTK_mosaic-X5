@@ -17,7 +17,7 @@ To begin, check that the mosaic-X5 is configured as a **Rover**:
 </figcaption>
 </figure>
 
-We've had good experiences with [PointOneNav](https://app.pointonenav.com/trial?src=sparkfun) where you get a 14 day free trial without needing to give them your credit card details. Enter your details in the **Create your account** window, create an account and verify your email address. A Trial Device is created automatically. Make a note of the Caster address, Mount Point, Username and Password. You will need to enter those into the mosaic-X5 NTRIP Client configuration. Can't find the login page again? It is [here](https://app.pointonenav.com/login).
+We've had good experiences with [PointOneNav](https://app.pointonenav.com/trial?src=sparkfun) where you get a 14 day free trial without needing to give them your credit card details. Enter your details in the **Create your account** window, create an account and verify your email address. A Trial Device is created automatically. Make a note of the Caster address, Mount Point, Username and Password. You will need to enter those into the mosaic-X5 NTRIP Client configuration. Here's a link to the [login page](https://app.pointonenav.com/login). If you are in Europe, the NTRIP Caster server is different. Please check the [Polaris NTRIP API documentation](https://pointonenav.github.io/docs/pages/ntrip.html) for details.
 
 <figure markdown>
 [![Point One Trial Device](./assets/img/hookup_guide/PointOne_1.png){ width="400" }](./assets/img/hookup_guide/PointOne_1.png "Click to enlarge")
@@ -35,7 +35,7 @@ In the **Corrections** tab, select **New NTRIP client**:
 </figcaption>
 </figure>
 
-Enter the details of your PointOneNav Trial Device. The **Mount point** pull-down is populated after you enter the **Caster** and **Port**.
+Enter the details of your PointOneNav Trial Device. The **Mount point** pull-down is populated after you enter the **Caster** and **Port**. PointOneNav supports TLS encryption; please see the [Polaris NTRIP API documentation](https://pointonenav.github.io/docs/pages/ntrip.html) for details.
 
 <figure markdown>
 [![Configuring the NTRIP client](./assets/img/hookup_guide/NTRIP_client_2.png){ width="400" }](./assets/img/hookup_guide/NTRIP_client_2.png "Click to enlarge")
