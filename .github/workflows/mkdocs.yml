@@ -11,12 +11,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python runtime
         uses: actions/setup-python@v4
         with:
-          python-version: 3.x
+          python-version: 3.11
 
       - name: Install Python dependencies
         run: pip install mkdocs-monorepo-plugin mkdocs-redirects mkdocs-git-authors-plugin mkdocs-git-revision-date-localized-plugin mkdocs-git-committers-plugin-2
