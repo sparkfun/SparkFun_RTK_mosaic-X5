@@ -21,12 +21,6 @@ jobs:
       - name: Install Python dependencies
         run: pip install mkdocs-monorepo-plugin mkdocs-redirects mkdocs-git-authors-plugin mkdocs-git-revision-date-localized-plugin mkdocs-git-committers-plugin-2
 
-      # - name: Install Chrome
-      #   run: sudo apt install google-chrome-stable
-
-      # - run: pip uninstall -y beautifulsoup4
-      # - run: pip install beautifulsoup4==4.9.3
-
       - name: Set up build cache
         uses: actions/cache@v2
         with:
