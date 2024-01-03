@@ -61,7 +61,7 @@ theme:
     # Allows users to easily jump to the beginning of the page
     - navigation.top
 
-    # Renders path for page navigation at top of the page (makes page navigation more mobile friendly)
+    # Renders path for page navigation at the top of the page (makes page navigation more mobile friendly)
     - navigation.path
 
 
@@ -156,12 +156,12 @@ plugins:
   #     enable_creation_date: true
   #     type: timeago
 
-  # # Add git committers at bottom of the page
+  # # Add git committers at the bottom of the page
   # - git-committers:
   #     repository: sparkfun/SparkFun_RTK_mosaic-X5
   #     branch: main
 
-  # # Add git authors at bottom of the page
+  # # Add git authors at the bottom of the page
   # - git-authors
   
   # Enables use of Git submodules and larger code base
@@ -323,4 +323,3 @@ nav:
   - Support:
     - Troubleshooting Tips: troubleshooting_tips.md
     - Submit Issues: github/file_issue.md
-    - Contribute: github/contribute.md
