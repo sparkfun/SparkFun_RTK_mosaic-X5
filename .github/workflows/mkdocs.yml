@@ -19,7 +19,7 @@ jobs:
       - name: Set up Python runtime
         uses: actions/setup-python@v4
         with:
-          python-version: 3.11
+          python-version: 3.x
 
       - name: Install Python dependencies
         run: pip install mkdocs-monorepo-plugin mkdocs-redirects mkdocs-git-authors-plugin mkdocs-git-revision-date-localized-plugin mkdocs-git-committers-plugin-2 Pillow 'mkdocs-material[imaging]'
