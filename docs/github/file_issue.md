@@ -9,9 +9,9 @@ Spot something wrong? Please let us know. <a href="https://github.com/sparkfun/S
 	<center>
 	[SparkFun Technical Assistance Page](https://www.sparkfun.com/technical_assistance){ .md-button .md-button--primary }
 	</center>
-	
+
 	If you can't find what you need there, the [SparkFun Forums](https://forum.sparkfun.com/index.php) is a great place to search the product forums and ask questions.
-	
+
 	!!! info "Account Registration Required"
 		For your first visit to our forum, you'll need to create a [Forum Account](https://forum.sparkfun.com/ucp.php?mode=register) to post questions.
 
@@ -50,7 +50,7 @@ If part of the board's functionality is missing, please [open an issue](https://
 
 !!! tip "Design Considerations"
 	Please keep in mind that we may intentionally exclude certain functions of the board to meet our product design requirements.
-	
+
 	* *For example, our Qwiic Micro boards are intended to fit on a small board layout and only use I<sup>2</sup>C communication; therefore, we may not have the SPI and interrupt pins available for users.*
 
 

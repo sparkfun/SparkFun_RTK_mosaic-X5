@@ -332,13 +332,17 @@ nav:
     - Introduction: introduction.md
     - Quick Start Guide: quick_start.md
     - Hardware Overview: hardware_overview.md
-    - Using a RTK Correction Service: correction_service.md
-    - RTK Base: base.md
-    - NTRIP Server: ntrip_server.md
-    - NTRIP Client: ntrip_client.md
-    - L5 Reception: L5.md
+    - Hardware Assembly: hardware_assembly.md
+    - Software Setup: software_overview.md
+    - RTK Configurations:
+      - RTK Base: base.md
+      - NTRIP Server: ntrip_server.md
+      - NTRIP Client: ntrip_client.md
+    - RTK Correction Services: correction_service.md
+    - Enable the L5 Band: L5.md
   - Resources:
     - Hardware Resources: resources.md
   - Support:
     - Troubleshooting Tips: troubleshooting_tips.md
     - Submit Issues: github/file_issue.md
+    - Contribute: github/contribute.md

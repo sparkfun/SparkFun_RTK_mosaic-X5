@@ -8,7 +8,7 @@ icon: material/printer
 --8<-- "./docs/introduction.md:5"
 
 # Quick Start Guide
---8<-- "./docs/quick_start.md:5"
+--8<-- "./docs/quick_start.md:6"
 
 # Hardware Overview
 --8<-- "./docs/hardware_overview.md:5"

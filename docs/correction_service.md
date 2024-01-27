@@ -1,8 +1,8 @@
 ---
-icon: material/cog
+icon: fontawesome/solid/map-location-dot
 ---
 
-In Real Time Kinematic (RTK) positioning, a Rover uses corrections from a local Base station to accurately augment its position to centimeter level. This is done by using carrier-phase measurements of the received GNSS signals and differencing techniques. Put simply, an RTK Base knows where it is and - based on its location - can share satellite signal correction data with local Rovers, to allow them to achieve centimeter-level positioning.
+In Real Time Kinematic (RTK) positioning, a Rover uses corrections from a local Base station to accurately augment its position to the centimeter level. This is done by using carrier-phase measurements of the received GNSS signals and differencing techniques. Put simply, an RTK Base knows where it is and - based on its location - can share satellite signal correction data with local Rovers, to allow them to achieve centimeter-level positioning.
 
 NTRIP (Networked Transport of RTCM via Internet Protocol) is a standardized way of transferring RTCM correction data between RTK Bases and Rovers. It is the protocol used by NTRIP Casters for inbound and outbound corrections.
 
