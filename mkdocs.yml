@@ -185,6 +185,25 @@ plugins:
         target: _blank
       links_noopener: true
 
+  # Optimizes media files (*.png and *.jpg)
+  - optimize:
+      # Specify directory; otherwise, multiple instances are created (.cache/plugins and .cache/plugin)
+      cache_dir: .cache/plugins/optimize
+
+      # Default values (from auto-complete)
+      # ------------------------------
+      # enabled: true
+      # cache: true
+      # cache_dir: .cache/plugins/optimize
+      # optimize_png: true
+      # optimize_png_speed: 4
+      # optimize_png_strip: true
+      # optimize_jpg: true
+      # optimize_jpg_quality: 60
+      # optimize_jpg_progressive: true
+      # print_gain: true
+      # print_gain_summary: true
+
 
 # Included Markdown extensions
 markdown_extensions:
