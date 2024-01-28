@@ -31,7 +31,7 @@ icon: material/cog
 		</div>
 
 !!! code "ESP32 Firmware"
-	We have intentionally kept the ESP32 firmware as simple as possible - supporting only two modes: Ethernet *(**Mode: `1`**)* and WiFi *(**Mode: `2`**)*. The intention being that you can easily develop your own firmware for the RTK mosaic-X5 using the Espressif ESP IDF if the SparkFun firmware does not meet your needs.
+	We have intentionally kept the ESP32 firmware as simple as possible - supporting only two modes: Ethernet *(**Mode: `1`**)* and WiFi *(**Mode: `2`**)*. The intention is that you can easily develop your own firmware for the RTK mosaic-X5 using the Espressif ESP IDF if the SparkFun firmware does not meet your needs.
 
 	You can of course modify the hardware too, should you want to. The design is completely open-source.
 
@@ -465,7 +465,7 @@ These terminals are described in the tabs below. For more information on the I/O
 		The default position of the `VIO` switch is **3.3V**.
 
 	!!! tip
-		The `VIO` and `GND` pins could be used to power (e.g.) a LoRa module. We recommend limiting the current draw from `VIO` to 200mA, and never drawing more than 500mA peak. The upstream 3.3V regulator is rated at 1A but it also provides power for the ESP32 processor.
+		The `VIO` and `GND` pins could be used to power (e.g.) a LoRa module. We recommend limiting the current draw from `VIO` to **200mA** and never drawing more than 500mA peak. The upstream 3.3V regulator is rated at 1A but it also provides power for the ESP32 processor.
 
 === "mosaic-X5 `COM1`"
 	The mosaic-X5 UART COM1 connections are adjacent to the **EVENTA** and **EVENTB** terminals and are connected as follows:
@@ -474,10 +474,10 @@ These terminals are described in the tabs below. For more information on the I/O
 
 	| **Terminal** | <center>**Function**</center>          | **Notes**                                                     |
 	| :----------: | :------------------------------------- | :------------------------------------------------------------ |
-	| **RX**       | COM1 UART Receive : **Input**          |                                                               |
-	| **TX**       | COM1 UART Transmit : **Output**        |                                                               |
-	| **RTS**      | COM1 UART Request To Send : **Output** | The module drives this pin low when ready to receive data     |
-	| **CTS**      | COM1 UART Clear To Send : **Input**    | Must be driven low when ready to receive data from the module |
+	| **RX**       | COM1 UART Receive - **Input**          |                                                               |
+	| **TX**       | COM1 UART Transmit - **Output**        |                                                               |
+	| **RTS**      | COM1 UART Request To Send - **Output** | The module drives this pin low when ready to receive data     |
+	| **CTS**      | COM1 UART Clear To Send - **Input**    | Must be driven low when ready to receive data from the module |
 
 	</center>
 
@@ -514,7 +514,7 @@ These terminals are described in the tabs below. For more information on the I/O
 		</figure>
 
 === "PPSO"
-	The mosaic-X5 **PPSO** is a configurable Pulse-Per-Second output. By default, PPSO is high for 5ms at 1Hz. The polarity, frequency and pulse width can be adjusted with the **setPPSParameters** command.
+	The mosaic-X5 **PPSO** is a configurable Pulse-Per-Second output. By default, PPSO is high for 5ms at 1Hz. The polarity, frequency and pulse width can be adjusted with the **`setPPSParameters`** command.
 
 	<center>
 
@@ -542,7 +542,7 @@ These terminals are described in the tabs below. For more information on the I/O
 		The LOG voltage level is set by the I/O voltage selection switch.
 
 	!!! tip
-		The LOG input is pulled up to VIO internally. Pull low to GND to start / stop logging.
+		The LOG input is pulled up to VIO internally. Pull low to GND to start or stop logging.
 
 	!!! tip
 		Internal resistors allow the `LOG` I/O terminal and ++"Log"++ button to be used simultaneously. It is OK to press the ++"Log"++ button while the `LOG` terminal is being driven high (VIO).
@@ -635,25 +635,25 @@ There are six status LEDs on the RTK mosaic-X5:
 <div markdown>
 
 * `PWR` - Power *(Red)*
-	* Iluminates when power is applied
+	* Illuminates when power is applied
 * `LOG` - &micro;SD Logging *(Red)*
-	* Solid Red : &micro;SD card is mounted
-	* Blinking Red : data is being logged
-	* Off : &micro;SD is dismounted or not present
+	* Solid Red - &micro;SD card is mounted
+	* Blinking Red - Data is being logged
+	* Off - &micro;SD is dismounted or not present
 * `WiFi` - WiFi *(Green)*
 	* The ESP32 firmware is using WiFi
 	* Connected to ESP32 GPIO pin 12
 * `PVT` - Position Velocity Time *(Green)*
-	* Solid Green : the mosaic-X5 has valid Position, Velocity and Time
-	* Off : satellite signal not present or acquired
+	* Solid Green - The mosaic-X5 has valid Position, Velocity and Time
+	* Off - Satellite signal not present or acquired
 * `BT` - Bluetooth *(Yellow)*
 	* The ESP32 firmware is using BT
 	* Connected to ESP32 GPIO pin 13
 	* *Not used by firmware v1.0.0*
 * `RTK` - Real-Time Kinematic *(Yellow)*
-	* Solid Yellow : the mosaic-X5 has a RTK Fixed solution
-	* Blinking Yellow: the mosaic-X5 has a RTK Float solution
-	* Off : no RTK solution
+	* Solid Yellow - The mosaic-X5 has an RTK Fixed solution
+	* Blinking Yellow - The mosaic-X5 has an RTK Float solution
+	* Off - No RTK solution
 
 </div>
 
@@ -788,7 +788,7 @@ There are three buttons on the RTK mosaic-X5: ++"RESET"++, ++"BOOT"++, and ++"LO
 
 	1. Hold the ++"BOOT"++ button down.
 	2. Reset the MCU.
-		* While unpowered, connect the board to a computer with through the USB-C connection.
+		* While unpowered, connect the board to a computer through the USB-C connection.
 		* While powered, press the ++"RESET"++ button.
 	3. Release the ++"BOOT"++ button.
 	4. After programming is completed, reboot the MCU.
@@ -874,4 +874,4 @@ The jumpers on the bottom of the RTK mosaic-X5 PCB.
 		* Open these jumpers if you wish to isolate (disconnect) the Power-over-Ethernet pins on the MOSAIC Ethernet magjack. The breakout pads can then be used to feed in power from an alternate source.
 	* **MEAS**
 		* Open the **MEAS** jumper if you wish to measure the total current drawn by the RTK mosaic-X5, or (e.g.) wish to add an ON/OFF switch. The breakout pads can then be used to attach a multimeter or a mechanical power switch.
-		* **MEAS** is _upstream_ of the two 3.3V regulators, _downstream_ of the four power source combination and protection diodes.
+		* **MEAS** is _upstream_ of the two 3.3V regulators and _downstream_ of the four power source combination and protection diodes.

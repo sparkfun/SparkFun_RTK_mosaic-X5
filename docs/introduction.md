@@ -137,7 +137,7 @@ Everything that is included in the RTK mosaic-X5 kit.
 
 ??? note ":material-weather-pouring:&nbsp;Selecting an Outdoor Enclosure"
 
-	The RTK mosaic-X5 comes in a beautiful custom extruded aluminium enclosure, with machined end panels and matching stickers. The slotted flanges make it easy to install and secure the enclosure in many locations. But the enclosure only provides limited protection against the ingress of dust and water; it is IP42. So, if you are going to permanently install it up on the roof too, you're going to need a suitable weatherproof box. We found a good one - the [Orbit 57095](https://www.orbitonline.com/products/gray-outdoor-timer-cabinet) - also available from [Amazon](https://www.amazon.com/Orbit-57095-Weather-Resistant-Outdoor-Mounted-Controller/dp/B000VYGMF2) - back when we put together our very first [DIY GNSS Reference Station](https://learn.sparkfun.com/tutorials/how-to-build-a-diy-gnss-reference-station#mini-computer-setup-option-1).
+	The RTK mosaic-X5 comes in a beautiful custom extruded aluminum enclosure, with machined end panels and matching stickers. The slotted flanges make it easy to install and secure the enclosure in many locations. But the enclosure only provides limited protection against the ingress of dust and water; it is IP42. So, if you are going to permanently install it up on the roof too, you're going to need a suitable weatherproof box. We found a good one - the [Orbit 57095](https://www.orbitonline.com/products/gray-outdoor-timer-cabinet) - also available from [Amazon](https://www.amazon.com/Orbit-57095-Weather-Resistant-Outdoor-Mounted-Controller/dp/B000VYGMF2) - back when we put together our very first [DIY GNSS Reference Station](https://learn.sparkfun.com/tutorials/how-to-build-a-diy-gnss-reference-station#mini-computer-setup-option-1).
 
 	<div class="grid" markdown>
 
@@ -157,7 +157,7 @@ Everything that is included in the RTK mosaic-X5 kit.
 	<div markdown>
 
 	!!! info "AC Not Required!"
-		The Orbit enclosure comes with a built-in power outlet, but you don't actually need it! The RTK mosaic-X5 can be powered by [Power-over-Ethernet (PoE)](https://en.wikipedia.org/wiki/Power_over_Ethernet), meaning all you really need to run up to the roof is a standard 8-core CAT-6 Ethernet cable. Choose a PoE Ethernet Switch that meets your needs. We have had good experiences with the [TP-Link TL-SG1005P](https://www.tp-link.com/us/business-networking/poe-switch/tl-sg1005p/) - available from many retailers including [Amazon](https://www.amazon.com/TP-Link-Compliant-Shielded-Optimization-TL-SG1005P/dp/B076HZFY3F).
+		The Orbit enclosure comes with a built-in power outlet, but you don't need it! The RTK mosaic-X5 can be powered by [Power-over-Ethernet (PoE)](https://en.wikipedia.org/wiki/Power_over_Ethernet), meaning all you really need to run up to the roof is a standard 8-core CAT-6 Ethernet cable. Choose a PoE Ethernet Switch that meets your needs. We have had good experiences with the [TP-Link TL-SG1005P](https://www.tp-link.com/us/business-networking/poe-switch/tl-sg1005p/) - available from many retailers including [Amazon](https://www.amazon.com/TP-Link-Compliant-Shielded-Optimization-TL-SG1005P/dp/B076HZFY3F).
 
 	</div>
 

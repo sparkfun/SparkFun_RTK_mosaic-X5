@@ -167,11 +167,11 @@ An &micro;SD card slot is available for users to log and store data, locally on 
 		* Unmount the SD card if it was mounted
 		* Mount the SD card if it was unmounted
 
-	For more information, please reference the [SD Card Slot](../hardware_overview/#sd-card-slot) section.## SD Card
+	For more information, please reference the [SD Card Slot](../hardware_overview/#sd-card-slot) section.
 
 
 ## IO Terminals
-Users can easily attach accessories to the RTK mosaic-X5 by wiring them into the terminal blocks on the back fo the enclosure.
+Users can easily attach accessories to the RTK mosaic-X5 by wiring them into the terminal blocks on the back of the enclosure.
 
 <figure markdown>
 [![Terminal Block](./assets/img/hookup_guide/assembly-terminal_block2.jpg){ width="400" }](./assets/img/hookup_guide/assembly-terminal_block2.jpg "Click to enlarge")

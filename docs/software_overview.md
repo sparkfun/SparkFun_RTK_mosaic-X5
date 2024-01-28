@@ -3,7 +3,7 @@ icon: fontawesome/solid/computer
 ---
 
 !!! code "ESP32 Firmware"
-	We have intentionally kept the ESP32 firmware as simple as possible - supporting only two modes: Ethernet (mode **1**) and WiFi (mode **2**). The intention being that you can easily develop your own firmware for the RTK mosaic-X5 using the Espressif ESP IDF if the SparkFun firmware does not meet your needs.
+	We have intentionally kept the ESP32 firmware as simple as possible - supporting only two modes: Ethernet (mode **1**) and WiFi (mode **2**). The intention is that you can easily develop your own firmware for the RTK mosaic-X5 using the Espressif ESP IDF if the SparkFun firmware does not meet your needs.
 
 	You can of course modify the hardware too, should you want to. The design is completely open-source.
 
@@ -21,7 +21,7 @@ icon: fontawesome/solid/computer
 ### RxTools Software Suite
 
 !!! tip
-	Even if you aren't necessarily interested it, we highly recommend that users install the [RXTools software suite](https://www.septentrio.com/en/products/gps-gnss-receiver-software/rxtools) before plugging in their board. For Windows PCs, it also includes the USB driver for the module that enables the Ethernet-over-USB support and virtual `COM` ports.
+	Even if you aren't necessarily interested in it, we highly recommend that users install the [RXTools software suite](https://www.septentrio.com/en/products/gps-gnss-receiver-software/rxtools) before plugging in their board. For Windows PCs, it also includes the USB driver for the module that enables the Ethernet-over-USB support and virtual `COM` ports.
 
 Users should install the [RXTools software suite](https://www.septentrio.com/en/products/gps-gnss-receiver-software/rxtools) on their computer to interact with the mosaic-X5 module through the USB interface. The software package includes the USB-IP driver[^1] necessary to recognize the board as an ethernet device on Windows PCs (1).
 { .annotate }
@@ -59,7 +59,7 @@ Users should install the [RXTools software suite](https://www.septentrio.com/en/
 ??? info "Installation Instructions[^2]"
 
 	=== "Windows"
-		Users can install RxTools software suite by running the installation executable[^4](1), located in the `RxTools\windows` directory of the downloaded `*.zip` file[^5]. During the installation process, users will be notified if a previous version of RxTools is already installed then that the previous version will be uninstalled. Next, users will need to provide an installation directory for the RxTools software suite. Users will then select which of the following applications[^6] are installed:
+		Users can install RxTools software suite by running the installation executable[^4](1), located in the `RxTools\windows` directory of the downloaded `*.zip` file[^5]. During the installation process, users will be notified if a previous version of RxTools is already installed then the previous version will be uninstalled. Next, users will need to provide an installation directory for the RxTools software suite. Users will then select which of the following applications[^6] are installed:
 		{ .annotate }
 
 		1. For RxTools v22.1.0, the installation filename is `RxTools_22_1_0_Installer.exe` for Windows PCs.
@@ -144,7 +144,7 @@ Users should install the [RXTools software suite](https://www.septentrio.com/en/
 				Be aware that the X-session has to be restarted as well. On most systems, this can be done by pressing the key combination ++ctrl++ + ++alt++ + ++backspace++
 
 		??? info "64-bit OS"
-			In order to run the RxTools on a 64-bit Linux operating system, users might to install the 32-bit version of the `C` standard library.
+			In order to run the RxTools on a 64-bit Linux operating system, users might have to install the 32-bit version of the `C` standard library.
 
 			* For Fedora installations, this is the `glibc.i686` package.
 			* The equivalent for Debian(/Ubuntu) installations is the `ia32-libs` package.
@@ -175,7 +175,7 @@ Users should install the [RXTools software suite](https://www.septentrio.com/en/
 	Once installed, the driver emulates two virtual serial ports, which can be accessed as standard `COM` ports to the receiver.
 
 	??? tip "Terminal Emulators"
-		Most [terminal emulation programs](https://learn.sparkfun.com/tutorials/112) will not make a distinction between virtual or native COM ports. However, for virtual serial ports, the port settings *(i.e. baudrate, etc.)* are not relevant and the default configuration be used in the terminal emulation program. However, for the physical/native `COM` ports will have the following default setting: 
+		Most [terminal emulation programs](https://learn.sparkfun.com/tutorials/112) will not make a distinction between virtual or native COM ports. However, for virtual serial ports, the port settings *(i.e. baud rate, etc.)* are not relevant and the default configuration is used in the terminal emulation program. However, the physical/native `COM` ports will have the following default setting: 
 
 		* Baudrate: 115200bps
 		* Data Bits: 8
@@ -188,7 +188,7 @@ Users should install the [RXTools software suite](https://www.septentrio.com/en/
 
 		[^9]:
 			For the latest USB driver from Septentrio, please install their driver through the [RxTools software suite](../rxtools).<br>
-			*This is driver version, was archived at the time that the [mosaic-X5 hookup guide](https://docs.sparkfun.com/SparkFun_GNSS_mosaic-X5/) was written. Please do not request for the file to be updated.*
+			*This driver version was archived at the time that the [mosaic-X5 hookup guide](https://docs.sparkfun.com/SparkFun_GNSS_mosaic-X5/) was written. Please do not request for the file to be updated.*
 
 		<center>
 		[:octicons-download-16:{ .heart } Download USB Driver *(v3.0.2)*](https://docs.sparkfun.com/SparkFun_GNSS_mosaic-X5/assets/component_documentation/driver/USB_driver_3_0_2_Installer.exe){ .md-button .md-button--primary target="blank" }
@@ -305,7 +305,7 @@ With the CH340 USB driver and a terminal emulator installed, users will now be a
 
 
 `1` - **Open a Serial Terminal**
-: Open the connection to the CH340 using baud rate of **115200bps**
+: Open the connection to the CH340 using a baud rate of **115200bps**
 
 `2` - **Put the ESP32 firmware into WiFi mode**
 --8<-- "./docs/quick_start.md:186:265"

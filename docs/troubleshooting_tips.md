@@ -3,7 +3,7 @@ icon: sfe-logo
 ---
 
 !!! warning "Need Help?"
-	If you need technical assistance or more information on a product that is not working as you expected, we recommend heading on over to the [SparkFun Technical Assistance](https://www.sparkfun.com/technical_assistance) page for some initial troubleshooting.
+	If you need technical assistance or more information on a product that is not working as you expected, we recommend heading over to the [SparkFun Technical Assistance](https://www.sparkfun.com/technical_assistance) page for some initial troubleshooting.
 
 	<center>
 	[SparkFun Technical Assistance Page](https://www.sparkfun.com/technical_assistance){ .md-button .md-button--primary }
@@ -70,7 +70,7 @@ Got a few dead pixels on your OLED display? Please reach out to us in our forum.
 
 
 ## Vehicle Power - Dead Battery
-Is the RTK mosaic-X5 killing you vehicle's battery?
+Is the RTK mosaic-X5 killing your vehicle's battery?
 
 Make sure that the external power source for the RTK mosaic-X5 is not directly tied to the vehicle's battery, `Always On`, or accessory circuits. Otherwise, users will risk killing the battery while the engine is off. We recommend locating the *ignition on* or *switched power* circuit, which is only powered when the key is in the `On` position *and the engine is running*.
 

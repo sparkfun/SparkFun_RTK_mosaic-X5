@@ -31,11 +31,11 @@ Here we are going to use RTK2go.
 
 Creating a New Reservation for your base station is really easy. Simply follow [the instructions](http://rtk2go.com/sample-page/new-reservation/)...
 
-At SparkFun, we use **MountPt** names like **bldr_dwntwn2** , **bldr_dwntwn3** , **bldr_SparkFun1** - bldr is short for Boulder. Choose a name which is short, easy to remember and - we suggest - includes clues about who you are or where your server is. You can see the full list of all active bases at [rtk2go.com:2101](http://www.rtk2go.com:2101/).
+At SparkFun, we use **MountPt** names like **`bldr_dwntwn2`** , **`bldr_dwntwn3`** , **`bldr_SparkFun1`** - bldr is short for Boulder. Choose a name that is short, easy to remember and - we suggest - includes clues about who you are or where your server is. You can see the full list of all active bases at [rtk2go.com:2101](http://www.rtk2go.com:2101/).
 
-The mosaic-X5 is a high end receiver so be sure to select **NTRIP Rev2** as the protocol and provide a login user name. IBAN - the banking network - provide a handy list of [three-letter country codes](https://www.iban.com/country-codes).
+The mosaic-X5 is a high-end receiver so be sure to select **NTRIP Rev2** as the protocol and provide a login user name. IBAN - the banking network - provides a handy list of [three-letter country codes](https://www.iban.com/country-codes).
 
-The registration process typically takes under 8 hours to complete, somewhat longer on weekends. Once your mount point has been set up, RTK2go wil send you a nice email confirming the mount point (**mountPt**) name, password and other details (Country, Country Code etc..). Make a note of those details, as we need to enter them into the mosaic-X5 NTRIP Server configuration.
+The registration process typically takes under 8 hours to complete, somewhat longer on weekends. Once your mount point has been setup, RTK2go will send you a nice email confirming the mount point (**mountPt**) name, password and other details (Country, Country Code etc..). Make a note of those details, as we need to enter them into the mosaic-X5 NTRIP Server configuration.
 
 <figure markdown>
 [![RTK 2 Go Confirmation Email](./assets/img/hookup_guide/NTRIP_server_0.png){ width="400" }](./assets/img/hookup_guide/NTRIP_server_0.png "Click to enlarge")
@@ -111,7 +111,7 @@ We can check [RTK2go.com:2101](http://www.rtk2go.com:2101/) to see if the correc
 </figcaption>
 </figure>
 
-We can see more detail by opening the Caster Status Report. Here I am using the Mount Point **paulAtSparkFun**, so the full report is available at [rtk2go.com:2101/SNIP::MOUNTPT?baseName=paulAtSparkFun](http://rtk2go.com:2101/SNIP::MOUNTPT?baseName=paulAtSparkFun):
+We can see more details by opening the Caster Status Report. Here I am using the Mount Point **paulAtSparkFun**, so the full report is available at [rtk2go.com:2101/SNIP::MOUNTPT?baseName=paulAtSparkFun](http://rtk2go.com:2101/SNIP::MOUNTPT?baseName=paulAtSparkFun):
 
 <figure markdown>
 [![Caster Status Report](./assets/img/hookup_guide/NTRIP_server_8.png){ width="400" }](./assets/img/hookup_guide/NTRIP_server_8.png "Click to enlarge")

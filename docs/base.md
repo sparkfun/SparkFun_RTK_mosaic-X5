@@ -46,7 +46,7 @@ First, let's check what Datum the module is using. It defaults to **WGS84/ITRS**
 </figcaption>
 </figure>
 
-Set up an SBF logging stream to log **PostProcess**, **Rinex**, **Rinex (meas3)** with an interval of 1 sec:
+Setup an SBF logging stream to log **PostProcess**, **Rinex**, **Rinex (meas3)** with an interval of 1 sec:
 
 <figure markdown>
 [![Selecting the logging stream](./assets/img/hookup_guide/RINEX1.png){ width="400" }](./assets/img/hookup_guide/RINEX1.png "Click to enlarge")
@@ -127,7 +127,7 @@ Using a smaller, 30-second file [OPUS](https://www.ngs.noaa.gov/OPUS/)' ITRF res
 </figcaption>
 </figure>
 
-We can now store those coordinates in the mosaic-X5 module memory, either as **Geodetic** (Latitude, Longitude, Alttude) or **Cartesian** (ECEF X/Y/Z) coordinates. The mosaic-X5 allows you to store 5 of each.
+We can now store those coordinates in the mosaic-X5 module memory, either as **Geodetic** (Latitude, Longitude, Altitude) or **Cartesian** (ECEF X/Y/Z) coordinates. The mosaic-X5 allows you to store 5 of each.
 
 <figure markdown>
 [![Setting the fixed position](./assets/img/hookup_guide/RINEX7.png){ width="400" }](./assets/img/hookup_guide/RINEX7.png "Click to enlarge")

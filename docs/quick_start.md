@@ -343,7 +343,7 @@ hide: toc
 		??? info "No web page?"
 			If you can not see the mosaic-X5's internal web page at **192.168.3.1**, please check that your computer / tablet / phone is connected correctly to the USB-C port.
 
-			Subnet 3 is reserved for the mosaic-X5's USB-C connection (Ethernet-over-USB). If your computer is simultaneously connected to an Ethernet or WiFi network which also uses subnet 3 (192.168.3.***), please change the network settings so it uses a different subnet.
+			Subnet 3 is reserved for the mosaic-X5's USB-C connection (Ethernet-over-USB). If your computer is simultaneously connected to an Ethernet or WiFi network that also uses subnet 3 (192.168.3.***), please change the network settings so it uses a different subnet.
 
 		??? info "Firmware mode"
 			You can have the mosaic-X5 connected to your computer via USB-C, while it is also simultaneously connected via Ethernet (firmware mode **1**) or WiFi (firmware mode **2**). If you connect the mosaic-X5 Ethernet port directly to your network or router, ensure the firmware is in mode **1**. If you have the mosaic and ESP32 Ethernet ports linked for WiFi mode, ensure the firmware is in mode **2**.
