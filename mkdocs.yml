@@ -221,6 +221,7 @@ markdown_extensions:
       url_max_size: 0
       url_timeout: 0
       url_request_headers: {}
+      dedent_subsections: True
   
   # Allows embedding of code blocks in other elements
   - pymdownx.superfences
