@@ -2,7 +2,6 @@
 icon: material/tools
 ---
 
-
 ## USB-C Ports
 The USB ports are utilized to configure the mosaic-X5 module and ESP32 WiFi settings. Additionally, the USB ports can also be used as a power source for the RTK mosaic-X5.
 

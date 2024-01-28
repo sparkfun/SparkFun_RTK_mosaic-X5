@@ -183,7 +183,7 @@ hide: toc
 	: * If you are using Windows, we still recommend the [Tera Term](https://learn.sparkfun.com/tutorials/terminal-basics/tera-term-windows) serial terminal but there are plenty of alternatives. Please see our [Serial Terminal Basics tutorial](https://learn.sparkfun.com/tutorials/terminal-basics) for more details.
 		* Open the connection to the CH340 using **115200 baud** 
 	`6` - **Put the ESP32 firmware into WiFi mode**
-	: * When you have the Serial Terminal open, you should see the **RTK_X5>** console prompt. If you do not, hit Enter on your keyboard. If needed, click the **RESET** button on the front of the RTK mosaic-X5 to restart the ESP32 firmware.
+	: * When you have the Serial Terminal open, you should see the **`RTK_X5>`** console prompt. If you do not, hit Enter on your keyboard. If needed, click the ++"RESET"++ button on the front of the RTK mosaic-X5 to restart the ESP32 firmware.
 
 		<figure markdown>
 		[![Console Prompt](./assets/img/hookup_guide/Console_Prompt.png){ width="400" }](./assets/img/hookup_guide/Console_Prompt.png "Click to enlarge")
@@ -192,7 +192,7 @@ hide: toc
 		</figcaption>
 		</figure>
 
-		* Type **help** and hit enter to see the help.
+		* Type **`help`** and hit enter to see the help.
 
 			<figure markdown>
 			[![Console Help](./assets/img/hookup_guide/Console_Help.png){ width="400" }](./assets/img/hookup_guide/Console_Help.png "Click to enlarge")
@@ -201,7 +201,7 @@ hide: toc
 			</figcaption>
 			</figure>
 
-		* Type **show** to see the current configuration.
+		* Type **`show`** to see the current configuration.
 
 			<figure markdown>
 			[![Console Show](./assets/img/hookup_guide/Console_Show.png){ width="400" }](./assets/img/hookup_guide/Console_Show.png "Click to enlarge")
@@ -210,7 +210,7 @@ hide: toc
 			</figcaption>
 			</figure>
 
-		* By default the firmware will be in mode **1** (Ethernet). To change the mode to mode **2** (WiFi), we type:
+		* By default the firmware will be in **Mode: `1`** (Ethernet). To change the mode to **Mode: `2`** (WiFi), we type:
 
 			!!! terminal
 				``` bash
@@ -224,7 +224,7 @@ hide: toc
 					set --mode=2
 					```
 
-		* To set the WiFi SSID type one of:
+		* To set the WiFi SSID, type one of:
 
 			!!! terminal
 				``` bash
@@ -248,7 +248,7 @@ hide: toc
 					set --mode=2 --ssid=YOUR_SSID --password=YOUR_PASSWORD
 					```
 
-		* Finally, type **restart** to restart the firmware with the new settings:
+		* Finally, type **`restart`** to restart the firmware with the new settings:
 
 			!!! terminal
 				``` bash
