@@ -297,3 +297,26 @@ In order to configure the WiFi settings on the ESP32, users will need to install
 		**Serial Terminal Basics**</a>
 
 	</div>
+
+### WiFi Credentials for the Network Bridge
+With the CH340 USB driver and a terminal emulator installed, users will now be able to configure the WiFi credentials on the ESP32. In order for the firmware to operate properly, users should have their RTK mosaic-X5 assembled with the network bridge in *WiFi Mode*.
+
+--8<-- "./docs/quick_start.md:140:145"
+
+
+`1` - **Open a Serial Terminal**
+: Open the connection to the CH340 using baud rate of **115200bps**
+
+`2` - **Put the ESP32 firmware into WiFi mode**
+--8<-- "./docs/quick_start.md:186:265"
+
+
+Once the mosaic-X5 has acquired a satellite signal and is connected to the WiFi network, the OLED will display the antenna's position as Latitude (Lat), Longitude (Long) and Altitude (Alt); the WiFi IP (Internet Protocol) network address. The firmware mode, SSID and password are stored in flash (non-volatile) memory. After changing them, you can disconnect the computer and power the RTK mosaic-X5 using the supplied wall adapter.
+
+--8<-- "./docs/quick_start.md:276:281"
+
+!!! info
+	When powering the RTK mosaic-X5 on for the first time, you may see the firmware restart (reboot) several times while it waits for the mosaic-X5 to initialize. This is not an error or anything to be concerned about.
+
+With the RTK mosaic-X5 operating with the configured WiFi network bridge, users should be able to open a web browser on any connected device and navigate to the IP address shown on the OLED display. The browser should be able to access the mosaic-X5's internal web page, where users can configure the mosaic-X5.
+
