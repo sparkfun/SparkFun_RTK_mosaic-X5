@@ -103,7 +103,7 @@
 #include <lwip/ip4_addr.h>
 
 
-static const char *VERSION = "Firmware v1.0.1";
+static const char *VERSION = "Firmware v1.0.2";
 static const char *TAG = "RTK_mosaic-X5_Firmware";
 #define PROMPT_STR "RTK_X5"
 static const char* prompt;
@@ -666,6 +666,7 @@ static void initialize_ethernet(void)
     uint8_t *uart_buf = (uint8_t *) calloc(CONFIG_RTK_X5_MOSAIC_UART_BUF_SIZE, sizeof(uint8_t));
     int len = 0;
 
+    /*
     // Send the escape sequence
     uint8_t try = 0;
     bool keepGoing = true;
@@ -684,8 +685,7 @@ static void initialize_ethernet(void)
         ESP_LOGE(TAG, "Escape sequence not acknowledged");
         x5_not_ready();
     }
-
-    vTaskDelay(pdMS_TO_TICKS(2000));
+    */
 
     ESP_LOGI(TAG, "Configuring Mosaic Ethernet DHCP");
     print_oled("Configure Ethernet DHCP");
