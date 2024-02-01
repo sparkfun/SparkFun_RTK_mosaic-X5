@@ -146,6 +146,8 @@ typedef struct {
 
 
 /* mosaic-X5 serial commands */
+const char MOSAIC_CMD_ESCAPE[] = "SSSSSSSSSSSSSSSSSSSS\n\r";
+const char MOSAIC_CMD_ESCAPE_RESPONSE_START[] = "COM4>";
 const char MOSAIC_CMD_ETHERNET_OFF[] = "seth,off\n\r";
 const char MOSAIC_CMD_ETHERNET_OFF_RESPONSE_START[] = "$R: seth";
 const char MOSAIC_CMD_IP_DHCP[] = "setIPSettings,DHCP,,,,,,,1500\n\r";
@@ -642,8 +644,13 @@ static void initialize_ethernet(void)
     bool eth_promiscuous = true;
     ESP_ERROR_CHECK(esp_eth_ioctl(s_eth_handle, ETH_CMD_S_PROMISCUOUS, &eth_promiscuous));
 
-    bool auto_negociate = true;
-    ESP_ERROR_CHECK(esp_eth_ioctl(s_eth_handle, ETH_CMD_S_AUTONEGO, &auto_negociate));
+    // Disable auto-negotiate so we can limit the speed
+    bool auto_negotiate = false;
+    ESP_ERROR_CHECK(esp_eth_ioctl(s_eth_handle, ETH_CMD_S_AUTONEGO, &auto_negotiate));
+
+    // Limit speed to 10M
+    eth_speed_t ethSpeed = ETH_SPEED_10M;
+    ESP_ERROR_CHECK(esp_eth_ioctl(s_eth_handle, ETH_CMD_S_SPEED, &ethSpeed));
 
     /*
     It is recommended to fully initialize the Ethernet driver and network interface before registering
@@ -655,12 +662,33 @@ static void initialize_ethernet(void)
     ESP_ERROR_CHECK(esp_event_handler_register(ETH_EVENT, ESP_EVENT_ANY_ID, &eth_event_handler, NULL));
 
 
-    ESP_LOGI(TAG, "Configuring Mosaic Ethernet DHCP");
-    print_oled("Configure Ethernet DHCP");
-
     // Create a temporary buffer for the incoming data
     uint8_t *uart_buf = (uint8_t *) calloc(CONFIG_RTK_X5_MOSAIC_UART_BUF_SIZE, sizeof(uint8_t));
     int len = 0;
+
+    // Send the escape sequence
+    uint8_t try = 0;
+    bool keepGoing = true;
+    while (keepGoing && (try < oled_y_chars)) {
+        ESP_LOGI(TAG, "Sending escape sequence to mosaic-X5");
+        print_oled("Sending escape sequence");
+
+        ESP_ERROR_CHECK(uart_flush_input(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM));
+        uart_write_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, (char*)MOSAIC_CMD_ESCAPE, strlen(MOSAIC_CMD_ESCAPE));
+        len = uart_read_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, uart_buf, strlen(MOSAIC_CMD_ESCAPE_RESPONSE_START), 500);
+        if ((len > 0) && (strncmp((char *)uart_buf, MOSAIC_CMD_ESCAPE_RESPONSE_START, strlen(MOSAIC_CMD_ESCAPE_RESPONSE_START)) == 0))
+            keepGoing = false;
+        try++;
+    }
+    if (keepGoing) {
+        ESP_LOGE(TAG, "Escape sequence not acknowledged");
+        x5_not_ready();
+    }
+
+    vTaskDelay(pdMS_TO_TICKS(2000));
+
+    ESP_LOGI(TAG, "Configuring Mosaic Ethernet DHCP");
+    print_oled("Configure Ethernet DHCP");
 
     // Disable Mosaic Ethernet - iterate to initialize connection
     ESP_ERROR_CHECK(uart_flush_input(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM));
@@ -763,7 +791,7 @@ static esp_err_t initialize_flow_control(void)
         return ESP_FAIL;
     }
 
-    BaseType_t ret = xTaskCreate(eth2wifi_flow_control_task, "flow_ctl", 32768, NULL, (tskIDLE_PRIORITY + 2), NULL);
+    BaseType_t ret = xTaskCreate(eth2wifi_flow_control_task, "flow_ctl", 8192, NULL, (tskIDLE_PRIORITY + 2), NULL);
     if (ret != pdTRUE) {
         ESP_LOGE(TAG, "Create flow control task failed");
         return ESP_FAIL;
