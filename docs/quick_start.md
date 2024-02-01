@@ -5,7 +5,7 @@ hide: toc
 
 !!! abstract "Directions"
 
-	This *quick start* guide is intended to help users get started with their RTK mosaic-X5, without having to review the technical details of the product. It includes the minimum setup of instructions to initially setup the RTK mosaic-X5, depending on the primary interface that users would like to utilize:
+	This *quick start* guide is intended to help users get started with their RTK mosaic-X5, without having to review the technical details of the product. It includes the minimum instructions to initially set up the RTK mosaic-X5, depending on the primary interface that users would like to utilize:
 
 	<div class="grid" markdown>
 
@@ -13,15 +13,15 @@ hide: toc
 
 	**Ethernet**
 
-	: Instructions to connect the RTK mosaic-X5 to a network with an ethernet cable. This will provide the mosaic-X5 with network connectivity for its web server. Users can then pull up the configuration/setup web page from any computer connected to that network.
+	: Instructions to connect the RTK mosaic-X5 to a network with an ethernet cable. This will provide the mosaic-X5 with network connectivity for its web server. Users can then pull up the configuration web page from any computer connected to that network.
 
 	**WiFi**
 
-	: Instructions for remote/exterior installations, where a WiFi connection is preferred. This will provide WiFi connectivity to mosaic-X5's web server; where users can then access the configuration/setup web page from any device on the WiFi network.
+	: Instructions for remote/exterior installations, where a WiFi connection is preferred. This will provide WiFi connectivity to mosaic-X5's web server; where users can then access the configuration web page from any device on the WiFi network.
 
 	**USB-C**
 
-	: For users that just want to interface and setup/configure the RTK mosaic-X5, directly through their computer.
+	: For users that just want to interface and set up the RTK mosaic-X5, directly through their computer.
 
 	</div>
 

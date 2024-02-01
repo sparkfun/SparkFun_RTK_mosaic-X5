@@ -46,7 +46,7 @@ First, let's check what Datum the module is using. It defaults to **WGS84/ITRS**
 </figcaption>
 </figure>
 
-Setup an SBF logging stream to log **PostProcess**, **Rinex**, **Rinex (meas3)** with an interval of 1 sec:
+Set up an SBF logging stream to log **PostProcess**, **Rinex**, **Rinex (meas3)** with an interval of 1 sec:
 
 <figure markdown>
 [![Selecting the logging stream](./assets/img/hookup_guide/RINEX1.png){ width="400" }](./assets/img/hookup_guide/RINEX1.png "Click to enlarge")

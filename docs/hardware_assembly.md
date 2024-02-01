@@ -55,7 +55,7 @@ The USB port for the mosaic-X5 is used for serial communication to stream the GN
 
 <div markdown>
 
-The USB port to the mosaic-X5 can be used to configure the module through an IP port, serial communication to stream the GNSS data, and access the SD card as a mass storage device. To connect to the mosaic-X5, users only need to plug a USB-C cable into the `CONFIG MOSAIC` USB port and their computer.
+The USB port to the mosaic-X5 can be used to configure the module through an IP port, for serial communication to stream the GNSS data, and access the SD card as a mass storage device. To connect to the mosaic-X5, users only need to plug a USB-C cable into the `CONFIG MOSAIC` USB port and their computer.
 
 <figure markdown>
 [![mosaic-X5 USB connection](./assets/img/hookup_guide/assembly-usb-mosaic.jpg){ width="400" }](./assets/img/hookup_guide/assembly-usb-mosaic.jpg "Click to enlarge")
@@ -155,7 +155,7 @@ There are two ethernet jacks on the RTK mosaic-X5, which can be used to provide 
 	<figcaption markdown>The RTK mosaic-X5 with an ethernet cable being attached to the `ESP32 ETHERNET` jack.</figcaption>
 	</figure>
 
-	To setup the WiFi bridge, connect the provided (CAT-6) ethernet cable between the `MOSAIC ETHERNET (PoE)` and `ESP32 ETHERNET` jacks on the RTK mosaic-X5.
+	To set up the WiFi bridge, connect the provided (CAT-6) ethernet cable between the `MOSAIC ETHERNET (PoE)` and `ESP32 ETHERNET` jacks on the RTK mosaic-X5.
 
 	<figure markdown>
 	[![ESP32 ethernet connection](./assets/img/hookup_guide/assembly-wifi_bridge.jpg){ width="400" }](./assets/img/hookup_guide/assembly-wifi_bridge.jpg "Click to enlarge")
