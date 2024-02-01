@@ -15,7 +15,7 @@ Documentation
 --------------
 
 * **[Product Manual](http://docs.sparkfun.com/SparkFun_RTK_mosaic-X5/)** - Product manual for the RTK mosaic-X5 hosted by GitHub pages.<br>
-  [![Built with Material for MkDocs](https://img.shields.io/badge/Material_for_MkDocs-526CFE?logo=MaterialForMkDocs&logoColor=white)](https://squidfunk.github.io/mkdocs-material/) [![GitHub Pages Deploy](https://github.com/sparkfun/SparkFun_RK_mosaic-X5/actions/workflows/mkdocs.yml/badge.svg)](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/actions)
+  [![Built with Material for MkDocs](https://img.shields.io/badge/Material_for_MkDocs-526CFE?logo=MaterialForMkDocs&logoColor=white)](https://squidfunk.github.io/mkdocs-material/) [![GitHub Pages Deploy](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/actions/workflows/mkdocs.yml/badge.svg)](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/actions/workflows/mkdocs.yml)
 
 
 *Need to download or print our hookup guide?*
