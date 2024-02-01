@@ -103,7 +103,7 @@
 #include <lwip/ip4_addr.h>
 
 
-static const char *VERSION = "Firmware v1.0.0";
+static const char *VERSION = "Firmware v1.0.1";
 static const char *TAG = "RTK_mosaic-X5_Firmware";
 #define PROMPT_STR "RTK_X5"
 static const char* prompt;
@@ -244,11 +244,11 @@ static esp_err_t pkt_eth2wifi(esp_eth_handle_t eth_handle, uint8_t *buffer, uint
         free(buffer);
         ret = ESP_FAIL;
     }
-#if CONFIG_RTK_X5_VERBOSE_LOG
-    else {
-        ESP_LOGI(TAG, "Queued WiFi packet of length %d", (int)len);
-    }
-#endif
+// #if CONFIG_RTK_X5_VERBOSE_LOG
+//     else {
+//         ESP_LOGI(TAG, "Queued WiFi packet of length %d", (int)len);
+//     }
+// #endif
     return ret;
 }
 
@@ -282,7 +282,10 @@ static void eth2wifi_flow_control_task(void *args)
                 }
 #if CONFIG_RTK_X5_VERBOSE_LOG
                 else {
-                    ESP_LOGI(TAG, "Sent WiFi packet of length %d", msg.length);
+                    uint8_t *ptr = (uint8_t *)msg.packet;
+                    ESP_LOGI(TAG, "Sent WiFi packet L:%d D:%02X:%02X:%02X:%02X:%02X:%02X S:%02X:%02X:%02X:%02X:%02X:%02X IPS:%d.%d.%d.%d IPD:%d.%d.%d.%d",
+                        msg.length, ptr[0], ptr[1], ptr[2], ptr[3], ptr[4], ptr[5], ptr[6], ptr[7], ptr[8], ptr[9], ptr[10], ptr[11],
+                        ptr[26], ptr[27], ptr[28], ptr[29], ptr[30], ptr[31], ptr[32], ptr[33]);
                 }
 #endif
             }
@@ -760,7 +763,7 @@ static esp_err_t initialize_flow_control(void)
         return ESP_FAIL;
     }
 
-    BaseType_t ret = xTaskCreate(eth2wifi_flow_control_task, "flow_ctl", 2048, NULL, (tskIDLE_PRIORITY + 2), NULL);
+    BaseType_t ret = xTaskCreate(eth2wifi_flow_control_task, "flow_ctl", 32768, NULL, (tskIDLE_PRIORITY + 2), NULL);
     if (ret != pdTRUE) {
         ESP_LOGE(TAG, "Create flow control task failed");
         return ESP_FAIL;
