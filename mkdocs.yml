@@ -8,7 +8,7 @@ repo_url: https://github.com/sparkfun/SparkFun_RTK_mosaic-X5
 repo_name: sparkfun/SparkFun_RTK_mosaic-X5
 
 copyright:
-  Copyright 2023 - <a href="https://www.sparkfun.com/" target="_blank" rel="noopener">SparkFun Electronics&#174;<br>
+  Copyright 2024 - <a href="https://www.sparkfun.com/" target="_blank" rel="noopener">SparkFun Electronics&#174;<br>
   <a href="https://goo.gl/maps/vkstCpQZW6jZMjzYA" target="_blank" rel="noopener">6333 Dry Creek Parkway, Niwot, Colorado 80503</a>
 
 # Default edit/view actions to "main" branch, instead of "master"
@@ -309,6 +309,11 @@ extra:
       link: https://www.facebook.com/SparkFun
     - icon: fontawesome/brands/x-twitter
       link: https://twitter.com/sparkfun
+
+  # Configures Google Analytics
+  analytics:
+    provider: google
+    property: G-7Y7EYCZVC1
 
 
 
