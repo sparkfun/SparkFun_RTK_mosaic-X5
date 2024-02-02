@@ -193,7 +193,7 @@
 <layer number="254" name="cooling" color="7" fill="1" visible="no" active="no"/>
 <layer number="255" name="routoute" color="7" fill="1" visible="no" active="no"/>
 </layers>
-<schematic xreflabel="%F%N/%S" xrefpart="/%S.%C%R">
+<schematic xreflabel="%F%N/%S" xrefpart="/%S">
 <libraries>
 <library name="SparkFun-Aesthetics">
 <description>&lt;h3&gt;SparkFun Aesthetics&lt;/h3&gt;
@@ -34488,7 +34488,7 @@ E.g.: LUMEX SSF-LXH340LYGID</description>
 <text x="91.44" y="274.32" size="2.54" layer="94" font="vector">ESP32 WROVER</text>
 <text x="93.98" y="226.06" size="2.54" layer="94" font="vector" align="top-left">ESP32 USB-C</text>
 <text x="350.52" y="10.16" size="2.54" layer="94" font="vector">Paul Clark</text>
-<text x="421.64" y="7.62" size="2.54" layer="94" font="vector">v10</text>
+<text x="421.64" y="7.62" size="2.54" layer="94" font="vector">v11</text>
 <text x="342.9" y="119.38" size="2.54" layer="94" font="vector" align="top-left">Reset and Boot</text>
 <wire x1="0" y1="175.26" x2="91.44" y2="175.26" width="0.1524" layer="97" style="longdash"/>
 <wire x1="91.44" y1="175.26" x2="215.9" y2="175.26" width="0.1524" layer="97" style="longdash"/>
@@ -34586,7 +34586,7 @@ Ground is on layer 2. Prepreg thickness: 0.2mm. Er = 4.6
 https://chemandy.com/calculators/coplanar-waveguide-with-ground-calculator.htm</text>
 <text x="5.842" y="30.988" size="1.778" layer="97" font="vector" align="top-left">USB Track Impedance: Differential Pair
 https://saturnpcb.com/saturn-pcb-toolkit/
-Prepreg thickness: 0.2mm (7.87 mil). Er = 4.6
+Prepreg thickness: 8.3 mil (JLC7628). Er = 4.6
 10.5 mil track with 9.5 mil gap (20 mil center to center) = 90 Ohms
 </text>
 <text x="187.96" y="264.16" size="1.778" layer="97" font="vector" rot="MR0">50Ω</text>
@@ -34629,6 +34629,12 @@ Output Discharge: 100Ω Typ</text>
 Take care of the signal integrity of REF_CLK in the hardware design.
 Keep the trace as short as possible.
 Keep it away from RF devices and inductor elements.</text>
+<text x="112.522" y="18.288" size="1.778" layer="97" font="vector" align="top-left">Ethernet Track Impedance: Differential Pair
+https://saturnpcb.com/saturn-pcb-toolkit/
+Prepreg thickness: 8.3 mil (JLC7628). Er = 4.6
+9.0 mil track with 11.0 mil gap (20 mil center to center) = 100 Ohms
+Each pair should match in length to better than 0.5mm
+</text>
 </plain>
 <instances>
 <instance part="FRAME1" gate="G$1" x="0" y="0" smashed="yes"/>
@@ -37392,7 +37398,7 @@ Keep it away from RF devices and inductor elements.</text>
 <wire x1="431.8" y1="88.9" x2="330.2" y2="88.9" width="0.1524" layer="97" style="longdash"/>
 <text x="182.88" y="256.54" size="1.778" layer="97" font="vector" rot="MR0">50Ω</text>
 <text x="350.52" y="10.16" size="2.54" layer="94" font="vector">Paul Clark</text>
-<text x="421.64" y="7.62" size="2.54" layer="94" font="vector">v10</text>
+<text x="421.64" y="7.62" size="2.54" layer="94" font="vector">v11</text>
 <text x="171.45" y="195.58" size="1.778" layer="97" font="vector">50Ω</text>
 <text x="161.29" y="226.06" size="1.778" layer="97" font="vector">50Ω</text>
 <text x="176.53" y="226.06" size="1.778" layer="97" font="vector">50Ω</text>
@@ -40264,13 +40270,13 @@ disable pull-ups</text>
 <approved hash="208,2,416.56,203.2,3.3V_SW,sup,,,,"/>
 <approved hash="208,2,17.78,264.16,3.3V_SW,sup,,,,"/>
 <approved hash="208,2,30.48,114.3,3.3V_SW,sup,,,,"/>
-<approved hash="113,1,106.003,204.544,J1,,,,,"/>
+<approved hash="113,1,106.003,204.525,J1,,,,,"/>
 <approved hash="113,1,387.574,101.6,Q1,,,,,"/>
-<approved hash="113,2,128.863,123.264,J6,,,,,"/>
+<approved hash="113,2,128.863,123.245,J6,,,,,"/>
 <approved hash="113,1,177.123,260.795,J8,,,,,"/>
-<approved hash="113,1,367.623,150.023,J13,,,,,"/>
+<approved hash="113,1,367.623,149.992,J13,,,,,"/>
 <approved hash="113,1,255.27,198.714,VCCIO,,,,,"/>
-<approved hash="113,2,360.003,61.1226,J5,,,,,"/>
+<approved hash="113,2,360.003,61.0921,J5,,,,,"/>
 <approved hash="113,2,283.21,251.491,U13,,,,,"/>
 <approved hash="113,2,283.21,203.231,U11,,,,,"/>
 <approved hash="113,2,364.49,251.491,U14,,,,,"/>
@@ -40278,7 +40284,7 @@ disable pull-ups</text>
 <approved hash="113,2,364.49,195.611,U16,,,,,"/>
 <approved hash="113,2,359.41,142.271,U17,,,,,"/>
 <approved hash="113,2,359.41,114.331,U18,,,,,"/>
-<approved hash="113,2,276.86,118.438,U4,,,,,"/>
+<approved hash="113,2,276.86,118.419,U4,,,,,"/>
 </errors>
 </schematic>
 </drawing>
