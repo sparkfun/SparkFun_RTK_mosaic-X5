@@ -35,7 +35,7 @@ At SparkFun, we use **MountPt** names like **`bldr_dwntwn2`** , **`bldr_dwntwn3`
 
 The mosaic-X5 is a high-end receiver so be sure to select **NTRIP Rev2** as the protocol and provide a login user name. IBAN - the banking network - provides a handy list of [three-letter country codes](https://www.iban.com/country-codes).
 
-The registration process typically takes under 8 hours to complete, somewhat longer on weekends. Once your mount point has been setup, RTK2go will send you a nice email confirming the mount point (**mountPt**) name, password and other details (Country, Country Code etc..). Make a note of those details, as we need to enter them into the mosaic-X5 NTRIP Server configuration.
+The registration process typically takes under 8 hours to complete, somewhat longer on weekends. Once your mount point has been set up, RTK2go will send you a nice email confirming the mount point (**mountPt**) name, password and other details (Country, Country Code etc..). Make a note of those details, as we need to enter them into the mosaic-X5 NTRIP Server configuration.
 
 <figure markdown>
 [![RTK 2 Go Confirmation Email](./assets/img/hookup_guide/NTRIP_server_0.png){ width="400" }](./assets/img/hookup_guide/NTRIP_server_0.png "Click to enlarge")

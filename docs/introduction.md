@@ -15,6 +15,14 @@ icon: material/book-open-page-variant
 	![Product Thumbnail](https://cdn.sparkfun.com/assets/parts/2/4/0/7/2/23748-RTK-Mosaic-X5-Kit-All-Feature.jpg)
 	</figure></a>
 
+
+	<center>
+	<article class="video_desc">
+	<iframe src="https://www.youtube.com/embed/HwKxq9ChazQ" title="Product Showcase Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+	</article>
+	</center>
+
+
 	<center>
 	[&nbsp;![QR code to product page](./assets/img/qr_code/product-low.png){ .tinyqr }&nbsp;&nbsp;Purchase from SparkFun :fontawesome-solid-cart-plus:{ .heart }&nbsp;&nbsp;&nbsp;](https://www.sparkfun.com/products/23748){ .md-button .md-button--primary }
 	</center>

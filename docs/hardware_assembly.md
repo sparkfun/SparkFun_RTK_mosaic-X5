@@ -2,6 +2,48 @@
 icon: material/tools
 ---
 
+!!! warning
+	When assembling the RTK mosaic-X5, users should attach any power connections last. While there shouldn't be any issues with hot-swapping peripherals, it is common practice to power electronics as the last step of the assembly process *(and the power should be disconnected before removing components)*.
+
+??? info "What is in the Box?"
+	The RTK mosaic-X5 comes packaged as a complete kit, with all the accessories you'd need to set up an RTK base station.
+
+	<figure markdown>
+	[![Kit contents](https://cdn.sparkfun.com//assets/parts/2/4/0/7/2/23748-RTK-Mosaic-X5-Kit-All-Feature.jpg){ width="300" }](https://cdn.sparkfun.com//assets/parts/2/4/0/7/2/23748-RTK-Mosaic-X5-Kit-All-Feature.jpg "Click to enlarge")
+	<figcaption markdown>
+	Everything that is included in the RTK mosaic-X5 kit.
+	</figcaption>
+	</figure>
+
+	Inside the box, users will find the [GNSS antenna](https://www.sparkfun.com/products/21801), RTK mosaic-X5 in its aluminum enclosure, and another box containing additional accessories. Inside, the accessory box, users will find the [CAT-6 Ethernet cable](https://www.sparkfun.com/products/8915), [USB cable](https://www.sparkfun.com/products/15424), [SMA to TNC cable](https://www.sparkfun.com/products/21740), [USB power supply](https://www.sparkfun.com/products/11456), [WiFi antenna](https://www.sparkfun.com/products/145), and [32GB SD card](https://www.sparkfun.com/products/19041).
+
+	<div class="grid" markdown>
+
+	<div markdown>
+
+	<figure markdown>
+	[![Kit contents](./assets/img/hookup_guide/packaged_box.jpg){ width="300" }](./assets/img/hookup_guide/packaged_box.jpg "Click to enlarge")
+	<figcaption markdown>
+	The contents of the RTK mosaic-X5 package.
+	</figcaption>
+	</figure>
+
+	</div>
+
+	<div markdown>
+
+	<figure markdown>
+	[![Kit contents](https://cdn.sparkfun.com//assets/parts/2/4/0/7/2/23748-RTK-Mosaic-X5-Kit-Accessories.jpg){ width="300" }](https://cdn.sparkfun.com//assets/parts/2/4/0/7/2/23748-RTK-Mosaic-X5-Kit-Accessories.jpg "Click to enlarge")
+	<figcaption markdown>
+	Products in the accessories box.
+	</figcaption>
+	</figure>
+
+	</div>
+
+	</div>
+
+
 ## USB-C Ports
 The USB ports are utilized to configure the mosaic-X5 module and ESP32 WiFi settings. Additionally, the USB ports can also be used as a power source for the RTK mosaic-X5.
 
@@ -13,7 +55,7 @@ The USB port for the mosaic-X5 is used for serial communication to stream the GN
 
 <div markdown>
 
-The USB port to the mosaic-X5 can be used to configure the module through an IP port, serial communication to stream the GNSS data, and access the SD card as a mass storage device. To connect to the mosaic-X5, users only need to plug a USB-C cable into the `CONFIG MOSAIC` USB port and their computer.
+The USB port to the mosaic-X5 can be used to configure the module through an IP port, for serial communication to stream the GNSS data, and access the SD card as a mass storage device. To connect to the mosaic-X5, users only need to plug a USB-C cable into the `CONFIG MOSAIC` USB port and their computer.
 
 <figure markdown>
 [![mosaic-X5 USB connection](./assets/img/hookup_guide/assembly-usb-mosaic.jpg){ width="400" }](./assets/img/hookup_guide/assembly-usb-mosaic.jpg "Click to enlarge")
@@ -113,7 +155,7 @@ There are two ethernet jacks on the RTK mosaic-X5, which can be used to provide 
 	<figcaption markdown>The RTK mosaic-X5 with an ethernet cable being attached to the `ESP32 ETHERNET` jack.</figcaption>
 	</figure>
 
-	To setup the WiFi bridge, connect the provided (CAT-6) ethernet cable between the `MOSAIC ETHERNET (PoE)` and `ESP32 ETHERNET` jacks on the RTK mosaic-X5.
+	To set up the WiFi bridge, connect the provided (CAT-6) ethernet cable between the `MOSAIC ETHERNET (PoE)` and `ESP32 ETHERNET` jacks on the RTK mosaic-X5.
 
 	<figure markdown>
 	[![ESP32 ethernet connection](./assets/img/hookup_guide/assembly-wifi_bridge.jpg){ width="400" }](./assets/img/hookup_guide/assembly-wifi_bridge.jpg "Click to enlarge")
@@ -220,3 +262,172 @@ Users can easily attach accessories to the RTK mosaic-X5 by wiring them into the
 
 	!!! warning
 		To avoid shorts or damaging the RTK mosaic-X5, verify the wiring with the labels on the back of the enclosure.
+
+
+??? tip "Connecting a Radio"
+	### Radio Transceivers
+	Users can also utilize the terminal blocks to interface with one of our radio transceivers for RTK correction data. We recommend utilizing our [breadboard cable](https://www.sparkfun.com/products/23353) to connect those radios to the RTK mosaic-X5.
+
+
+	<div class="grid cards col-2" markdown>
+
+	-   <a href="https://www.sparkfun.com/products/19032">
+		<figure markdown>
+		![Product Thumbnail](https://cdn.sparkfun.com/assets/parts/1/8/6/3/4/19032-SiK_Telemetry_Radio_V3_-_915MHz__100mW-01.jpg)
+		</figure>
+
+		---
+
+		**SiK Telemetry Radio V3 - 915MHz, 100mW**<br>
+		WRL-19032</a>
+
+	-   <a href="https://www.sparkfun.com/products/20029">
+		<figure markdown>
+		![Product Thumbnail](https://cdn.sparkfun.com/assets/parts/1/9/7/9/0/SparkFun_LoRaSerial_Enclosed_-_20029-1.jpg)
+		</figure>
+
+		---
+
+		**SparkFun LoRaSerial Kit - 915MHz (Enclosed)**<br>
+		WRL-20029</a>
+	
+	-   <a href="https://www.sparkfun.com/products/23353">
+		<figure markdown>
+		![Product Thumbnail](https://cdn.sparkfun.com/assets/parts/1/9/0/9/3/23353-_1.jpg)
+		</figure>
+
+		---
+
+		**Breadboard to JST-GHR-06V Cable - 6-Pin x 1.25mm Pitch (For LoRaSerial)**<br>
+		CAB-23353</a>
+
+	</div>
+
+	!!! info "Wiring the Connections"
+		When connecting the RTK mosaic-X5 to one of our radio transceivers, users need to be aware of the pin connections between the products. Although the labels on each device may vary, their pins will function the same *(except for the power input/output pins)*.
+
+		!!! warning
+			Please remember that the power output (`VIO`) is preset to **3.3V** by default. When utilizing the SiK telemetry radios, users will need to open the enclosure and move the [`VIO` switch](../hardware_overview/#vio--gnd).
+
+		=== "Radios"
+			Below is a diagram of the pin connections for the 6-pin JST GH connector on the radios, which should be also labeled on their enclosure.
+
+			<figure markdown>
+			[![JST pins](./assets/img/hookup_guide/assembly-radio_jst.png){ width="400" }](./assets/img/hookup_guide/assembly-radio_jst.png "Click to enlarge")
+			<figcaption markdown>The pin connections for the JST connector on the radios.</figcaption>
+			</figure>
+
+			<center>
+
+			<table border="1" markdown>
+			<tr>
+			<th style="vertical-align:middle;">Label</th>
+			<td align="center">`5V`</td>
+			<td align="center">`RX/RXI`</td>
+			<td align="center">`TX/TXO`</td>
+			<td align="center">`CTS`</td>
+			<td align="center">`RTS`</td>
+			<td align="center">`GND`</td>
+			</tr>
+			<tr>
+			<th style="vertical-align:middle;">Function</th>
+			<td>**Voltage Input**<br>
+				- SiK: 5V<br>
+				- LoRaSerial: 3.3 to 5V</td>
+			<td align="center" style="vertical-align:middle;">UART - Receive</td>
+			<td align="center" style="vertical-align:middle;">UART - Transmit</td>
+			<td align="center" style="vertical-align:middle;">Flow Control<br>
+				*Clear-to-Send*</td>
+			<td align="center" style="vertical-align:middle;">Flow Control<br>
+				*Ready-to-Send*</td>
+			<td align="center" style="vertical-align:middle;">Ground</td>
+			</tr>
+			</table>
+
+			</center>
+
+
+		=== "RTK mosaic-X5"
+			Below are the UART pin connections to the mosaic-X5 GNSS receiver, which are labeled for the terminal blocks on the RTK mosaic-X5 enclosure.
+
+			<figure markdown>
+			[![Radio pins to the mosaic-X5](./assets/img/hookup_guide/assembly-radio_io.png){ width="400" }](./assets/img/hookup_guide/assembly-radio_io.png "Click to enlarge")
+			<figcaption markdown>The pin connections for the radio on the RTK mosaic-X5.</figcaption>
+			</figure>
+
+			<center>
+
+			<table border="1" markdown>
+			<tr>
+			<th style="vertical-align:middle;">Label</th>
+			<td align="center">`VIO`</td>
+			<td align="center">`RX`</td>
+			<td align="center">`TX`</td>
+			<td align="center">`CTS`</td>
+			<td align="center">`RTS`</td>
+			<td align="center">`GND`</td>
+			</tr>
+			<tr>
+			<th style="vertical-align:middle;">Function</th>
+			<td>**Voltage Output**<br>
+				- 5V or 3.3V *(see [switch](../hardware_overview/#vio--gnd))*</td>
+			<td align="center" style="vertical-align:middle;">UART - Receive</td>
+			<td align="center" style="vertical-align:middle;">UART - Transmit</td>
+			<td align="center" style="vertical-align:middle;">Flow Control<br>
+				*Clear-to-Send*</td>
+			<td align="center" style="vertical-align:middle;">Flow Control<br>
+				*Ready-to-Send*</td>
+			<td align="center" style="vertical-align:middle;">Ground</td>
+			</tr>
+			</table>
+
+			</center>
+
+
+		When connecting the RTK mosaic-X5 to either of the radios, the wiring connections should follow the table below. If the flow control is not enabled, then only the `RX`, `TX`, and `GND` pins are utilized. As an example, the wiring between a host system *(i.e. RTK mosaic-X5)* and the LoRaSerial Kit radio is shown in the image below; as documented in the [LoRaSerial product manual](https://docs.sparkfun.com/SparkFun_LoRaSerial).
+
+
+		<div class="grid" markdown>
+
+		<div markdown>
+
+		<center>
+
+		<table markdown>
+		<tr>
+		<th>RTK mosaic-X5</th>
+		<td align="center">RX</td>
+		<td align="center">TX</td>
+		<td align="center">RTS</td>
+		<td align="center">CTS</td>
+		<td align="center">GND</td>
+		</tr>
+		<tr>
+		<th>Radio</th>
+		<td align="center">TX</td>
+		<td align="center">RX</td>
+		<td align="center">CTS</td>
+		<td align="center">RTS</td>
+		<td align="center">GND</td>
+		</tr>
+		</table>
+
+		</center>
+
+		</div>
+		
+		<div markdown>
+ 
+		<figure markdown>
+		[![Flow Control](https://docs.sparkfun.com/SparkFun_LoRaSerial/img/SAMD21%20Flow%20control.png){ width="400" }](https://docs.sparkfun.com/SparkFun_LoRaSerial/img/SAMD21%20Flow%20control.png "Click to enlarge")
+		<figcaption markdown>Wiring instructions for the LoRaSerial radio.<br>Source: [LoRaSerial product manual](https://docs.sparkfun.com/SparkFun_LoRaSerial)</figcaption>
+		</figure>
+
+		</div>
+
+		</div>
+
+
+		??? tip "Pairing Radios"
+			By default, the radios in the LoRaSerial Kit - 915MHz are pre-configured for [point-to-point](https://docs.sparkfun.com/SparkFun_LoRaSerial/operating_modes/#point-to-point) communication and a paired with each other. *For instructions on other configurations, please reference the [product manual](https://docs.sparkfun.com/SparkFun_LoRaSerial/) for the LoRaSerial Kit.*
+
