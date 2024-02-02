@@ -70,6 +70,7 @@ Septentrio also provides great resources for the mosaic-X5:
 		:material-file-document:[Applying ARP/APC offsets](https://customersupport.septentrio.com/s/article/ARP-APC-offsets)
 
 2. 	!!! info "Recommended Videos"
+
 		:material-youtube: [Getting started with the mosaic receiver module](https://youtu.be/hrL5J6Q5gX8)<br>
 		:material-youtube: [Output NMEA data on the mosaic receiver module](https://youtu.be/ArtePkC58-o)<br>
 		:material-youtube: [Receiving NTRIP corrections on the mosaic module](https://youtu.be/aAPoRpSR0tY)<br>

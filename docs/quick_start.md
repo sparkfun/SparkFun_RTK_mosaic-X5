@@ -325,6 +325,7 @@ hide: toc
 		* Download and install **RxTools**.
 	`3` - **Connect the RTK mosaic-X5 to your computer**
 	: * Use the supplied USB-C cable to connect the **CONFIG MOSAIC** port to your computer.
+
 	<!-- Needed to break from list -->
 	`4` - **Open the X5 web page**
 	: * Open a web browser on your computer and navigate to **192.168.3.1** to view the mosaic-X5's internal web page.
