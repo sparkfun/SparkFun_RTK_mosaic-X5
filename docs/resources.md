@@ -12,7 +12,7 @@ icon: material/book-open-page-variant
 	* :fontawesome-solid-file-pdf: [Enclosure Dimensions](./assets/board_files/dimensions-enclosure.pdf)
 	* :fontawesome-solid-file-code: [ESP32 Firmware](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/tree/main/Firmware/RTK_mosaic-X5_Firmware)
 * :fontawesome-solid-file-pdf: [mosaic-X5 Datasheet](./assets/component_documentation/Mosaic%20Hardware%20Manual_v1.8.0.pdf)
-* :material-youtube: [SFE Product Showcase]()
+* :material-youtube: [SFE Product Showcase](https://www.youtube.com/watch?v=HwKxq9ChazQ)
 * :material-github: [Hardware Repo](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5)
 
 
