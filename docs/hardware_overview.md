@@ -52,7 +52,7 @@ Users can download the [full schematic for the RTK mosaic-X5](./assets/board_fil
 ## Dimensions
 
 === ":material-package-variant-closed: Metal Enclosure"
-	Details about the aluminum enclosure can be found on the [Metal Enclosure - Custom Aluminum Extrusion (6in. x 4in. PCB)](https://www.sparkfun.com/products/	22640) product page.
+	Details about the aluminum enclosure can be found on the [Metal Enclosure - Custom Aluminum Extrusion (6in. x 4in. PCB)](https://www.sparkfun.com/products/22640) product page.
 
 	<figure markdown>
 	[![Enclosure Dimensions](./assets/board_files/dimensions-enclosure.png){ width="700" }](./assets/board_files/dimensions-enclosure.png "Click to enlarge")
