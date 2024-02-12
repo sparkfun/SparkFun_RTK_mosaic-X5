@@ -36,6 +36,163 @@ icon: material/book-open-page-variant
 
 </div>
 
+??? question "Product Comparison"
+	Below is a simple comparison table between our breakout board and Septentrio's development and evaluation kits:
+
+	<div class="annotate" markdown align="center">
+	<table markdown>
+	<tr markdown>
+	<td></td>
+	<th markdown style="text-align:center">
+		mosaic-X5 Development Kit<br>
+		<hr>
+		<figure markdown>
+		![Product Thumbnail](./assets/img/product_comparison/mosaic-development-kit.png){ width="200" }
+		</figure>
+	</th>
+	<th markdown style="text-align:center">
+		mosaic-go Evaluation Kit<br>
+		<hr>
+		<figure markdown>
+		![Product Thumbnail](./assets/img/product_comparison/mosaic-go-evaluation-kit.png){ width="200" }
+		</figure>
+	</th>
+	<th markdown style="text-align:center">
+		mosaic-X5 GNSS Breakout<br>
+		<hr>
+		<figure markdown>
+		![Product Thumbnail](./assets/img/product_comparison/tri-band_gnss_breakout.png){ width="200" }
+		</figure>
+	</th>
+	<th markdown style="text-align:center">
+		RTK mosaic-X5<br>
+		<hr>
+		<figure markdown>
+		![Product Thumbnail](./assets/img/product_comparison/rtk_mosaic-x5.png){ width="200" }
+		</figure>
+	</th>
+	</tr>
+	<tr>
+		<td style="vertical-align:middle;">GNSS Antenna</td>
+		<td style="text-align:center; vertical-align:middle;">Dual</td>
+		<td style="text-align:center">
+			Single (mosaic-X5)<br>
+			Dual (mosaic-H)
+		</td>
+		<td style="text-align:center; vertical-align:middle;">Single</td>
+		<td style="text-align:center; vertical-align:middle;">Single</td>
+	</tr>
+	<tr>
+		<td>USB Connector</td>
+		<td style="text-align:center">micro-B</td>
+		<td style="text-align:center">micro-B</td>
+		<td style="text-align:center">Type-C</td>
+		<td style="text-align:center">Type-C</td>
+	</tr>
+	<tr>
+		<td style="vertical-align:middle;">Ethernet</td>
+		<td style="text-align:center; vertical-align:middle;">
+			Yes<br>
+			<i>10/100 Base-T</i>
+		</td>
+		<td style="text-align:center; vertical-align:middle;">No</td>
+		<td style="text-align:center; vertical-align:middle;">No</td>
+		<td style="text-align:center">
+			Yes<br>
+			<i>10/100 Base-T</i>
+		</td>
+	</tr>
+	<tr>
+		<td style="vertical-align:middle;">WiFi</td>
+		<td style="text-align:center; vertical-align:middle;">No</td>
+		<td style="text-align:center; vertical-align:middle;">No</td>
+		<td style="text-align:center; vertical-align:middle;">No</td>
+		<td style="text-align:center">
+			Yes - Network Bridge<br>
+			<i>10 Base-T</i>
+		</td>
+	</tr>
+	<tr>
+		<td style="vertical-align:middle;">COM Ports</td>
+		<td style="text-align:center">4</td>
+		<td style="text-align:center">2</td>
+		<td style="text-align:center">4</td>
+		<td style="text-align:center">
+			1 - mosaic-X5<br>
+			1 - ESP32
+		</td>
+	</tr>
+	<tr>
+		<td>&micro;SD Card Slot</td>
+		<td style="text-align:center">Yes</td>
+		<td style="text-align:center">Yes</td>
+		<td style="text-align:center">Yes</td>
+		<td style="text-align:center">Yes</td>
+	</tr>
+	<tr>
+		<td style="vertical-align:middle;">Reset/Log Buttons</td>
+		<td style="text-align:center; vertical-align:middle;">Yes</td>
+		<td style="text-align:center; vertical-align:middle;">No*</td>
+		<td style="text-align:center; vertical-align:middle;">Yes</td>
+		<td style="text-align:center; vertical-align:middle;">Yes</td>
+	</tr>
+	<tr>
+		<td style="vertical-align:middle;">Logic-Level</td>
+		<td style="text-align:center">
+			1.8V<br>
+			3.3V
+		</td>
+		<td style="text-align:center; vertical-align:middle;">3.3V</td>
+		<td style="text-align:center; vertical-align:middle;">3.3V</td>
+		<td style="text-align:center">
+			3.3V<br>
+			5V
+		</td>
+	</tr>
+	<tr>
+		<td>PPS Signal</td>
+		<td style="text-align:center">Header Pin</td>
+		<td style="text-align:center">6-Pin JST Connector</td>
+		<td style="text-align:center">SMA Connector</td>
+		<td style="text-align:center">Screw Terminal</td>
+	</tr>
+	<tr>
+		<td>Enclosure Material</td>
+		<td style="text-align:center; vertical-align:middle;">N/A</td>
+		<td style="text-align:center; vertical-align:middle;">Metal</td>
+		<td style="text-align:center; vertical-align:middle;">N/A</td>
+		<td style="text-align:center; vertical-align:middle;">Aluminum</td>
+	</tr>
+	<tr>
+		<td style="vertical-align:middle;">Dimensions</td>
+		<td style="text-align:center; vertical-align:middle;">N/A</td>
+		<td style="text-align:center; vertical-align:middle;">71 x 59 x 12mm ± 1mm</td>
+		<td style="text-align:center; vertical-align:middle;">70.9 x 50.8 x 8mm</td>
+		<td style="text-align:center">
+			180.6 x 101.8 x 41mm<br>
+			<i>Enclosure Only</i>
+		</td>
+	</tr>
+	<tr>
+		<td style="vertical-align:middle;">Weight</td>
+		<td style="text-align:center; vertical-align:middle;">N/A</td>
+		<td style="text-align:center; vertical-align:middle;">58g  ± 1g</td>
+		<td style="text-align:center; vertical-align:middle;">22.6g</td>
+		<td style="text-align:center">
+			415.15g<br>
+			<i>Enclosure Only</i>
+		</td>
+	</tr>
+	
+	</table>
+	
+	</div>
+
+	!!! note "mosaic-go Evaluation Kit"
+		The reset pin is exposed on 4-pin JST connector and the log pin is connected to the latch pin of the SD card slot.
+
+
+
 ## :fontawesome-solid-list-check:&nbsp;Required Materials
 The RTK mosaic-X5 comes with everything you need to get up and running.
 
@@ -179,6 +336,15 @@ As a more sophisticated product, we will skip over the more fundamental tutorial
 
 <div class="grid cards" markdown align="center">
 
+-   <a href="https://learn.sparkfun.com/tutorials/9">
+	<figure markdown>
+	![Tutorial Thumbnail](https://cdn.sparkfun.com/c/264-148/assets/parts/5/9/7/4/10890-01.jpg)
+	</figure>
+
+	---
+
+	**GPS Basics**</a>
+
 -   <a href="https://learn.sparkfun.com/tutorials/813">
 	<figure markdown>
 	![Tutorial Thumbnail](https://cdn.sparkfun.com/c/178-100/assets/learn_tutorials/8/1/3/Location-Wandering-GPS-combined.jpg)
@@ -214,6 +380,15 @@ As a more sophisticated product, we will skip over the more fundamental tutorial
 	---
 
 	**mosaic-X5 GNSS Breakout Board Hookup Guide**</a>
+
+-   <a href="https://docs.sparkfun.com/SparkFun_Qwiic_OLED_1.3in">
+	<figure markdown>
+	![Tutorial Thumbnail](https://docs.sparkfun.com/SparkFun_Qwiic_OLED_1.3in/assets/img/thumbnail.jpg)
+	</figure>
+
+	---
+
+	**Qwiic OLED 1.3" Hookup Guide**</a>
 
 -   <a href="https://learn.sparkfun.com/tutorials/908">
 	<figure markdown>
@@ -259,15 +434,6 @@ As a more sophisticated product, we will skip over the more fundamental tutorial
 	---
 
 	**Serial Communication**</a>
-
--   <a href="https://learn.sparkfun.com/tutorials/5">
-	<figure markdown>
-	![Tutorial Thumbnail](https://cdn.sparkfun.com/c/264-148/assets/e/3/9/9/4/51d9fbe1ce395f7a2a000000.jpg)
-	</figure>
-
-	---
-
-	**How to Solder: Through-Hole Soldering**</a>
 
 -   <a href="https://learn.sparkfun.com/tutorials/664">
 	<figure markdown>
@@ -320,5 +486,14 @@ As a more sophisticated product, we will skip over the more fundamental tutorial
 		---
 
 		**DIY RTK Surveying**</a>
+
+	-   <a href="https://www.sparkfun.com/news/7401">
+		<figure markdown>
+		![Tutorial Thumbnail](https://cdn.sparkfun.com/c/264-148/assets/home_page_posts/7/4/0/1/Screen_Shot_2023-06-26_at_8.30.22_PM.png)
+		</figure>
+
+		---
+
+		**New Video: Unlocking High-Precision RTK Positioning**</a>
 
 	</div>
