@@ -42,8 +42,34 @@
 
 /* Sets background color of active label to accent, when mouse is hovered over item */
 .md-typeset .tabbed-labels > label > a:hover {
-  background-color: var(--md-accent-fg-color);
+	/* Bright Red - Issue with red code block text */
+  /* background-color: var(--md-accent-fg-color); */
+
+	/* Transparent Red - Issue, not visible in dark theme */
+	/* background-color: var(--md-accent-bg-color--transparent); */
+
+	/* Blue - In light theme, issue with dark blue on black letters */
+	/* background-color: var(--md-typeset-a-color); */
+
+	/* Grey - In light theme, issue with dark grey on black letters (better than blue) */
+	/* background-color: var(--md-primary-fg-color); */
+
+	/* Light Blue */
+	background-color: #547cc6b7;
+
 }
+
+/* Sets kbd button aesthetic */
+.md-typeset {
+	--md-typeset-kbd-color:rgb(80, 80, 80);
+	--md-typeset-kbd-border-color: rgb(175, 175, 175);
+	--md-typeset-kbd-accent-color: hsla(0, 0%, 50%, 0.4);
+}
+
+.md-typeset kbd {
+	color:#ffffff;
+}
+
 
 /* Sets the color of the background and outline on the active label */
 .md-typeset .tabbed-set>input:first-child:checked~.tabbed-labels>:first-child,
