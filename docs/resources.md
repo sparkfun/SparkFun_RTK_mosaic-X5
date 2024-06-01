@@ -38,6 +38,7 @@ Septentrio also provides great resources for the mosaic-X5:
 		* [Using Septentrio's Receiver and Swift Navigation's Skylark correction services for precise positioning](https://github.com/septentrio-gnss/SwiftCorrectionsWithSeptentrio)
 	* [mowi (mosaic wireless) open-source design](https://github.com/septentrio-gnss/mowi)
 * :material-youtube: [YouTube Channel](https://www.youtube.com/@SeptentrioGNSS) (2)
+* [JammerTest 2023 - Anti-Jamming and Anti-Spoofing Performance](https://www.septentrio.com/en/learn-more/insights/most-resilient-gnss-receiver-results-jammertest-norway)
 
 </div>
 
@@ -81,3 +82,7 @@ Septentrio also provides great resources for the mosaic-X5:
 		:material-youtube: [Test-run for Septentrio's anti-jamming feature](https://youtu.be/SzI0skGHKEw)<br>
 		:material-youtube: [mosaic - GNSS module receiver range from Septentrio](https://youtu.be/Co8hrVeklAA)
 
+
+<center>
+![QR code to the hookup guide](./assets/img/qr_code/hookup_guide.png){ .qr }
+</center>
