@@ -265,24 +265,31 @@ Due to the ESD sensitivity of the mosaic-X5 module, we don't recommend disassemb
 	??? info "ESD Precaution"
 		As recommended by the manufacturer, we highly encourage users to take the necessary precautions to avoid damaging their module.
 
-		<div class="grid" markdown>
+		- The RTK mosaic-X5 features ESD protection on the USB-C connectors and ethernet jacks.
+		- The mosaic-X5 module features internal ESD protection to the `ANT_1` antenna input.
+
+
+		<div class="grid cards" markdown>
 
 		<div markdown>
 
 		<center>
-		<article class="video_cards">
+		<article class="video-500px">
 		<iframe src="https://www.youtube.com/embed/hrL5J6Q5gX8?si=jOPBat8rzMnL7Uz4&amp;start=26;&amp;end=35;" title="Septentrio: Getting Started Video (playback starts at ESD warning)" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 		</article>
 		</center>
 
 		</div>
 
-		<div markdown>
+		-   <a href="https://www.sparkfun.com/products/25572">
+			<figure markdown>
+			![Product Thumbnail](https://cdn.sparkfun.com/assets/parts/2/6/1/2/7/TOL-25572-Anti-Static-Wrist-Strap-Feature.jpg)
+			</figure>		
 
-		- The RTK mosaic-X5 features ESD protection on the USB-C connectors and ethernet jacks.
-		- The mosaic-X5 module features internal ESD protection to the `ANT_1` antenna input.
+			---
 
-		</div>
+			**iFixit Anti-Static Wrist Strap**<br>
+			TOL-25572</a>
 
 		</div>
 

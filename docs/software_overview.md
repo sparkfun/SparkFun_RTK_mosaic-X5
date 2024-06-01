@@ -216,7 +216,7 @@ With the USB driver installed, the mosaic-X5 module supports Ethernet-over-USB. 
 <div markdown>
 
 <center>
-<article class="video_desc2">
+<article class="video-500px">
 <iframe src="https://www.youtube.com/embed/hrL5J6Q5gX8" title="Septentrio: Getting started with the Septentrio mosaic receiver module" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </article>
 </center>
@@ -251,7 +251,7 @@ Users will need to install a USB driver for the CH340 serial-to-USB chip, in ord
 
 	<div markdown>
 
-	<div class="video_cards">
+	<div class="video-500px">
 	<iframe src="https://www.youtube.com/embed/MM9Fj6bwHLk" title="Tutorial: Installing CH340 Drivers" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 	</div>
 

@@ -9,24 +9,31 @@ icon: material/cog
 	??? info "ESD Precaution"
 		As recommended by the manufacturer, we highly encourage users to take the necessary precautions to avoid damaging their module.
 
-		<div class="grid" markdown>
+		- The RTK mosaic-X5 features ESD protection on the USB-C connectors and ethernet jacks.
+		- The mosaic-X5 module features internal ESD protection to the `ANT_1` antenna input.
+
+
+		<div class="grid cards" markdown>
 
 		<div markdown>
 
 		<center>
-		<article class="video_cards">
+		<article class="video-500px">
 		<iframe src="https://www.youtube.com/embed/hrL5J6Q5gX8?si=jOPBat8rzMnL7Uz4&amp;start=26;&amp;end=35;" title="Septentrio: Getting Started Video (playback starts at ESD warning)" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 		</article>
 		</center>
 
 		</div>
 
-		<div markdown>
+		-   <a href="https://www.sparkfun.com/products/25572">
+			<figure markdown>
+			![Product Thumbnail](https://cdn.sparkfun.com/assets/parts/2/6/1/2/7/TOL-25572-Anti-Static-Wrist-Strap-Feature.jpg)
+			</figure>		
 
-		- The RTK mosaic-X5 features ESD protection on the USB-C connectors and ethernet jacks.
-		- The mosaic-X5 module features internal ESD protection to the `ANT_1` antenna input.
+			---
 
-		</div>
+			**iFixit Anti-Static Wrist Strap**<br>
+			TOL-25572</a>
 
 		</div>
 
@@ -85,7 +92,7 @@ Users can download the [full schematic for the RTK mosaic-X5](./assets/board_fil
 			This video from Autodesk demonstrates how to utilize the dimensions tool in Eagle, to include additional measurements:
 
 			<center>
-			<div class="video">
+			<div class="video-500px">
 			<iframe src="https://www.youtube.com/embed/dZLNd1FtNB8" title="EAGLE Dimension Tool" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 			</center>
 
@@ -596,7 +603,7 @@ These terminals are described in the tabs below. For more information on the I/O
 
 
 		<center>
-		<div class="video">
+		<div class="video-500px">
 		<iframe src="https://www.youtube.com/embed/x0RDEHqFIF8" title="SparkFun's Qwiic Connect System" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 		</div>
 		</center>

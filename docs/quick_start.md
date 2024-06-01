@@ -158,7 +158,7 @@ hide: toc
 
 				<div markdown>
 
-				<div class="video_cards">
+				<div class="video-500px">
 				<iframe src="https://www.youtube.com/embed/MM9Fj6bwHLk" title="Tutorial: Installing CH340 Drivers" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 				</div>
 
