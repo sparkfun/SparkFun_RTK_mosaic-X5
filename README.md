@@ -1,7 +1,7 @@
 SparkFun RTK mosaic-X5
 ========================================
 
-[![SparkFun RTK mosaic-X5](https://cdn.sparkfun.com/r/600-600/assets/parts/2/4/0/7/2/23748-RTK-Mosaic-X5-Kit-All-Feature.jpg)](https://cdn.sparkfun.com/assets/parts/2/4/0/7/2/23748-RTK-Mosaic-X5-Kit-All-Feature.jpg)
+[![SparkFun RTK mosaic-X5](https://cdn.sparkfun.com/r/455-455/assets/parts/2/4/0/7/2/23748-RTK-Mosaic-X5-Kit-All-Feature-NOAA.jpg)](https://cdn.sparkfun.com/r/455-455/assets/parts/2/4/0/7/2/23748-RTK-Mosaic-X5-Kit-All-Feature-NOAA.jpg)
 
 [*SparkFun RTK mosaic-X5 (GPS-23748)*](https://www.sparkfun.com/products/23748)
 
