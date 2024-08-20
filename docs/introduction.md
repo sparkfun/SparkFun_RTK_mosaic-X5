@@ -12,7 +12,7 @@ icon: material/book-open-page-variant
 	---
 
 	<figure markdown>
-	![Product Thumbnail](https://cdn.sparkfun.com/assets/parts/2/4/0/7/2/23748-RTK-Mosaic-X5-Kit-All-Feature.jpg)
+	![Product Thumbnail](https://cdn.sparkfun.com/assets/parts/2/4/0/7/2/23748-RTK-Mosaic-X5-Kit-All-Feature-NOAA.jpg)
 	</figure></a>
 
 
