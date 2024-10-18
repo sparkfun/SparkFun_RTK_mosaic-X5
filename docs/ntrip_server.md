@@ -91,7 +91,8 @@ We also need to select which type of RTCM message to send. Here we select **MSM7
 </figcaption>
 </figure>
 
-Remember to press **OK** after each change - and save the configuration.
+!!! info
+	Remember to click the ++"OK"++ button at the bottom of the page, after making changes to update the current configuration. Also, don’t forget to save it to boot, if you want the configuration to persist when you cycle power.
 
 All being well, you should see a green line for NTRIP showing that your corrections are being forwarded to the caster:
 

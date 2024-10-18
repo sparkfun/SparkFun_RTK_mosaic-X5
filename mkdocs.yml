@@ -402,7 +402,7 @@ nav:
       - NTRIP Server: ntrip_server.md
       - NTRIP Client: ntrip_client.md
     - RTK Correction Services: correction_service.md
-    - Enable the L5 Band: L5.md
+    - Enable the GPS-L5 Band: L5.md
   - Resources:
     - Hardware Resources: resources.md
   - Support:
