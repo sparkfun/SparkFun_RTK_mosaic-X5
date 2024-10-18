@@ -34,6 +34,9 @@ icon: material/printer
 # Enable the L5 Band
 --8<-- "./docs/L5.md:5"
 
+# Mining with Onocoy
+--8<-- "./docs/mining-onocoy.md:5"
+
 # Resources
 --8<-- "./docs/resources.md:5"
 
