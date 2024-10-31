@@ -38,7 +38,7 @@ Before setting up the RTK mosaic-X5 as an NTRIP server, users will need to enabl
 
 	---
 
-	--8<-- "./docs/L5.md:12:40"
+	--8<-- "./docs/L5.md:123:160"
 
 </div>
 
@@ -122,7 +122,7 @@ The last step in configuring the NTRIP server, users will need to enable the GPS
 
 	---
 
-	--8<-- "./docs/L5.md:57:76"
+	--8<-- "./docs/L5.md:173"
 
 </div>
 

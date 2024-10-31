@@ -402,7 +402,7 @@ nav:
       - NTRIP Server: ntrip_server.md
       - NTRIP Client: ntrip_client.md
     - RTK Correction Services: correction_service.md
-    - Enable the GPS-L5 Band: L5.md
+    - Enabling a GNSS Signal Reception and Correction: L5.md
     - Mining with Onocoy: mining-onocoy.md
   - Resources:
     - Hardware Resources: resources.md
