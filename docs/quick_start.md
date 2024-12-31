@@ -43,7 +43,7 @@ hide: toc
 		For users who have lost the pamphlet in their kit, please check out the links below to download the `*.pdf` file:
 
 		<figure markdown>
-		[![Scan QR Code to Download PDF File](./assets/img/qr_code/quick_start_guide.png){ width="150" }]( "Click to enlarge")
+		[![Scan QR Code to Download PDF File](./assets/img/qr_code/quick_start_guide.png){ width="150" }]( "Scan with a Mobile Device")
 		<figcaption markdown>
 		[:octicons-download-16:{ .heart } Download the Quick Start Guide :fontawesome-solid-file-pdf:](./assets/quick_start_guide-v10.pdf "Click to Download"){ .md-button .md-button--primary }
 		</figcaption>

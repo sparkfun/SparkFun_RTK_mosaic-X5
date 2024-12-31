@@ -247,7 +247,7 @@ Everything that is included in the RTK mosaic-X5 kit.
 
 	-   <a href="https://www.sparkfun.com/products/22197">
 		<figure markdown>
-		![GNSS Antenna Mounting Hardware Kit](https://cdn.sparkfun.com//assets/parts/2/2/0/9/7/22197-_01.jpg)
+		![GNSS Antenna Mounting Hardware Kit](https://cdn.sparkfun.com/assets/parts/2/2/0/9/7/22197-_01.jpg)
 		</figure>
 
 		---
@@ -257,7 +257,7 @@ Everything that is included in the RTK mosaic-X5 kit.
 
 	-   <a href="https://www.sparkfun.com/products/21257">
 		<figure markdown>
-		![GNSS Magnetic Antenna Mount - 5/8" 11-TPI](https://cdn.sparkfun.com//assets/parts/2/1/0/2/7/SparkFun-GNSS-Antenna-Magnetic-Mount-21257-1.jpg)
+		![GNSS Magnetic Antenna Mount - 5/8" 11-TPI](https://cdn.sparkfun.com/assets/parts/2/1/0/2/7/SparkFun-GNSS-Antenna-Magnetic-Mount-21257-1.jpg)
 		</figure>
 
 		---
@@ -274,7 +274,7 @@ Everything that is included in the RTK mosaic-X5 kit.
 
 	-   <a href="https://www.sparkfun.com/products/21281">
 		<figure markdown>
-		![Interface Cable - SMA Female to SMA Male (10m, RG58)](https://cdn.sparkfun.com//assets/parts/2/1/0/6/5/21281-_CAB-_01.jpg)
+		![Interface Cable - SMA Female to SMA Male (10m, RG58)](https://cdn.sparkfun.com/assets/parts/2/1/0/6/5/21281-_CAB-_01.jpg)
 		</figure>
 
 		---
@@ -287,7 +287,7 @@ Everything that is included in the RTK mosaic-X5 kit.
 
 	-   <a href="https://www.sparkfun.com/products/22038">
 		<figure markdown>
-		![Interface Cable - RP-SMA Male to RP-SMA Female (10M, RG58)](https://cdn.sparkfun.com//assets/parts/2/1/9/0/5/22038-_CAB-_01.jpg)
+		![Interface Cable - RP-SMA Male to RP-SMA Female (10M, RG58)](https://cdn.sparkfun.com/assets/parts/2/1/9/0/5/22038-_CAB-_01.jpg)
 		</figure>
 
 		---
