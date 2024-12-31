@@ -22,7 +22,7 @@ theme:
   name: material
   custom_dir: overrides # Personalized changes to the theme
 
-  # Icon in Browser Tab (must be square img - i.e. 32x32 pixels)
+  # Icon in Browser Tab (must be a square img - i.e. 32x32 pixels)
   favicon: assets/img/sfe-logo.png
 
   # Page Font
@@ -51,7 +51,7 @@ theme:
     # Enable Navigation buttons in the footer (i.e. previous/next)
     - navigation.footer
 
-    # Enables anchor tracking (updates page url with the section user is on)
+    # Enables anchor tracking (updates page URL with the section the user is on)
     # i.e. https://docs.sparkfun.com/<page link>/#<sub-section>
     - navigation.tracking
 
@@ -60,7 +60,7 @@ theme:
 
     # Keeps tabs visible in the header when scrolling
     - navigation.tabs.sticky
-    
+
     # Adds pop-up button just below the header (when the user starts to scroll up)
       # i.e. Allows users to easily jump to the beginning of the page
     - navigation.top
@@ -311,7 +311,7 @@ markdown_extensions:
         custom_icons:
           - overrides/.icons
   
-  # Allows for rendering of block and inline block equations
+  # Allows for the rendering of block and inline-block equations
   - pymdownx.arithmatex:
       generic: true
   
@@ -364,7 +364,7 @@ extra:
 
 
 
-# Configures styling for PDF rendering and webpage layout
+# Configures styling for the webpage
 extra_css:
   - stylesheet/extra.css
 
