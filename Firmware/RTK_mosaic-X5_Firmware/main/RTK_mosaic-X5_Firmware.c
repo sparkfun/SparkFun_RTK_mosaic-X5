@@ -195,6 +195,9 @@ const char MOSAIC_CMD_ETHERNET_ON_RESPONSE[] = "EthernetMode";
 
 const char MOSAIC_CMD_EXE_IPSTATUS_ONCE[] = "esoc,COM4,IPStatus\n\r"; // Execute SBF IPStatus once
 
+const char MOSAIC_CMD_SOFT_RESET[] = "erst,Soft,none\n\r"; // Execute soft reset
+const char MOSAIC_CMD_SOFT_RESET_RESPONSE[] = "ResetReceiver";
+
 /* I2C OLED */
 #define I2C_HOST  0
 #define RTK_X5_LCD_PIXEL_CLOCK_HZ    (400 * 1000)
@@ -525,8 +528,7 @@ static void x5_uart_task(void *args)
     }
 
     while (true) {
-
-        int length = uart_read_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, uart_buf, buf_size, pdMS_TO_TICKS(5)); // Try to read bytes, minimal timeout
+        int length = uart_read_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, uart_buf, buf_size, 25/portTICK_PERIOD_MS);
         if (length > 0)
         {
             for (size_t x = 0; x < (size_t)length; x++) // For each byte received
@@ -541,7 +543,8 @@ static void x5_uart_task(void *args)
                 ptr2 += x; // Point at the received byte
                 *ptr1 = *ptr2; // Store the byte at the end of the FIFO
 
-                // Check for a valid SBF message - at the start of the buffer
+                // Check for a valid SBF message - at the start of the fifo
+                
                 ptr1 = fifo;
                 if (*ptr1 == 0x24) // $
                 {
@@ -578,7 +581,7 @@ static void x5_uart_task(void *args)
                     }
                 }
 
-                // Check for a valid NMEA message
+                // Check for a valid NMEA message at the end of the fifo
 
                 // Count bytes since the the previous dollar
                 static size_t lastDollar = 0;
@@ -587,7 +590,7 @@ static void x5_uart_task(void *args)
                 else
                     lastDollar++;
 
-                // Check for the end of a NMEA message (*, CR, LF)
+                // Check for the end of a NMEA message (*, CR, LF) at the end of the fifo
                 if ((lastDollar < (buf_size - 1)) && (*(ptr1 + buf_size - 5) == '*') && (*(ptr1 + buf_size - 2) == '\r') && (*(ptr1 + buf_size - 1) == '\n'))
                 {
                     size_t msgStart = buf_size - (lastDollar + 1);
@@ -799,7 +802,7 @@ static void x5_uart_task(void *args)
                                     // snprintf(line, sizeof(line), "Age:  %s", tokenValid ? token : "?");
                                     // set_oled(line);
                                     
-                                    set_oled(ipAddress);
+                                    set_oled(ipAddress); // Show the stored IP address
                                     update_oled();
                                 } while (0); // This is just a trick to execute the do loop once - and allow the code to break out early
                             }
@@ -808,11 +811,12 @@ static void x5_uart_task(void *args)
                 }
             }
         }
-        vTaskDelay(pdMS_TO_TICKS(5));
     }
 
     free(uart_buf);
+    uart_buf = NULL;
     free(fifo);
+    fifo = NULL;
     vTaskDelete(NULL);
 }
 
@@ -838,7 +842,7 @@ void x5_not_ready(void)
     esp_restart();
 }
 
-static void initialize_leds(void)
+void initialize_leds(void)
 {
     // Configure WiFi LED GPIO
     gpio_config_t io_conf;
@@ -862,7 +866,7 @@ static void initialize_leds(void)
     gpio_set_level(CONFIG_RTK_X5_BT_GPIO_PIN, false);
 }
 
-static void initialize_uart(void)
+void initialize_uart(void)
 {
     // Configure UART parameters
     uart_config_t uart_param = {
@@ -875,9 +879,9 @@ static void initialize_uart(void)
     };
 
     // Install UART driver, set Tx FIFO to 0 to send data immediately
+    ESP_ERROR_CHECK(uart_driver_install(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, CONFIG_RTK_X5_MOSAIC_UART_BUF_SIZE, 0, 0, NULL, 0));
     ESP_ERROR_CHECK(uart_param_config(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, &uart_param));
     ESP_ERROR_CHECK(uart_set_pin(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, CONFIG_RTK_X5_UART_TX_GPIO_PIN, CONFIG_RTK_X5_UART_RX_GPIO_PIN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
-    ESP_ERROR_CHECK(uart_driver_install(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, CONFIG_RTK_X5_MOSAIC_UART_BUF_SIZE, 0, 0, NULL, 0));
 
     // Redundant parameters setting - bug in ESP-IDF workaround 
     uart_set_baudrate(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, 115200);
@@ -907,7 +911,7 @@ bool send_command_check_response(const char *command, const char *response, int6
 
         while (keepGoing && (esp_timer_get_time() < (timeMicros + (timeoutMillis * 1000))))
         {
-            int length = uart_read_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, uart_buf, buf_size, pdMS_TO_TICKS(5)); // Try to read bytes, minimal timeout
+            int length = uart_read_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, uart_buf, buf_size, 25/portTICK_PERIOD_MS);
             if (length > 0)
             {
                 for (size_t x = 0; x < (size_t)length; x++) // For each byte received
@@ -926,7 +930,6 @@ bool send_command_check_response(const char *command, const char *response, int6
                         keepGoing = false; // Match found
                 }
             }
-            vTaskDelay(pdMS_TO_TICKS(5));
         }
 
         try++;
@@ -940,7 +943,7 @@ bool send_command_check_response(const char *command, const char *response, int6
     return (keepGoing == false);
 }
 
-static void initialize_ethernet(void)
+void initialize_ethernet(void)
 {
     ESP_LOGI(TAG, "Initializing Ethernet");
     print_oled("Initializing Ethernet");
@@ -990,14 +993,14 @@ static void initialize_ethernet(void)
     // Disable Mosaic Ethernet - iterate to initialize connection
     ESP_LOGI(TAG, "Configuring Mosaic Ethernet DHCP");
     print_oled("Configure Ethernet DHCP");
-    if (!send_command_check_response(MOSAIC_CMD_ETHERNET_OFF, MOSAIC_CMD_ETHERNET_OFF_RESPONSE, 2000, 50, 15))
+    if (!send_command_check_response(MOSAIC_CMD_ETHERNET_OFF, MOSAIC_CMD_ETHERNET_OFF_RESPONSE, 2000, 50, 5))
     {
         ESP_LOGE(TAG, "Disable Mosaic Ethernet response failed");
         x5_not_ready();
     }
 
     // Set Mosaic Ethernet DHCP with MTU
-    if (!send_command_check_response(MOSAIC_CMD_IP_DHCP, MOSAIC_CMD_IP_DHCP_RESPONSE, 2000, 50, 15))
+    if (!send_command_check_response(MOSAIC_CMD_IP_DHCP, MOSAIC_CMD_IP_DHCP_RESPONSE, 2000, 50, 5))
     {
         ESP_LOGE(TAG, "Set Mosaic Ethernet DHCP response failed");
         x5_not_ready();
@@ -1007,7 +1010,7 @@ static void initialize_ethernet(void)
     esp_eth_start(s_eth_handle);
 
     // Enable Mosaic Ethernet
-    if (!send_command_check_response(MOSAIC_CMD_ETHERNET_ON, MOSAIC_CMD_ETHERNET_ON_RESPONSE, 2000, 50, 15))
+    if (!send_command_check_response(MOSAIC_CMD_ETHERNET_ON, MOSAIC_CMD_ETHERNET_ON_RESPONSE, 2000, 50, 5))
     {
         ESP_LOGE(TAG, "Enable Mosaic Ethernet response failed");
         x5_not_ready();
@@ -1035,7 +1038,7 @@ static void initialize_ethernet(void)
     ESP_LOGI(TAG, "ESP base MAC address set to mosaic-X5 address");
 }
 
-static void initialize_wifi(void)
+void initialize_wifi(void)
 {
     ESP_LOGI(TAG, "Initializing WiFi");
     print_oled("Initializing WiFi");
@@ -1075,7 +1078,7 @@ static void initialize_wifi(void)
     ESP_ERROR_CHECK(esp_wifi_start());
 }
 
-static esp_err_t initialize_flow_control(void)
+esp_err_t initialize_flow_control(void)
 {
     flow_control_queue = xQueueCreate(CONFIG_RTK_X5_FLOW_CONTROL_QUEUE_LENGTH, sizeof(flow_control_msg_t));
     if (!flow_control_queue) {
@@ -1083,7 +1086,7 @@ static esp_err_t initialize_flow_control(void)
         return ESP_FAIL;
     }
 
-    BaseType_t ret = xTaskCreate(eth2wifi_flow_control_task, "flow_ctl", 8192, NULL, (tskIDLE_PRIORITY + 3), NULL);
+    BaseType_t ret = xTaskCreatePinnedToCore(eth2wifi_flow_control_task, "flow_ctl", 8192, NULL, (tskIDLE_PRIORITY + 3), NULL, 1);
     if (ret != pdTRUE) {
         ESP_LOGE(TAG, "Create flow control task failed");
         return ESP_FAIL;
@@ -1092,7 +1095,7 @@ static esp_err_t initialize_flow_control(void)
     return ESP_OK;
 }
 
-static void initialize_i2c(void)
+void initialize_i2c(void)
 {
     ESP_LOGI(TAG, "Initialize I2C bus");
 
@@ -1108,7 +1111,7 @@ static void initialize_i2c(void)
     ESP_ERROR_CHECK(i2c_driver_install(I2C_HOST, I2C_MODE_MASTER, 0, 0, 0));
 }
 
-static void initialize_oled(void)
+void initialize_oled(void)
 {
     ESP_LOGI(TAG, "OLED initialization");
 
@@ -1129,7 +1132,7 @@ static void initialize_oled(void)
 }
 
 
-static void initialize_filesystem(void)
+void initialize_filesystem(void)
 {
     ESP_LOGI(TAG, "Initializing file system");
 
@@ -1145,7 +1148,7 @@ static void initialize_filesystem(void)
     }
 }
 
-static void initialize_nvs(void)
+void initialize_nvs(void)
 {
     ESP_LOGI(TAG, "Initializing NVS");
 
@@ -1157,7 +1160,7 @@ static void initialize_nvs(void)
     ESP_ERROR_CHECK(err);
 }
 
-static void initialize_console(void)
+void initialize_console(void)
 {
     ESP_LOGI(TAG, "Initializing console");
     print_oled("Initializing console");
@@ -1222,7 +1225,7 @@ static void initialize_console(void)
     linenoiseHistoryLoad(HISTORY_PATH);
 }
 
-static void start_console(void)
+void start_console(void)
 {
     ESP_LOGI(TAG, "Starting console");
     print_oled("Starting console");
@@ -1257,17 +1260,19 @@ static void start_console(void)
     }
 }
 
-static void initialize_x5_uart_task(void)
+void initialize_x5_uart_task(void)
 {
     ESP_LOGI(TAG, "Initializing mosaic-X5 UART task");
 
-    BaseType_t ret = xTaskCreate(x5_uart_task, "x5_uart_task", 4096, NULL, (tskIDLE_PRIORITY + 2), NULL);
+    BaseType_t ret = xTaskCreatePinnedToCore(x5_uart_task, "x5_uart_task", 4096, NULL, (tskIDLE_PRIORITY + 2), NULL, 1);
     if (ret != pdTRUE) {
         ESP_LOGE(TAG, "Create mosaic-x5 UART task failed");
     }
+
+    ESP_LOGI(TAG, "mosaic-X5 UART task initialized");
 }
 
-static void initialize_X5(void)
+void initialize_X5(void)
 {
     // Send the escape sequence
     ESP_LOGI(TAG, "Sending escape sequence to mosaic-X5");
@@ -1275,7 +1280,20 @@ static void initialize_X5(void)
     if (!send_command_check_response(MOSAIC_CMD_ESCAPE, MOSAIC_CMD_ESCAPE_RESPONSE, 2000, 50, 30))
     {
         ESP_LOGE(TAG, "Escape sequence not acknowledged");
-        x5_not_ready();
+        print_oled("Escape sequence fail");
+        ESP_LOGE(TAG, "Sending soft reset");
+        print_oled("Sending soft reset");
+        
+        send_command_check_response(MOSAIC_CMD_SOFT_RESET, MOSAIC_CMD_SOFT_RESET_RESPONSE, 2000, 50, 1);
+
+        ESP_LOGI(TAG, "Sending escape sequence to mosaic-X5");
+        print_oled("Sending escape sequence");
+        if (!send_command_check_response(MOSAIC_CMD_ESCAPE, MOSAIC_CMD_ESCAPE_RESPONSE, 2000, 50, 30))
+        {
+            ESP_LOGE(TAG, "Escape sequence not acknowledged");
+            print_oled("Escape sequence fail");
+            x5_not_ready();
+        }
     }
 
     // Ensure SBF and NMEA are enabled
@@ -1284,10 +1302,32 @@ static void initialize_X5(void)
     if (!send_command_check_response(MOSAIC_CMD_DATA_IN_OUT, MOSAIC_CMD_DATA_IN_OUT_RESPONSE, 2000, 50, 5))
     {
         ESP_LOGE(TAG, "DataInOut not acknowledged");
-        x5_not_ready();
+        print_oled("DataInOut not ackd");
+        ESP_LOGE(TAG, "Sending soft reset");
+        print_oled("Sending soft reset");
+        
+        send_command_check_response(MOSAIC_CMD_SOFT_RESET, MOSAIC_CMD_SOFT_RESET_RESPONSE, 2000, 50, 1);
+
+        ESP_LOGI(TAG, "Sending escape sequence to mosaic-X5");
+        print_oled("Sending escape sequence");
+        if (!send_command_check_response(MOSAIC_CMD_ESCAPE, MOSAIC_CMD_ESCAPE_RESPONSE, 2000, 50, 30))
+        {
+            ESP_LOGE(TAG, "Escape sequence not acknowledged");
+            print_oled("Escape sequence fail");
+            x5_not_ready();
+        }
+
+        ESP_LOGI(TAG, "Configuring mosaic-X5 DataInOut");
+        print_oled("Configuring DataInOut");
+        if (!send_command_check_response(MOSAIC_CMD_DATA_IN_OUT, MOSAIC_CMD_DATA_IN_OUT_RESPONSE, 2000, 50, 5))
+        {
+            ESP_LOGE(TAG, "DataInOut not acknowledged");
+            print_oled("DataInOut not ackd");
+            x5_not_ready();
+        }
     }
 
-    // Ensure PVTGeodetic is enabled
+    // Ensure GPGGA is enabled
     ESP_LOGI(TAG, "Configuring mosaic-X5 GPGGA (NMEA Stream10)");
     print_oled("Configuring GPGGA");
     if (!send_command_check_response(MOSAIC_CMD_NMEA_STREAM10, MOSAIC_CMD_NMEA_STREAM10_RESPONSE, 2000, 50, 5))
@@ -1310,7 +1350,7 @@ static void initialize_X5(void)
 }
 
 // Test the unused TX/RX/RTS/CTS pins: TX follows RX, RTS follows CTS
-static void production_test(void)
+void production_test(void)
 {
 
     // Set unused pins to inputs and outputs
@@ -1476,8 +1516,11 @@ void app_main(void)
         initialize_wifi();
     }
 
+    // Execute SBF IPStatus once - to force update of ipAddress
+    // The reply will be handled by the x5_uart_task
+    uart_write_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, MOSAIC_CMD_EXE_IPSTATUS_ONCE, strlen(MOSAIC_CMD_EXE_IPSTATUS_ONCE));
+
     initialize_x5_uart_task();
 
-    // Now that the uart_task is running, execute SBF IPStatus once - to force update of ipAddress
-    uart_write_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, MOSAIC_CMD_EXE_IPSTATUS_ONCE, strlen(MOSAIC_CMD_EXE_IPSTATUS_ONCE));
+    print_oled("Waiting for signal");
 }
