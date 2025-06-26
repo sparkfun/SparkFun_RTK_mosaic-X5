@@ -16,4 +16,8 @@ menu "RTK mosaic-X5 WiFi STN config"
         bool "Enable extra WiFi and Ethernet log messages"
         default n
 
+    config RTK_X5_DISPLAY_ALT_WITH_GEOID_SEPARATION
+        bool "Display altitude including the geoid separation"
+        default n
+
 endmenu

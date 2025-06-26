@@ -320,3 +320,47 @@ Once the mosaic-X5 has acquired a satellite signal and is connected to the WiFi 
 
 With the RTK mosaic-X5 operating with the configured WiFi network bridge, users should be able to open a web browser on any connected device and navigate to the IP address shown on the OLED display. The browser should be able to access the mosaic-X5's internal web page, where users can configure the mosaic-X5.
 
+### ESP32 Firmware - Update
+
+The firmware running on the ESP32 is based heavily on the firmware for the [Septentrio mowi](https://github.com/septentrio-gnss/mowi). SparkFun added some bells and whistles, primarily to support the OLED display. The full firmware source code is available in the [GitHub repo](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/tree/main/Firmware/RTK_mosaic-X5_Firmware). It was developed and compiled with the Espressif ESP-IDF version 5.1.5.
+
+The most recent version of the firmware is v1.0.4, released on June 26th 2025. If you purchased your RTK mosaic-X5 before this date, you may enjoy the improvements in v1.0.4:
+
+* The firmware now includes an efficient SBF and NMEA parser
+    * Previously the NMEA GPGGA and SBF IPStatus messages were polled, this resulted in the OLED being updated once every ~2 seconds
+	* In v1.0.4: NMEA Stream10 carries the GPGGA message at 1Hz; SBF Stream10 carries the IPStatus message OnChange
+	* The OLED is now updated on the arrival of the GPGGA message, at exactly 1Hz
+* The firmware now ensures that the SBF and NMEA protocols are enabled for output on X5 COM4
+    * Previously, the firmware would stall if either SBF or NMEA were disabled
+* The firmware now supports the NMEA *GN* Talker ID, in addition to *GP*
+    * Previously setting the Talker ID to *GN* would cause the firmware to stall
+* The OLED now displays the Latitude and Longitude in *DD MM SS.SSSS* format, to match the format of the X5's internal web page
+    * Previously the format was *DDMM.MMMMMM*, copied directly from the GPGGA message
+* The firmware will perform a soft reset of the GNSS during startup - if needed
+    * The X5 can go into a [Ready for SUF download](https://customersupport.septentrio.com/s/article/How-to-troubleshoot-receiver-reporting-Ready-for-SUF-download) state if it is reset four times with no antenna connected
+	* This can be cleared with a soft reset
+
+To upgrade the ESP32 firmware, using a Windows PC:
+
+* Download the RTK mosaic-X5 repo as a Zip file:
+    * https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/archive/refs/heads/main.zip
+* Unzip the Zip file (Extract All)
+* Open a *Command Prompt* and navigate into the *Firmware \ RTK_mosaic-X5_Firmware* sub-folder
+* Connect the RTK mosaic-X5 “CONFIG ESP32” port to your PC using a USB-C cable
+    * It should appear in Device Manager as a CH340 COM port
+* Run *ESP32_FLASH_ERASE.bat* to completely clear the ESP32 memory
+    * The .bat file should find the COM port number for you
+	* If you need to run it manually, use the following replacing COM1 with your COM port:
+
+```
+esptool.exe --chip esp32 -p COM1 -b 460800 erase_flash
+```
+
+* Then run *ESP32_FLASHER.bat* to upload the firmware
+    * If you need to run it manually, use:
+
+```
+esptool.exe --chip esp32 -p COM1 -b 460800 --before=default_reset --after=hard_reset write_flash --flash_mode dio --flash_freq 40m --flash_size 4MB 0x1000 build\bootloader\bootloader.bin 0x10000 build\RTK_mosaic-X5_Firmware.bin 0x8000 build\partition_table\partition-table.bin
+```
+
+On Linux / MacOS, you can `pip install esptool` and then run the above commnds, replacing `esptool.exe` with `esptool`
