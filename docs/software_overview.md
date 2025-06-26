@@ -342,10 +342,11 @@ The most recent version of the firmware is v1.0.4, released on June 26th 2025. I
 
 To upgrade the ESP32 firmware, using a Windows PC:
 
-* Download the RTK mosaic-X5 repo as a Zip file:
-    * https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/archive/refs/heads/main.zip
+* Download the complete RTK mosaic-X5 repo as a Zip file:
+    * [https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/archive/refs/heads/main.zip](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/archive/refs/heads/main.zip)
+* Alternatively, download the latest or a previous release (*Source code zip*) from the [repo releases page](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/releases)
 * Unzip the Zip file (Extract All)
-* Open a *Command Prompt* and navigate into the *Firmware \ RTK_mosaic-X5_Firmware* sub-folder
+* Open a *Command Prompt* and navigate into the *Firmware* \ *RTK_mosaic-X5_Firmware* sub-folder
 * Connect the RTK mosaic-X5 “CONFIG ESP32” port to your PC using a USB-C cable
     * It should appear in Device Manager as a CH340 COM port
 * Run *ESP32_FLASH_ERASE.bat* to completely clear the ESP32 memory
