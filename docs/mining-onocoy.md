@@ -130,6 +130,6 @@ The last step in configuring the NTRIP server, users will need to enable the GPS
 ## :fontawesome-solid-money-bill-trend-up: &nbsp;Receive Rewards
 Once users have connected the RTK mosaic-X5 as an NTRIP server on the Onocoy network, there are a few additional steps in that need to be completed, a specified in their [online documentation](https://docs.onocoy.com/documentation/quick-start-guides/mine-rewards/4.-receive-rewards).
 
-<center>
+<article style="text-align: center;" markdown>
 :material-pickaxe::material-gold:&nbsp; Happy Mining! :material-pickaxe::material-gold:
-</center>
+</article>

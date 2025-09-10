@@ -48,9 +48,9 @@ hide: toc
 		[:octicons-download-16:{ .heart } Download the Quick Start Guide :fontawesome-solid-file-pdf:](./assets/quick_start_guide-v10.pdf "Click to Download"){ .md-button .md-button--primary }
 		</figcaption>
 		</figure>
-		<center>
+		<article style="text-align: center;" markdown>
 		*Click on the button (above) or scan the QR code with a mobile device, to download the `*.pdf` file of the quick start pamphlet.*
-		</center>
+		</article>
 
 
 
@@ -147,9 +147,9 @@ hide: toc
 		??? tip "Install CH340 Driver"
 			Users may need to install the appropriate USB driver for their computer to recognize the serial-to-UART chip on their board/adapter. Most of the latest operating systems will recognize the CH340C chip on the board and automatically install the required driver. *To manually install the CH340 driver on their computer, users can download it from the [WCH website](http://www.wch-ic.com/products/CH340.html?).*
 
-			<center>
+			<article style="text-align: center;" markdown>
 			[:octicons-download-16:{ .heart } Download the latest CH340 USB driver from WCH](https://www.wch-ic.com/downloads/CH341SER_ZIP.html){ .md-button .md-button--primary target="blank" }
-			</center>
+			</article>
 
 			??? abstract "Need Directions?"
 				For more information, check out our video and hookup guide:

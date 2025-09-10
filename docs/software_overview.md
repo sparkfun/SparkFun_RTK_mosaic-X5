@@ -31,9 +31,9 @@ Users should install the [RXTools software suite](https://www.septentrio.com/en/
 [^1]: On Linux, the standard Linux CDC-ACM driver is suitable.
 
 
-<center>
+<article style="text-align: center;" markdown>
 [:octicons-download-16:{ .heart } Download the RxTools Software from Septentrio](https://www.septentrio.com/en/products/gps-gnss-receiver-software/rxtools){ .md-button .md-button--primary target="blank" }
-</center>
+</article>
 
 ??? info "System Requirements[^2]"
 
@@ -190,9 +190,9 @@ Users should install the [RXTools software suite](https://www.septentrio.com/en/
 			For the latest USB driver from Septentrio, please install their driver through the [RxTools software suite](../rxtools).<br>
 			*This driver version was archived at the time that the [mosaic-X5 hookup guide](https://docs.sparkfun.com/SparkFun_GNSS_mosaic-X5/) was written. Please do not request for the file to be updated.*
 
-		<center>
+		<article style="text-align: center;" markdown>
 		[:octicons-download-16:{ .heart } Download USB Driver *(v3.0.2)*](https://docs.sparkfun.com/SparkFun_GNSS_mosaic-X5/assets/component_documentation/driver/USB_driver_3_0_2_Installer.exe){ .md-button .md-button--primary target="blank" }
-		</center>
+		</article>
 
 
 === "Linux"
@@ -215,11 +215,11 @@ With the USB driver installed, the mosaic-X5 module supports Ethernet-over-USB. 
 
 <div markdown>
 
-<center>
+<article style="text-align: center;" markdown>
 <article class="video-500px">
 <iframe src="https://www.youtube.com/embed/hrL5J6Q5gX8" title="Septentrio: Getting started with the Septentrio mosaic receiver module" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </article>
-</center>
+</article>
 
 </div>
 
@@ -240,9 +240,9 @@ With the USB driver installed, the mosaic-X5 module supports Ethernet-over-USB. 
 ### USB Driver
 Users will need to install a USB driver for the CH340 serial-to-USB chip, in order to communicate with the ESP32 module.	The latest USB drivers for the CH340 are available from the manufacturer, on the [WCH website](https://www.wch-ic.com/products/CH340.html?):
 
-<center>
+<article style="text-align: center;" markdown>
 [:octicons-download-16:{ .heart } Download the latest CH340 USB driver from WCH](https://www.wch-ic.com/products/CH340.html?){ .md-button .md-button--primary target="blank" }
-</center>
+</article>
 
 ??? abstract "Need Directions?"
 	For users having trouble installing the CH340 USB driver, check out our video and hookup guide:

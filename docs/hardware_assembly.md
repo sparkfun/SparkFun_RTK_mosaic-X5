@@ -317,7 +317,7 @@ Users can easily attach accessories to the RTK mosaic-X5 by wiring them into the
 			<figcaption markdown>The pin connections for the JST connector on the radios.</figcaption>
 			</figure>
 
-			<center>
+			<article style="text-align: center;" markdown>
 
 			<table border="1" markdown>
 			<tr>
@@ -344,7 +344,7 @@ Users can easily attach accessories to the RTK mosaic-X5 by wiring them into the
 			</tr>
 			</table>
 
-			</center>
+			</article>
 
 
 		=== "RTK mosaic-X5"
@@ -355,7 +355,7 @@ Users can easily attach accessories to the RTK mosaic-X5 by wiring them into the
 			<figcaption markdown>The pin connections for the radio on the RTK mosaic-X5.</figcaption>
 			</figure>
 
-			<center>
+			<article style="text-align: center;" markdown>
 
 			<table border="1" markdown>
 			<tr>
@@ -381,7 +381,7 @@ Users can easily attach accessories to the RTK mosaic-X5 by wiring them into the
 			</tr>
 			</table>
 
-			</center>
+			</article>
 
 
 		When connecting the RTK mosaic-X5 to either of the radios, the wiring connections should follow the table below. If the flow control is not enabled, then only the `RX`, `TX`, and `GND` pins are utilized. As an example, the wiring between a host system *(i.e. RTK mosaic-X5)* and the LoRaSerial Kit radio is shown in the image below; as documented in the [LoRaSerial product manual](https://docs.sparkfun.com/SparkFun_LoRaSerial).
@@ -391,7 +391,7 @@ Users can easily attach accessories to the RTK mosaic-X5 by wiring them into the
 
 		<div markdown>
 
-		<center>
+		<article style="text-align: center;" markdown>
 
 		<table markdown>
 		<tr>
@@ -412,7 +412,7 @@ Users can easily attach accessories to the RTK mosaic-X5 by wiring them into the
 		</tr>
 		</table>
 
-		</center>
+		</article>
 
 		</div>
 		

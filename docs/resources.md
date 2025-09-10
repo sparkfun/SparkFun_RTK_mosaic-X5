@@ -83,6 +83,6 @@ Septentrio also provides great resources for the mosaic-X5:
 		:material-youtube: [mosaic - GNSS module receiver range from Septentrio](https://youtu.be/Co8hrVeklAA)
 
 
-<center>
+<article style="text-align: center;" markdown>
 ![QR code to the hookup guide](./assets/img/qr_code/hookup_guide.png){ .qr }
-</center>
+</article>

@@ -6,9 +6,9 @@ Spot something wrong? Please let us know. <a href="https://github.com/sparkfun/S
 !!! warning "Need Help?"
 	If you need technical assistance or more information on a product that is not working as you expected, we recommend heading on over to the [SparkFun Technical Assistance](https://www.sparkfun.com/technical_assistanc) page for some initial troubleshooting. This **Submit Issues** page is not where users should seek assistance.
 
-	<center>
+	<article style="text-align: center;" markdown>
 	[SparkFun Technical Assistance Page](https://www.sparkfun.com/technical_assistance){ .md-button .md-button--primary }
-	</center>
+	</article>
 
 	If you can't find what you need there, the [SparkFun Forums](https://forum.sparkfun.com/index.php) is a great place to search the product forums and ask questions.
 

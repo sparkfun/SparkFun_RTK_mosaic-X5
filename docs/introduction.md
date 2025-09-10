@@ -16,16 +16,16 @@ icon: material/book-open-page-variant
 	</figure></a>
 
 
-	<center>
+	<article style="text-align: center;" markdown>
 	<article class="video-500px">
 	<iframe src="https://www.youtube.com/embed/HwKxq9ChazQ" title="Product Showcase Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 	</article>
-	</center>
+	</article>
 
 
-	<center>
+	<article style="text-align: center;" markdown>
 	[&nbsp;![QR code to product page](./assets/img/qr_code/product-low.png){ .tinyqr }&nbsp;&nbsp;Purchase from SparkFun :fontawesome-solid-cart-plus:{ .heart }&nbsp;&nbsp;&nbsp;](https://www.sparkfun.com/products/23748){ .md-button .md-button--primary }
-	</center>
+	</article>
 
 
 -	Designed and manufactured in Boulder, Colorado, USA, the SparkFun RTK mosaic-X5 is the perfect solution for your high-precision positioning and navigation needs. Based around the multi-constellation, multi-frequency, L5-ready mosaic-X5 from Septentrio, this is our most advanced RTK product to date. It supports GNSS signals from GPS (USA), GLONASS (Russia), Beidou (China), Galileo (Europe), Navic (India) plus special additional satellites (e.g. SBAS and QZSS). The mosaic-X5 also has built-in on-module support for other L-band correction services.

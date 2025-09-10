@@ -17,11 +17,11 @@ icon: material/cog
 
 		<div markdown>
 
-		<center>
+		<article style="text-align: center;" markdown>
 		<article class="video-500px">
 		<iframe src="https://www.youtube.com/embed/hrL5J6Q5gX8?si=jOPBat8rzMnL7Uz4&amp;start=26;&amp;end=35;" title="Septentrio: Getting Started Video (playback starts at ESD warning)" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 		</article>
-		</center>
+		</article>
 
 		</div>
 
@@ -84,17 +84,17 @@ Users can download the [full schematic for the RTK mosaic-X5](./assets/board_fil
 		??? info ":octicons-download-16:{ .heart } Eagle - Free Download!"
 			Eagle is a [CAD]("computer-aided design") program for electronics that is free to use for hobbyists and students. However, it does require an account registration to utilize the software.
 
-			<center>
+			<article style="text-align: center;" markdown>
 			[Download from<br>:autodesk-primary:{ .autodesk }](https://www.autodesk.com/products/eagle/free-download "Go to downloads page"){ .md-button .md-button--primary width="250px" }
-			</center>
+			</article>
 
 		??? info ":straight_ruler: Dimensions Tool"
 			This video from Autodesk demonstrates how to utilize the dimensions tool in Eagle, to include additional measurements:
 
-			<center>
+			<article style="text-align: center;" markdown>
 			<div class="video-500px">
 			<iframe src="https://www.youtube.com/embed/dZLNd1FtNB8" title="EAGLE Dimension Tool" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-			</center>
+			</article>
 
 === ":material-video-input-antenna: Antenna"
 	The dimensions and technical specifications of the GNSS antenna can be found on the [GNSS Multi-Band L1/L2/L5 Surveying Antenna - TNC (SPK6618H)](https://www.sparkfun.com/products/21801) product page.
@@ -433,14 +433,14 @@ These terminals are described in the tabs below. For more information on the I/O
 
 	The `VIN+` and `VIN-` terminals allow the RTK mosaic-X5 to be powered by an external DC power source - typically a 12V / 24V vehicle battery.
 
-	<center>
+	<article style="text-align: center;" markdown>
 
-	| **Terminal** | <center>**Function**</center>               |
+	| **Terminal** | **Function**                                |
 	| :----------: | :------------------------------------------ |
 	| **VIN+**     | External voltage: **Min: 9V**; **Max: 36V** |
 	| **VIN-**     | Ground / Chassis / 0V                       |
 
-	</center>
+	</article>
 
 	!!! info
 		The DC-DC converter in the RTK mosaic-X5 provides 1.5kV isolation between `VIN+`/`VIN-` and **5V**/**GND**. There is no direct electrical connection between `VIN-` and `GND`.
@@ -459,14 +459,14 @@ These terminals are described in the tabs below. For more information on the I/O
 
 	The `VIO` terminals can be used as power outputs or logic-high references. Likewise, the `GND` terminals can be used for power return or as logic-low references.
 
-	<center>
+	<article style="text-align: center;" markdown>
 
-	| **Terminal** | <center>**Function**</center>                   |
+	| **Terminal** | **Function**                                    |
 	| :----------: | :---------------------------------------------- |
 	| **VIO**      | 3.3V or 5V power output or logic-high reference |
 	| **GND**      | Ground / 0V or logic-low reference              |
 
-	</center>
+	</article>
 
 	!!! info
 		The default position of the `VIO` switch is **3.3V**.
@@ -477,16 +477,16 @@ These terminals are described in the tabs below. For more information on the I/O
 === "mosaic-X5 `COM1`"
 	The mosaic-X5 UART COM1 connections are adjacent to the **EVENTA** and **EVENTB** terminals and are connected as follows:
 
-	<center>
+	<article style="text-align: center;" markdown>
 
-	| **Terminal** | <center>**Function**</center>          | **Notes**                                                     |
+	| **Terminal** | **Function**                           | **Notes**                                                     |
 	| :----------: | :------------------------------------- | :------------------------------------------------------------ |
 	| **RX**       | COM1 UART Receive - **Input**          |                                                               |
 	| **TX**       | COM1 UART Transmit - **Output**        |                                                               |
 	| **RTS**      | COM1 UART Request To Send - **Output** | The module drives this pin low when ready to receive data     |
 	| **CTS**      | COM1 UART Clear To Send - **Input**    | Must be driven low when ready to receive data from the module |
 
-	</center>
+	</article>
 
 	!!! tip
 		The COM1 I/O voltage is set by the I/O voltage selection switch.
@@ -497,14 +497,14 @@ These terminals are described in the tabs below. For more information on the I/O
 === "EVENT A & B"
 	The mosaic-X5 **EVENTA** and **EVENTB** inputs can be used to mark or timestamp external events:
 
-	<center>
+	<article style="text-align: center;" markdown>
 
 	| **Terminal** | **Function**    |
 	| :----------: | :-------------: |
 	| **EVENTA**   | Event A : Input |
 	| **EVENTB**   | Event B : Input |
 
-	</center>
+	</article>
 
 	!!! tip
 		The EVENT voltage level is set by the I/O voltage selection switch.
@@ -523,13 +523,13 @@ These terminals are described in the tabs below. For more information on the I/O
 === "PPSO"
 	The mosaic-X5 **PPSO** is a configurable Pulse-Per-Second output. By default, PPSO is high for 5ms at 1Hz. The polarity, frequency and pulse width can be adjusted with the **`setPPSParameters`** command.
 
-	<center>
+	<article style="text-align: center;" markdown>
 
 	| **Terminal** | **Function**              |
 	| :----------: | :-----------------------: |
 	| **PPSO**     | Pulse-Per-Second : Output |
 
-	</center>
+	</article>
 
 	!!! tip
 		The PPSO voltage is set by the I/O voltage selection switch.
@@ -537,13 +537,13 @@ These terminals are described in the tabs below. For more information on the I/O
 === "LOG"
 	The mosaic-X5 **LOG** input starts and stops &micro;SD logging. It is also used to mount and dismount the &micro;SD card.
 
-	<center>
+	<article style="text-align: center;" markdown>
 
 	| **Terminal** | **Function** |
 	| :----------: | :----------: |
 	| **LOG**      | Log : Input  |
 
-	</center>
+	</article>
 
 	!!! tip
 		The LOG voltage level is set by the I/O voltage selection switch.
@@ -557,16 +557,16 @@ These terminals are described in the tabs below. For more information on the I/O
 === "ESP32 `UART`"
 	Four ESP32 GPIO pins are connected to I/O screw terminals as follows. These pins are not used by version 1.0.0 of the RTK mosaic-X5 ESP32 firmware. They are available for you to use if you are developing your own firmware.
 
-	<center>
+	<article style="text-align: center;" markdown>
 
-	| **Terminal** | <center>**Suggested Function**</center> | **Notes**                                                     |
+	| **Terminal** | **Suggested Function**                  | **Notes**                                                     |
 	| :----------: | :-------------------------------------- | :------------------------------------------------------------ |
 	| **RX**       | UART Receive                            | **Input** - connected to GPIO pin 34 through a level-shifter  |
 	| **TX**       | UART Transmit                           | **Output** - connected to GPIO pin 32 through a level-shifter |
 	| **RTS**      | UART Request To Send                    | **Output** - connected to GPIO pin 33 through a level-shifter |
 	| **CTS**      | UART Clear To Send                      | **Input** - connected to GPIO pin 35 through a level-shifter  |
 
-	</center>
+	</article>
 
 	!!! tip
 		The I/O voltage is set by the I/O voltage selection switch.
@@ -577,14 +577,14 @@ These terminals are described in the tabs below. For more information on the I/O
 === "SDA & SCL"
 	The ESP32 I<sup>2</sup>C (`Wire`) bus **SDA** and **SCL** signals are available via the I/O terminals. Internally, the I<sup>2</sup>C bus is used to configure the Qwiic OLED display. If you connect a logic analyzer to the SDA and SCL I/O terminals, you will be able to see the OLED traffic (address 0x3D). We made the SDA and SCL signals accessible in case you are developing your own firmware for the RTK mosaic-X5. The I/O terminals are fully level-shifted. It is OK to have a 5V I<sup>2</sup>C peripheral connected while also using the internal 3.3V Qwiic bus for the OLED.
 
-	<center>
+	<article style="text-align: center;" markdown>
 
 	| **Terminal** | **Function**         |
 	| :----------: | :------------------: |
 	| **SDA**      | I<sup>2</sup>C Data  |
 	| **SCL**      | I<sup>2</sup>C Clock |
 
-	</center>
+	</article>
 
 	!!! tip
 		The I/O voltage is set by the I/O voltage selection switch.
@@ -592,21 +592,21 @@ These terminals are described in the tabs below. For more information on the I/O
 	??? tip "What is Qwiic?"
 
 		<!-- Qwiic Banner -->
-		<center>
+		<article style="text-align: center;" markdown>
 		[![Qwiic Logo - light theme](./assets/img/qwiic_logo-light.png#only-light){ width=400 }](https://www.sparkfun.com/qwiic)
 		[![Qwiic Logo - dark theme](./assets/img/qwiic_logo-dark.png#only-dark){ width=400 }](https://www.sparkfun.com/qwiic)
-		</center>
+		</article>
 
 		---
 
 		The [Qwiic connect system](https://www.sparkfun.com/qwiic) is a solderless, polarized connection system that allows users to seamlessly daisy chain I<sup>2</sup>C boards together. Play the video below to learn more about the Qwiic connect system or click on the banner above to learn more about [Qwiic products](https://www.sparkfun.com/qwiic).
 
 
-		<center>
+		<article style="text-align: center;" markdown>
 		<div class="video-500px">
 		<iframe src="https://www.youtube.com/embed/x0RDEHqFIF8" title="SparkFun's Qwiic Connect System" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 		</div>
-		</center>
+		</article>
 
 
 		!!! info "Features of the Qwiic System"
@@ -727,7 +727,7 @@ The OLED display on the RTK mosaic-X5.
 
 	<div markdown>
 
-	<center>
+	<article style="text-align: center;" markdown>
 
 	|    | Data | Format | Value |
 	| :- | :--- | :----- | :---- |
@@ -735,7 +735,7 @@ The OLED display on the RTK mosaic-X5.
 	| Latitude | `4005.4192485 N` | `DDMM.MMMMMMM` `N`/`S` | 40&deg; 5.4162485' N<br>40&deg; 5' 24.97491" N<br>40.090270808&deg; N |
 	| Longitude | `10511.0873663 W` | `DDDMM.MMMMMMM` `E`/`W` | 105&deg; 11.0873663' W<br>105&deg; 11' 5.241978" W<br>105.184789438&deg; W |
 
-	</center>
+	</article>
 
 	</div>
 
