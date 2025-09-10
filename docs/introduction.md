@@ -37,7 +37,7 @@ icon: material/book-open-page-variant
 </div>
 
 ??? question "Product Comparison"
-	Below is a simple comparison table between our breakout board and Septentrio's development and evaluation kits:
+	Below is a simple comparison table between our mosaic-X5 products and Septentrio's development and evaluation kits:
 
 	<div class="annotate" markdown align="center">
 	<table markdown>
@@ -61,14 +61,28 @@ icon: material/book-open-page-variant
 		mosaic-X5 GNSS Breakout<br>
 		<hr>
 		<figure markdown>
-		![Product Thumbnail](./assets/img/product_comparison/tri-band_gnss_breakout.png){ width="200" }
+		![Product Thumbnail](./assets/img/product_comparison/mosaic-gnss-breakout.png){ width="200" }
 		</figure>
 	</th>
 	<th markdown style="text-align:center">
 		RTK mosaic-X5<br>
 		<hr>
 		<figure markdown>
-		![Product Thumbnail](./assets/img/product_comparison/rtk_mosaic-x5.png){ width="200" }
+		![Product Thumbnail](./assets/img/product_comparison/mosaic-rtk-platform.png){ width="200" }
+		</figure>
+	</th>
+	<th markdown style="text-align:center">
+		mosaic-X5 Flex Module<br>
+		<hr>
+		<figure markdown>
+		![Product Thumbnail](./assets/img/product_comparison/mosaic-flex-module.png){ width="200" }
+		</figure>
+	</th>
+	<th markdown style="text-align:center">
+		SparkPNT RTK Facet mosaic<br>
+		<hr>
+		<figure markdown>
+		![Product Thumbnail](./assets/img/product_comparison/mosaic-facet.png){ width="200" }
 		</figure>
 	</th>
 	</tr>
@@ -81,12 +95,16 @@ icon: material/book-open-page-variant
 		</td>
 		<td style="text-align:center; vertical-align:middle;">Single</td>
 		<td style="text-align:center; vertical-align:middle;">Single</td>
+		<td style="text-align:center; vertical-align:middle;">Single</td>
+		<td style="text-align:center; vertical-align:middle;">Integrated</td>
 	</tr>
 	<tr>
 		<td>USB Connector</td>
 		<td style="text-align:center">micro-B</td>
 		<td style="text-align:center">micro-B</td>
 		<td style="text-align:center">Type-C</td>
+		<td style="text-align:center">Type-C</td>
+		<td style="text-align:center">N/A*</td>
 		<td style="text-align:center">Type-C</td>
 	</tr>
 	<tr>
@@ -101,11 +119,18 @@ icon: material/book-open-page-variant
 			Yes<br>
 			<i>10/100 Base-T</i>
 		</td>
+		<td style="text-align:center; vertical-align:middle;">2x10 Header*</td>
+		<td style="text-align:center; vertical-align:middle;">No</td>
 	</tr>
 	<tr>
 		<td style="vertical-align:middle;">WiFi</td>
 		<td style="text-align:center; vertical-align:middle;">No</td>
 		<td style="text-align:center; vertical-align:middle;">No</td>
+		<td style="text-align:center; vertical-align:middle;">No</td>
+		<td style="text-align:center">
+			Yes - Network Bridge<br>
+			<i>10 Base-T</i>
+		</td>
 		<td style="text-align:center; vertical-align:middle;">No</td>
 		<td style="text-align:center">
 			Yes - Network Bridge<br>
@@ -121,6 +146,11 @@ icon: material/book-open-page-variant
 			1 - mosaic-X5<br>
 			1 - ESP32
 		</td>
+		<td style="text-align:center">4</td>
+		<td style="text-align:center">
+			1 - mosaic-X5<br>
+			1 - ESP32
+		</td>
 	</tr>
 	<tr>
 		<td>&micro;SD Card Slot</td>
@@ -128,12 +158,16 @@ icon: material/book-open-page-variant
 		<td style="text-align:center">Yes</td>
 		<td style="text-align:center">Yes</td>
 		<td style="text-align:center">Yes</td>
+		<td style="text-align:center">2x10 Header*</td>
+		<td style="text-align:center">Yes</td>
 	</tr>
 	<tr>
 		<td style="vertical-align:middle;">Reset/Log Buttons</td>
 		<td style="text-align:center; vertical-align:middle;">Yes</td>
 		<td style="text-align:center; vertical-align:middle;">No*</td>
 		<td style="text-align:center; vertical-align:middle;">Yes</td>
+		<td style="text-align:center; vertical-align:middle;">Yes</td>
+		<td style="text-align:center; vertical-align:middle;">No</td>
 		<td style="text-align:center; vertical-align:middle;">Yes</td>
 	</tr>
 	<tr>
@@ -148,6 +182,8 @@ icon: material/book-open-page-variant
 			3.3V<br>
 			5V
 		</td>
+		<td style="text-align:center; vertical-align:middle;">3.3V</td>
+		<td style="text-align:center; vertical-align:middle;">3.3V</td>
 	</tr>
 	<tr>
 		<td>PPS Signal</td>
@@ -155,6 +191,8 @@ icon: material/book-open-page-variant
 		<td style="text-align:center">6-Pin JST Connector</td>
 		<td style="text-align:center">SMA Connector</td>
 		<td style="text-align:center">Screw Terminal</td>
+		<td style="text-align:center">2x10 Header*</td>
+		<td style="text-align:center">No</td>
 	</tr>
 	<tr>
 		<td>Enclosure Material</td>
@@ -162,6 +200,8 @@ icon: material/book-open-page-variant
 		<td style="text-align:center; vertical-align:middle;">Metal</td>
 		<td style="text-align:center; vertical-align:middle;">N/A</td>
 		<td style="text-align:center; vertical-align:middle;">Aluminum</td>
+		<td style="text-align:center; vertical-align:middle;">N/A</td>
+		<td style="text-align:center; vertical-align:middle;">Plastic</td>
 	</tr>
 	<tr>
 		<td style="vertical-align:middle;">Dimensions</td>
@@ -172,6 +212,8 @@ icon: material/book-open-page-variant
 			180.6 x 101.8 x 41mm<br>
 			<i>Enclosure Only</i>
 		</td>
+		<td style="text-align:center; vertical-align:middle;"></td>
+		<td style="text-align:center; vertical-align:middle;"></td>
 	</tr>
 	<tr>
 		<td style="vertical-align:middle;">Weight</td>
@@ -182,14 +224,21 @@ icon: material/book-open-page-variant
 			415.15g<br>
 			<i>Enclosure Only</i>
 		</td>
+		<td style="text-align:center; vertical-align:middle;"></td>
+		<td style="text-align:center; vertical-align:middle;"></td>
 	</tr>
 	
 	</table>
 	
 	</div>
 
+
 	!!! note "mosaic-go Evaluation Kit"
 		The reset pin is exposed on 4-pin JST connector and the log pin is connected to the latch pin of the SD card slot.
+
+
+	!!! note "mosaic-5 Flex Module"
+		SparkPNT GNSS Flex modules are modular, *plug-in* boards that utilize a *carrier* board to access the pins of the GNSS Flex headers.
 
 
 
