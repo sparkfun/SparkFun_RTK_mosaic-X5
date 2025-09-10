@@ -15,24 +15,24 @@ copyright:
 edit_uri: blob/main/docs/
 
 
-
 # Configuration for webpage theme
 theme:
   # Theme: https://squidfunk.github.io/mkdocs-material/
   name: material
   custom_dir: overrides # Personalized changes to the theme
 
-  # Icon in Browser Tab (must be a square img - i.e. 32x32 pixels)
+  # Icon in Browser Tab (must be a square image - i.e. 32x32 pixels)
   favicon: assets/img/sfe-logo.png
 
   # Page Font
   font:
     text: Roboto
     code: Roboto Mono
-  
+
+
   # Features to Include (ref. theme documentation)
   features:
-    # Enable copy button on code blocks
+    # Enable the copy button on code blocks
     - content.code.copy
 
     # Enables code selection button to link a specific section of a code block
@@ -62,14 +62,15 @@ theme:
     - navigation.tabs.sticky
 
     # Adds pop-up button just below the header (when the user starts to scroll up)
-      # i.e. Allows users to easily jump to the beginning of the page
+    # i.e. Allows users to easily jump to the beginning of the page
     - navigation.top
 
     # Renders path for page navigation at the top of the page (makes page navigation more mobile friendly)
     - navigation.path
 
-    # Enables instant previews globally, for all internal links
-    - navigation.instant.preview
+    # Highlights all occurrences of a search result when clicked on
+    - search.highlight
+
 
   # Adds light/dark theme to the webpage
   palette:
@@ -85,7 +86,7 @@ theme:
     - media: "(prefers-color-scheme: light)"
       primary: grey
       accent: red
-      scheme: default 
+      scheme: default
       toggle:
         icon: material/brightness-7
         name: Switch to system preference
@@ -97,7 +98,7 @@ theme:
       scheme: slate
       toggle:
         icon: material/weather-night
-        name: Switch to light mode    
+        name: Switch to light mode
 
 
   # Configures icons
@@ -107,7 +108,7 @@ theme:
 
     # Sets repo icon to GitHub icon
     repo: fontawesome/brands/github
-    
+
     # Sets icons for "view source" (commented out) and "edit this page" buttons
     edit: material/file-document-edit-outline
     # view: material/file-code-outline
@@ -139,9 +140,8 @@ theme:
       link: octicons/link-16
 
 
-
 # Included MkDocs plugins
-# Add the installation of any new plugins to the ./github/workflows/mkdocs.yml file also
+# Add the installation of any new plugins to the ./github/workflows/build_documentation.yml file also
 plugins:
   # Default search plugin
   - search
@@ -156,6 +156,9 @@ plugins:
 
   # Enables improved security for external links
   - privacy:
+      # Disables plugin on local builds
+      enabled: !ENV [CI, false]
+
       # Disables cache mechanism, so that external assets can be updated during rebuilds
       cache: false
 
@@ -164,8 +167,10 @@ plugins:
       # assets_fetch: true
 
       # Provide domains for assets that are retrieved from external sites
-      assets_include:
-        - https://docs.sparkfun.com/*
+      # assets_include:
+      #   - https://docs.sparkfun.com/
+
+      # assets_fetch_dir: /docs
 
       # External links open in a new tab
       links_attr_map:
@@ -211,23 +216,18 @@ plugins:
       repository: sparkfun/SparkFun_RTK_mosaic-X5
       branch: main
 
-  # Add git authors at bottom of the page
-  - git-authors:
-      # Disables plugin on local builds
-      enabled: !ENV [CI, false]
-
   # Enables use of Git submodules and larger code base
   - monorepo:
       # Disables plugin on local builds
       enabled: !ENV [CI, false]
-
-
 
 # Included Markdown extensions
 markdown_extensions:
   # Adds support for syntax highlighting of code blocks
   - pymdownx.highlight:
       anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
 
   # Adds support for syntax highlighting of inline code blocks
   - pymdownx.inlinehilite
@@ -243,9 +243,17 @@ markdown_extensions:
 
       # Adds support for a glossary of abbreviations
       # auto_append:
-      #   # - https://raw.githubusercontent.com/santaimpersonator/git-test/main/glossary-sparkfun.md
+      #   - https://raw.githubusercontent.com/santaimpersonator/git-test/main/glossary-sparkfun.md
       #   - glossary-sparkfun.md
       #   - glossary-local.md
+
+  # Enables page previews
+  - material.extensions.preview:
+      configurations:
+        - targets:
+            exclude:
+              - resources.md
+              - troubleshooting_tips.md
 
   # Allows embedding of code blocks in other elements
   - pymdownx.superfences:
@@ -257,7 +265,7 @@ markdown_extensions:
 
   # Allows the use of tabs in the document
   - pymdownx.tabbed:
-      alternate_style: true 
+      alternate_style: true
       slugify: !!python/object/apply:pymdownx.slugs.slugify
         kwds:
           case: lower
@@ -301,7 +309,7 @@ markdown_extensions:
   - footnotes
 
   # Allows the use of abbreviations
-  # - abbr
+  - abbr
 
   # Allows the use of bundled and custom icons and emojis
   - pymdownx.emoji:
@@ -310,11 +318,11 @@ markdown_extensions:
       options:
         custom_icons:
           - overrides/.icons
-  
+
   # Allows for the rendering of block and inline-block equations
   - pymdownx.arithmatex:
       generic: true
-  
+
   # Adds permalink icon to headers
   - toc:
       permalink: ''
@@ -325,6 +333,8 @@ markdown_extensions:
 extra:
   # Configures the hyperlink for the logo in the header
   homepage: https://www.sparkfun.com
+
+  generator: right
 
   # Configures social icons in the footer
   social:
@@ -340,9 +350,8 @@ extra:
       link: https://www.facebook.com/SparkFun
     - icon: fontawesome/brands/x-twitter
       link: https://twitter.com/sparkfun
-    - icon: fontawesome/solid/cookie-bite
-      link: /#__consent
-      name: Change cookie settings
+    - icon: simple/discourse
+      link: https://community.sparkfun.com/
 
   # Configures Google Analytics
   analytics:
@@ -359,22 +368,35 @@ extra:
       We use cookies to recognize your repeated visits and preferences, as well as to measure the effectiveness of our documentation and whether users find what they're searching for. With your consent, you're helping us to make our documentation better.
     actions:
       - accept
-      - manage 
+      - manage
       - reject
-
 
 
 # Configures styling for the webpage
 extra_css:
+  # SparkFun Customizations
   - stylesheet/extra.css
 
+  # Enables support for KaTeX
+  # Leave disabled - causes issue when listing prices
+  # - https://unpkg.com/katex@0/dist/katex.min.css
 
-# Enables support for rendering block and inline block equations through MathJax
+
+# Enables support for rendering block and inline block equations through MathJax and KaTeX
 extra_javascript:
-  # Enables support for rendering block and inline block equations through MathJax
+  # Enables script to adjust PCB color of 3D models
+  - javascript/3d-color_adjust.js
+
+  # Enables support for MathJax
   - javascript/mathjax.js
-  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  # - https://polyfill.io/v3/polyfill.min.js?features=es6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+  # Enables support for KaTeX
+  # Leave disabled - causes issue when listing prices
+  # - javascript/katex.js
+  # - https://unpkg.com/katex@0/dist/katex.min.js
+  # - https://unpkg.com/katex@0/dist/contrib/auto-render.min.js
 
 
 # Configures webpage navigation
@@ -383,11 +405,12 @@ extra_javascript:
 exclude_docs: |
   README.md
 
-# Pages that are built, but not in the navigation tabs
+# Pages that are built, but not in the navigation menu
 not_in_nav: |
   index.md
   print_view.md
   favicon.ico
+
 
 # Webpage navigation tabs
 nav:
