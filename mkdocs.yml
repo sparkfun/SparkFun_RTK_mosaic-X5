@@ -103,7 +103,7 @@ theme:
   # Configures icons
   icon:
     # Sets homepage icon
-    logo: sfe-logo
+    logo: sfe
 
     # Sets repo icon to GitHub icon
     repo: fontawesome/brands/github
@@ -328,7 +328,7 @@ extra:
 
   # Configures social icons in the footer
   social:
-    - icon: sfe-logo
+    - icon: sfe
       link: https://www.sparkfun.com/products/23748
     - icon: fontawesome/brands/youtube
       link: https://www.youtube.com/sparkfun

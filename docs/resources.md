@@ -4,7 +4,7 @@ icon: material/book-open-page-variant
 
 ## Product Resources
 
-* :sfe-logo: [Product Page](https://www.sparkfun.com/products/23748)
+* :sfe: [Product Page](https://www.sparkfun.com/products/23748)
 * [Quick Start Guide](./assets/quick_start_guide-v10.pdf)
 * :material-folder-cog: Design Files:
 	* :fontawesome-solid-file-pdf: [Schematic](./assets/board_files/schematic.pdf)
@@ -16,7 +16,7 @@ icon: material/book-open-page-variant
 * :material-github: [Hardware Repo](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5)
 
 
-### :sfe-logo: Additional Resources
+### :sfe: Additional Resources
 
 * [GNSS Product Category](https://www.sparkfun.com/categories/4)
 * :material-account-supervisor: [SparkFun Technical Assistance](https://www.sparkfun.com/technical_assistance)

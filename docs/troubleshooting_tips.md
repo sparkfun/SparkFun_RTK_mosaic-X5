@@ -1,5 +1,5 @@
 ---
-icon: sfe-logo
+icon: sfe
 ---
 
 !!! warning "Need Help?"
