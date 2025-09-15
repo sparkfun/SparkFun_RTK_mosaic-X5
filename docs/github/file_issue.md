@@ -51,7 +51,7 @@ If part of the board's functionality is missing, please [open an issue](https://
 !!! tip "Design Considerations"
 	Please keep in mind that we may intentionally exclude certain functions of the board to meet our product design requirements.
 
-	* *For example, our Qwiic Micro boards are intended to fit on a small board layout and only use I<sup>2</sup>C communication; therefore, we may not have the SPI and interrupt pins available for users.*
+	* *For example, our Qwiic Micro boards are intended to fit on a small board layout and only use I^2^C communication; therefore, we may not have the SPI and interrupt pins available for users.*
 
 
 ### Do you wish to contribute directly to improving the board design?

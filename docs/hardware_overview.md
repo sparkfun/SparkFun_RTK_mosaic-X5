@@ -248,7 +248,7 @@ The only interface the mosaic-X5 doesn't offer is WiFi and that's why we've incl
 <figcaption markdown>The Espressif ESP32-WROVER processor.</figcaption>
 </figure>
 
-Think of the ESP32 as a co-processor, or riding shotgun... The mosaic-X5 `COM4` UART is linked to the ESP32, allowing the two to communicate directly without needing the Ethernet link. In our firmware, the ESP32 requests NMEA GGA data over this link and then displays it on the I<sup>2</sup>C OLED display.
+Think of the ESP32 as a co-processor, or riding shotgun... The mosaic-X5 `COM4` UART is linked to the ESP32, allowing the two to communicate directly without needing the Ethernet link. In our firmware, the ESP32 requests NMEA GGA data over this link and then displays it on the I^2^C OLED display.
 
 !!! warning "WiFi Network Compatibility"
 	The ESP32 is only compatible with 2.4GHz bands and cannot access the 5GHz band.
@@ -575,14 +575,14 @@ These terminals are described in the tabs below. For more information on the I/O
 		These pins are not used by version 1.0.0 of the ESP32 firmware.
 
 === "SDA & SCL"
-	The ESP32 I<sup>2</sup>C (`Wire`) bus **SDA** and **SCL** signals are available via the I/O terminals. Internally, the I<sup>2</sup>C bus is used to configure the Qwiic OLED display. If you connect a logic analyzer to the SDA and SCL I/O terminals, you will be able to see the OLED traffic (address 0x3D). We made the SDA and SCL signals accessible in case you are developing your own firmware for the RTK mosaic-X5. The I/O terminals are fully level-shifted. It is OK to have a 5V I<sup>2</sup>C peripheral connected while also using the internal 3.3V Qwiic bus for the OLED.
+	The ESP32 I^2^C (`Wire`) bus **SDA** and **SCL** signals are available via the I/O terminals. Internally, the I^2^C bus is used to configure the Qwiic OLED display. If you connect a logic analyzer to the SDA and SCL I/O terminals, you will be able to see the OLED traffic (address 0x3D). We made the SDA and SCL signals accessible in case you are developing your own firmware for the RTK mosaic-X5. The I/O terminals are fully level-shifted. It is OK to have a 5V I^2^C peripheral connected while also using the internal 3.3V Qwiic bus for the OLED.
 
 	<article style="text-align: center;" markdown>
 
 	| **Terminal** | **Function**         |
 	| :----------: | :------------------: |
-	| **SDA**      | I<sup>2</sup>C Data  |
-	| **SCL**      | I<sup>2</sup>C Clock |
+	| **SDA**      | I^2^C Data  |
+	| **SCL**      | I^2^C Clock |
 
 	</article>
 
@@ -599,7 +599,7 @@ These terminals are described in the tabs below. For more information on the I/O
 
 		---
 
-		The [Qwiic connect system](https://www.sparkfun.com/qwiic) is a solderless, polarized connection system that allows users to seamlessly daisy chain I<sup>2</sup>C boards together. Play the video below to learn more about the Qwiic connect system or click on the banner above to learn more about [Qwiic products](https://www.sparkfun.com/qwiic).
+		The [Qwiic connect system](https://www.sparkfun.com/qwiic) is a solderless, polarized connection system that allows users to seamlessly daisy chain I^2^C boards together. Play the video below to learn more about the Qwiic connect system or click on the banner above to learn more about [Qwiic products](https://www.sparkfun.com/qwiic).
 
 
 		<article style="text-align: center;" markdown>
@@ -632,7 +632,7 @@ These terminals are described in the tabs below. For more information on the I/O
 				![daisy chainable - light theme](./assets/img/daisy_chainable-light.png#only-light){ align="left" width="90" }
 				![daisy chainable - dark theme](./assets/img/daisy_chainable-dark.png#only-dark){ align="left" width="90" }
 
-				It’s time to leverage the power of the I<sup>2</sup>C bus! Most Qwiic boards will have two or more connectors on them, allowing multiple devices to be connected.
+				It’s time to leverage the power of the I^2^C bus! Most Qwiic boards will have two or more connectors on them, allowing multiple devices to be connected.
 
 ## Status LEDs
 There are six status LEDs on the RTK mosaic-X5:
@@ -686,7 +686,7 @@ The status indicator LEDs on the RTK mosaic-X5 PCB.
 
 
 ## OLED Display
-The RTK mosaic-X5 has a 128x64 pixel OLED display, controlled by the ESP32 via I<sup>2</sup>C. After some initial diagnostic messages, the display will show position, time and other data from the mosaic-X5 NMEA **GGA** message, plus the Ethernet / WiFi IP address.
+The RTK mosaic-X5 has a 128x64 pixel OLED display, controlled by the ESP32 via I^2^C. After some initial diagnostic messages, the display will show position, time and other data from the mosaic-X5 NMEA **GGA** message, plus the Ethernet / WiFi IP address.
 
 <figure markdown>
 [![LEDs](./assets/img/hookup_guide/OLED3.png){ width="750" }](./assets/img/hookup_guide/OLED3.png "Click to enlarge")
@@ -873,7 +873,7 @@ The jumpers on the bottom of the RTK mosaic-X5 PCB.
 		* **BOOT** - open this jumper to disconnect the ESP32 BOOT pushbutton.
 		* **RESET** - open this jumper to disconnect the ESP32 RESET pushbutton.
 	* **SHLD** (x2) - open these jumpers to isolate the USB-C connector shield from GND.
-	* **I<sup>2</sup>C** - open this dual jumper to disconnect the pull-ups for the SDA and SCL I/O terminals.
+	* **I^2^C** - open this dual jumper to disconnect the pull-ups for the SDA and SCL I/O terminals.
 		* Note: the internal 3.3V Qwiic bus has its own pull-ups which are disconnected by default. These can be enabled by closing the dual jumper under the OLED Qwiic connector. We suggest you only do this if you are disconnecting the OLED.
 	* **VIN+** and **VIN-**
 		* Open these jumpers if you wish to isolate (disconnect) the external DC power terminals. The breakout pads can then be used to feed in power from an alternate source.
