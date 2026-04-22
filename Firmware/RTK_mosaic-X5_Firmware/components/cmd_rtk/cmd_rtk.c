@@ -158,6 +158,8 @@ static struct {
     struct arg_int* mode;
     struct arg_str* ssid;
     struct arg_str* password;
+    struct arg_str* x5_user;
+    struct arg_str* x5_pass;
     struct arg_end* end;
 } set_rtk_arg;
 
@@ -177,6 +179,10 @@ int set_rtk(int argc, char **argv)
         preprocess_string((char*)set_rtk_arg.ssid->sval[0]);
     if (set_rtk_arg.password->count > 0)
         preprocess_string((char*)set_rtk_arg.password->sval[0]);
+    if (set_rtk_arg.x5_user->count > 0)
+        preprocess_string((char*)set_rtk_arg.x5_user->sval[0]);
+    if (set_rtk_arg.x5_pass->count > 0)
+        preprocess_string((char*)set_rtk_arg.x5_pass->sval[0]);
 
     err = nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
     if (err != ESP_OK) {
@@ -213,6 +219,22 @@ int set_rtk(int argc, char **argv)
         }
     }
 
+    if (set_rtk_arg.x5_user->count > 0) {
+        err = nvs_set_str(nvs, "x5_user", set_rtk_arg.x5_user->sval[0]);
+        if (err == ESP_OK) {
+            ESP_LOGI(TAG, "x5_user stored: %s", set_rtk_arg.x5_user->sval[0]);
+            param_set_value_str(&x5_user, (const char *)set_rtk_arg.x5_user->sval[0]); // Update the global in RAM
+        }
+    }
+
+    if (set_rtk_arg.x5_pass->count > 0) {
+        err = nvs_set_str(nvs, "x5_pass", set_rtk_arg.x5_pass->sval[0]);
+        if (err == ESP_OK) {            
+            ESP_LOGI(TAG, "x5_pass stored: %s", set_rtk_arg.x5_pass->sval[0]);
+            param_set_value_str(&x5_pass, (const char *)set_rtk_arg.x5_pass->sval[0]); // Update the global in RAM
+        }
+    }
+
     nvs_close(nvs);
     return err;
 }
@@ -224,11 +246,15 @@ static void register_set_rtk(void)
     set_rtk_arg.ssid = arg_str0("s", "ssid", NULL, "WiFi SSID");
     set_rtk_arg.password = arg_str0("p", "password", NULL, "WiFi Password"
         "\n\tTo set a NULL password, use: --password=%00");
+    set_rtk_arg.x5_user = arg_str0("u", "x5_user", NULL, "X5 Username"
+        "\n\tTo set a NULL X5 username, use: --x5_user=%00");
+    set_rtk_arg.x5_pass = arg_str0("x", "x5_pass", NULL, "X5 Password"
+        "\n\tTo set a NULL X5 password, use: --x5_pass=%00");
     set_rtk_arg.end = arg_end(2);
 
     const esp_console_cmd_t cmd = {
         .command = "set",
-        .help = "Set the RT mosaic-X5 operating mode plus the WiFi SSID and password",
+        .help = "Set the RTK mosaic-X5 operating mode, WiFi SSID and password, X5 username and password",
         .hint = NULL,
         .func = &set_rtk,
         .argtable = &set_rtk_arg
@@ -241,14 +267,16 @@ static int show(int argc, char **argv)
     int *new_mode = NULL;
     get_config_param_int("mode", &new_mode);
     if (new_mode != NULL) // Use the (updated) value from nvs if available
-        printf("mode:      %d (%s)\n", *new_mode, *new_mode == 1 ? "Ethernet" : "WiFi");
+        printf("mode:        %d (%s)\n", *new_mode, *new_mode == 1 ? "Ethernet" : "WiFi");
     else if (mode != NULL)
-        printf("mode:      %d (%s)\n", *mode, *mode == 1 ? "Ethernet" : "WiFi");
+        printf("mode:        %d (%s)\n", *mode, *mode == 1 ? "Ethernet" : "WiFi");
     else
         printf("mode:      <not defined>");
-    printf("ssid:      %s\n", ssid != NULL ? ssid : "<not defined>");
-    printf("password:  %s\n", password != NULL ? password : "<not defined>");
-    printf("log_level: %s\n", esp_log_level != NULL ? esp_log_level : "<not defined>");
+    printf("ssid:        %s\n", ssid != NULL ? ssid : "<not defined>");
+    printf("password:    %s\n", password != NULL ? password : "<not defined>");
+    printf("X5 username: %s\n", x5_user != NULL ? x5_user : "<not defined>");
+    printf("X5 password: %s\n", x5_pass != NULL ? x5_pass : "<not defined>");
+    printf("log_level:   %s\n", esp_log_level != NULL ? esp_log_level : "<not defined>");
 
     return 0;
 }

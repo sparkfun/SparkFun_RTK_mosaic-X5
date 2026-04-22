@@ -1,0 +1,67 @@
+name: Non-Release Build
+on:
+  workflow_dispatch:
+    branches:
+
+env:
+  FILENAME_PREFIX: RTK_mosaic-X5_Firmware
+  FIRMWARE_VERSION: 9.9.9
+
+jobs:
+  build:
+
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Get current date
+        id: date
+        run: echo "date=$(date +'%b_%d_%Y')" >> $GITHUB_OUTPUT
+
+      - name: Get current date
+        id: dateNoScores
+        run: echo "dateNoScores=$(date +'%b %d %Y')" >> $GITHUB_OUTPUT
+
+      - name: Extract branch name
+        run: echo "BRANCH=${{github.ref_name}}" >> $GITHUB_ENV
+
+      - name: Create file ending and compiler flags based on branch
+        run: |
+          if [[ $BRANCH == 'main' ]]; then
+              echo "FILE_ENDING_UNDERSCORE=_v${{ env.FIRMWARE_VERSION }}" >> "$GITHUB_ENV"
+          else
+              echo "FILE_ENDING_UNDERSCORE=_RC-${{ steps.date.outputs.date }}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Run Dockerfile and copy files
+        run: |
+          cd ./Firmware
+          docker build -t rtk_mosaic-X5_firmware --progress=plain --no-cache \
+            --build-arg FIRMWARE_VERSION=${{ env.FIRMWARE_VERSION }} \
+            .
+          docker create --name=rtk_mosaic-x5 rtk_mosaic-x5_firmware:latest
+          mkdir ./artifact
+          docker cp rtk_mosaic-X5:/RTK_mosaic-X5_Firmware.bin ./artifact
+          docker cp rtk_mosaic-X5:/bootloader.bin ./artifact
+          docker cp rtk_mosaic-X5:/partition-table.bin ./artifact
+          docker container rm rtk_mosaic-x5
+
+      - name: Create artifact name
+        run: |
+          echo "ARTIFACT=${{ env.FILENAME_PREFIX }}${{ env.FILE_ENDING_UNDERSCORE }}" >> $GITHUB_ENV
+
+      - name: Create artifact directory
+        run: |
+          cd ./Firmware/artifact
+          mkdir ${{ env.ARTIFACT }}
+          mv RTK_mosaic-X5_Firmware.bin ${{ env.ARTIFACT }}
+
+      - name: Upload artifact directory to action - avoid double-zip
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.ARTIFACT }}
+          path: ./Firmware/build/${{ env.ARTIFACT }}
+          retention-days: 7
