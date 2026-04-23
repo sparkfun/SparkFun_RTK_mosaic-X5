@@ -43,7 +43,6 @@ jobs:
             --build-arg FIRMWARE_VERSION=${{ env.FIRMWARE_VERSION }} \
             .
           docker create --name=rtk_mosaic-x5 rtk_mosaic-x5_firmware:latest
-          mkdir ./artifact
           docker cp rtk_mosaic-x5:/RTK_mosaic-X5_Firmware.bin ./RTK_mosaic-X5_Firmware/build/RTK_mosaic-X5_Firmware.bin
           docker cp rtk_mosaic-x5:/bootloader.bin ./RTK_mosaic-X5_Firmware/build/bootloader/bootloader.bin
           docker cp rtk_mosaic-x5:/partition-table.bin ./RTK_mosaic-X5_Firmware/build/partition_table/partition-table.bin
