@@ -17,7 +17,7 @@ SHELL ["/bin/bash", "-c"]
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-ARG FIRMWARE_VERSION=1.0.5
+ARG FIRMWARE_VERSION=9.9.9
 
 # Get required packages
 RUN : \
