@@ -555,7 +555,7 @@ static void x5_uart_task(void *args)
     while (true) {
         if (x5_uart_task_running)
         {
-            int length = uart_read_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, uart_buf, buf_size, 25/portTICK_PERIOD_MS);
+            int length = uart_read_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, uart_buf, buf_size, 10/portTICK_PERIOD_MS);
             if (length > 0)
             {
                 for (size_t x = 0; x < (size_t)length; x++) // For each byte received
@@ -853,6 +853,9 @@ static void x5_uart_task(void *args)
                 }
             }
         }
+
+        vTaskDelay(0); // Yield - to allow watchdog to be reset
+
     }
 
     free(uart_buf);
@@ -959,7 +962,7 @@ bool send_command_check_response(const char *command, const char *response, int6
 
         while (keepGoing && (esp_timer_get_time() < (timeMicros + (timeoutMillis * 1000))))
         {
-            int length = uart_read_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, uart_buf, buf_size, 25/portTICK_PERIOD_MS);
+            int length = uart_read_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, uart_buf, buf_size, 10/portTICK_PERIOD_MS);
             if (length > 0)
             {
                 for (size_t x = 0; x < (size_t)length; x++) // For each byte received
@@ -984,6 +987,8 @@ bool send_command_check_response(const char *command, const char *response, int6
                         keepGoing = false; // Match found
                 }
             }
+
+            vTaskDelay(0); // Yield - to allow watchdog to be reset
         }
 
         try++;
@@ -991,7 +996,7 @@ bool send_command_check_response(const char *command, const char *response, int6
 
         while (esp_timer_get_time() < (timeMicros + (waitMillis * 1000))) // Wait for the remaining bytes to arrive
         {
-            int length = uart_read_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, uart_buf, buf_size, 25/portTICK_PERIOD_MS);
+            int length = uart_read_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, uart_buf, buf_size, 10/portTICK_PERIOD_MS);
             if (length > 0)
             {
                 for (size_t x = 0; x < (size_t)length; x++) // For each byte received
@@ -1006,6 +1011,8 @@ bool send_command_check_response(const char *command, const char *response, int6
                     }
                 }
             }
+
+            vTaskDelay(0); // Yield - to allow watchdog to be reset
         }
 
         if (large_ptr > large_buf)
@@ -1100,9 +1107,12 @@ void initialize_ethernet(void)
     ESP_LOGI(TAG, "Mosaic Ethernet DHCP configured");
     print_oled("DHCP Configured");
 
-    // Wait for Mosaic to report ist MAC address
-    ESP_LOGI(TAG, "Waiting for Mosaic Ethernet MAC address");
-    print_oled("Waiting for MAC address");
+    // Wait for Mosaic to report its MAC address
+    // (This should have already been parsed from SBF IPStatus)
+    if (!eth_mac_is_set) {
+        ESP_LOGI(TAG, "Waiting for Mosaic Ethernet MAC address");
+        print_oled("Waiting for MAC address");
+    }
     while(!eth_mac_is_set) {
         vTaskDelay(10);
     }
@@ -1628,18 +1638,9 @@ void app_main(void)
     // The reply will be handled by the x5_uart_task
     uart_write_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, MOSAIC_CMD_EXE_IPSTATUS_ONCE, strlen(MOSAIC_CMD_EXE_IPSTATUS_ONCE));
 
-    x5_uart_task_running = true;
+    x5_uart_task_running = true; // Ensure the uart task is unpaused
 
-    initialize_x5_uart_task();
-
-    // Wait for up to 5 seconds for the IPStatus to be received
-    int64_t timeMicros = esp_timer_get_time();
-    while ((!eth_mac_is_set) && (esp_timer_get_time() < (timeMicros + (5000 * 1000))))
-    {
-        vTaskDelay(10);
-    }
-
-    x5_uart_task_running = false; // Pause the uart task so send_command_check_response can receive the response
+    initialize_x5_uart_task(); // Start the uart task - parse incoming GPGGA and IPStatus messages
 
     // Check the mode
     if (*mode == 1) {
@@ -1651,13 +1652,22 @@ void app_main(void)
         ESP_LOGI(TAG, "Firmware is in mode 2: WiFi");
         print_oled("Mode 2: WiFi");
 
+        // Wait for up to 5 seconds for the IPStatus to be received
+        int64_t timeMicros = esp_timer_get_time();
+        while ((!eth_mac_is_set) && (esp_timer_get_time() < (timeMicros + (5000 * 1000))))
+        {
+            vTaskDelay(10);
+        }
+
+        x5_uart_task_running = false; // Pause the uart task so send_command_check_response can receive the response
+
         // Initialize flow control and main peripherals
         ESP_ERROR_CHECK(initialize_flow_control());
         initialize_ethernet();
         initialize_wifi();
-    }
 
-    x5_uart_task_running = true; // Unpause the uart task
+        x5_uart_task_running = true; // Unpause the uart task
+    }
 
     print_oled("Waiting for signal");
 }
