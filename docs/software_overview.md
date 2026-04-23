@@ -423,21 +423,21 @@ To build the RTK mosaic-X5 firmware, you obviously need a copy of the source cod
 
 If you are familiar with Git and GitHub Desktop, you can clone the RTK mosaic-X5 repo directly into GitHub Desktop:
 
-![Clone RTK mosaic-X5 with GitHub Desktop](./img/CompileSource/Clone_Repo_To_GitHub_Desktop.png)
+![Clone RTK mosaic-X5 with GitHub Desktop](./assets/img/CompileSource/Clone_Repo_To_GitHub_Desktop.png)
 
 If you want to _contribute_ to RTK Everywhere, and already have a GitHub account, you can Fork the repo:
 
-![Fork RTK Everywhere](./img/CompileSource/Fork_Repo.png)
+![Fork RTK Everywhere](./assets/img/CompileSource/Fork_Repo.png)
 
 Clone your fork to your local machine, make changes, and send us a Pull Request. This is exactly what the SparkFun Team do when developing the code. Please use the `release_candidate` branch for any such changes. We are very unlikely to merge anything directly into `main`, unless it is (e.g.) docs corrections or improvements.
 
 If you don't want to do either of those, you can simply Download a Zip copy of the repo instead. You will receive a complete copy as a Zip file. You can do this from the green **Code** button, or click on the icon below to download a copy of the main (released) branch:
 
-[![Download ZIP](./img/CompileSource/Download_Zip.png)](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/archive/refs/heads/main.zip "Download ZIP (main branch)")
+[![Download ZIP](./assets/img/CompileSource/Download_Zip.png)](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/archive/refs/heads/main.zip "Download ZIP (main branch)")
 
 For the real Wild West experience, you can also download a copy of the `release_candidate` code branch. This is where the team is actively changing and testing the code, before it becomes a full release. The code there will _usually_ compile and will _usually_ work, but we don't guarantee it! We may be part way through implementing some breaking changes at the time of your download...
 
-[![Download ZIP - release candidate](./img/CompileSource/Download_Zip.png)](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/archive/refs/heads/release_candidate.zip "Download ZIP (release_candidate branch)")
+[![Download ZIP - release candidate](./assets/img/CompileSource/Download_Zip.png)](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/archive/refs/heads/release_candidate.zip "Download ZIP (release_candidate branch)")
 
 #### Install Docker Desktop
 
@@ -489,7 +489,7 @@ For the real Wild West experience, you can also download a copy of the `release_
 
 * Run `compile_with_docker.bat`. It does everything for you:
 
-![Output of the compile batch file](./img/CompileSource/compile_me_batch_file.png)
+![Output of the compile batch file](./assets/img/CompileSource/compile_me_batch_file.png)
 
 * Hey presto! You have your newly compiled firmware binary!
 * The three new files are:
