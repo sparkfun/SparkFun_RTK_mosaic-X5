@@ -1,0 +1,63 @@
+name: Build For Release
+on:
+  workflow_dispatch:
+    branches:
+
+env:
+  FILENAME_PREFIX: RTK_mosaic-X5_Firmware
+  FIRMWARE_VERSION: 1.0.5
+
+jobs:
+  build:
+
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Get current date
+        id: date
+        run: echo "date=$(date +'%b_%d_%Y')" >> $GITHUB_OUTPUT
+
+      - name: Get current date
+        id: dateNoScores
+        run: echo "dateNoScores=$(date +'%b %d %Y')" >> $GITHUB_OUTPUT
+
+      - name: Extract branch name
+        run: echo "BRANCH=${{github.ref_name}}" >> $GITHUB_ENV
+
+      - name: Create file ending and compiler flags based on branch
+        run: |
+          if [[ $BRANCH == 'main' ]]; then
+              echo "FILE_ENDING_UNDERSCORE=_v${{ env.FIRMWARE_VERSION }}" >> "$GITHUB_ENV"
+          else
+              echo "FILE_ENDING_UNDERSCORE=_RC-${{ steps.date.outputs.date }}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Run Dockerfile and copy files
+        run: |
+          cd ./Firmware
+          docker build -t rtk_mosaic-X5_firmware --progress=plain --no-cache \
+            --build-arg FIRMWARE_VERSION=${{ env.FIRMWARE_VERSION }} \
+            .
+          docker create --name=rtk_mosaic-x5 rtk_mosaic-x5_firmware:latest
+          mkdir ./artifact
+          docker cp rtk_mosaic-X5:/RTK_mosaic-X5_Firmware.bin ./RTK_mosaic-X5_Firmware/build/RTK_mosaic-X5_Firmware.bin
+          docker cp rtk_mosaic-X5:/bootloader.bin ./RTK_mosaic-X5_Firmware/build/bootloader/bootloader.bin
+          docker cp rtk_mosaic-X5:/partition-table.bin ./RTK_mosaic-X5_Firmware/build/partition_table/partition-table.bin
+          docker container rm rtk_mosaic-x5
+
+      - name: Commit and push bin files
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add ./Firmware/RTK_mosaic-X5_Firmware/build/RTK_mosaic-X5_Firmware.bin
+          git add ./Firmware/RTK_mosaic-X5_Firmware/build/bootloader/bootloader.bin
+          git add ./Firmware/RTK_mosaic-X5_Firmware/build/partition_table/partition-table.bin
+          git commit -m "Update bin files via Python"
+          git push origin ${{ env.BRANCH }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

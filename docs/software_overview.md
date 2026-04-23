@@ -324,7 +324,24 @@ With the RTK mosaic-X5 operating with the configured WiFi network bridge, users 
 
 The firmware running on the ESP32 is based heavily on the firmware for the [Septentrio mowi](https://github.com/septentrio-gnss/mowi). SparkFun added some bells and whistles, primarily to support the OLED display. The full firmware source code is available in the [GitHub repo](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/tree/main/Firmware/RTK_mosaic-X5_Firmware). It was developed and compiled with the Espressif ESP-IDF version 5.1.5.
 
-The most recent version of the firmware is v1.0.4, released on June 26th 2025. If you purchased your RTK mosaic-X5 before this date, you may enjoy the improvements in v1.0.4:
+The most recent version of the firmware is v1.0.5, released on April 22nd 2026. If you purchased your RTK mosaic-X5 before this date, you may enjoy the improvements in v1.0.5:
+
+Changes added at v1.0.5:
+
+* The firmware now supports a username and password for the X5 itself
+	* This is to support mosaic-X5 firmware versions >= 4.15.1 where a username and password are mandatory *on IP interfaces* (webUI, Ethernet-over-USB, CLI over TCP/IP)
+	* The username and password are *not* mandatory on COM and USB (virtual COM) ports, *unless* you set the `Default Access Level Per Interface` (`setDefaultAccessLevel` / `sdal`) to *none* for COM and/or USB ports
+	* The ESP32 firmware only needs to know the username and password if the default access levels have been changed
+	* For more information about the X5 Log-in procedure, please read [this Septentrio documentation](https://customersupport.septentrio.com/s/article/Cybersecurity-guidelines-Log-in-procedure)
+	* If you upgrade the X5 firmware to 4.15.1:
+		* Enter your user-defined username and password, using the Factory credentials *RxAdmin* and *S3pt3ntr10*, as described in the [Log-in procedure](https://customersupport.septentrio.com/s/article/Cybersecurity-guidelines-Log-in-procedure)
+		* You will need to enter the user-defined username and password whenever you connect over an IP interface
+		* Logging in via the ESP32 on a COM port does not remove the need to log in on IP interfaces. You still need to log in on each IP interface individually and separately
+		* Upgrade the ESP32 Firmware to v1.0.5, following the procedure described below
+		* If the ESP32 needs to know the username and password: in the ESP32 Serial Terminal / console, use option *set -u* to set the X5 username and option *set -x* to set the X5 password
+		* Turn the RTK mosaic-X5 off and back on again
+
+Changes added at v1.0.4:
 
 * The firmware now includes an efficient SBF and NMEA parser
     * Previously the NMEA GPGGA and SBF IPStatus messages were polled, this resulted in the OLED being updated once every ~2 seconds
@@ -346,22 +363,138 @@ To upgrade the ESP32 firmware, using a Windows PC:
     * [https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/archive/refs/heads/main.zip](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/archive/refs/heads/main.zip)
 * Alternatively, download the latest or a previous release (*Source code zip*) from the [repo releases page](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/releases)
 * Unzip the Zip file (Extract All)
-* Open a *Command Prompt* and navigate into the *Firmware* \ *RTK_mosaic-X5_Firmware* sub-folder
+* Open a *Command Prompt* and navigate into the *Firmware* sub-folder
 * Connect the RTK mosaic-X5 “CONFIG ESP32” port to your PC using a USB-C cable
     * It should appear in Device Manager as a CH340 COM port
 * Run *ESP32_FLASH_ERASE.bat* to completely clear the ESP32 memory
     * The .bat file should find the COM port number for you
-	* If you need to run it manually, use the following replacing COM1 with your COM port:
+	* If you see the error ```'wmic' is not recognized as an internal or external command, operable program or batch file```, you will need to [install WMIC](https://techcommunity.microsoft.com/blog/windows-itpro-blog/how-to-install-wmic-feature-on-demand-on-windows-11/4189530) or provide the COM port manually:
+
+```
+ESP32_FLASH_ERASE.bat COM1
+```
+
+* If you need to run `esptool` manually, use the following replacing COM1 with your COM port:
 
 ```
 esptool.exe --chip esp32 -p COM1 -b 460800 erase_flash
 ```
 
 * Then run *ESP32_FLASHER.bat* to upload the firmware
-    * If you need to run it manually, use:
+	* The .bat file should find the COM port number for you
+	* If you see the error ```'wmic' is not recognized as an internal or external command, operable program or batch file```, you will need to [install WMIC](https://techcommunity.microsoft.com/blog/windows-itpro-blog/how-to-install-wmic-feature-on-demand-on-windows-11/4189530) or provide the COM port manually:
 
 ```
-esptool.exe --chip esp32 -p COM1 -b 460800 --before=default_reset --after=hard_reset write_flash --flash_mode dio --flash_freq 40m --flash_size 4MB 0x1000 build\bootloader\bootloader.bin 0x10000 build\RTK_mosaic-X5_Firmware.bin 0x8000 build\partition_table\partition-table.bin
+ESP32_FLASHER.bat COM1
+```
+
+* If you need to run `esptool` manually, use:
+
+```
+esptool.exe --chip esp32 -p COM1 -b 460800 --before=default_reset --after=hard_reset write_flash --flash_mode dio --flash_freq 40m --flash_size 4MB 0x1000 RTK_mosaic-X5_Firmware\build\bootloader\bootloader.bin 0x10000 RTK_mosaic-X5_Firmware\build\RTK_mosaic-X5_Firmware.bin 0x8000 RTK_mosaic-X5_Firmware\build\partition_table\partition-table.bin
 ```
 
 On Linux / MacOS, you can `pip install esptool` and then run the above commnds, replacing `esptool.exe` with `esptool`
+
+### ESP32 Firmware - Compiling from source
+
+This is information about how to compile the RTK mosaic-X5 firmware from source. This is for advanced users who would like to modify the functionality of this RTK product.
+
+* [How SparkFun does it](#how-sparkfun-does-it)
+* [Using Docker](#using-docker)
+
+### How SparkFun does it
+
+At SparkFun, we use GitHub Actions and a Workflow to compile each release of the RTK mosaic-X5 firmware. We run the [build-for-release workflow](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/blob/main/.github/workflows/build-for-release.yml) directly on GitHub. A virtual ubuntu machine installs the Espressif IDF and generates the firmware binary for the ESP32. The updated firmware, bootloader and partition-table .bin files are pushed to the repo. We then create the new release manually.
+
+You are welcome to clone or fork this repo and do the exact same thing yourself. But you may need a paid GitHub Pro account to run the GitHub Actions, especially if you keep your clone / fork private.
+
+The [non-release-build workflow](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/blob/main/.github/workflows/non-release-build.yml) builds the firmware binaries and attaches them as an Artifact to the workflow run. Navigate to Actions \ Non-Release Build, select the latest run of Non-Release Build, the binary files are in the Artifact. This may be useful if you want to build the firmware on GitHub but don't want the changes pushed to your repo.
+
+You can then use (e.g.) [ESP32_FLASHER.bat](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/blob/main/Firmware/ESP32_FLASHER.bat) to upload the binary onto the ESP32.
+
+### Using Docker
+
+Here is a step-by-step guide for how to install Docker and compile the firmware locally from scratch:
+
+#### Clone, fork or download the RTK mosaic-X5 repo
+
+To build the RTK mosaic-X5 firmware, you obviously need a copy of the source code.
+
+If you are familiar with Git and GitHub Desktop, you can clone the RTK mosaic-X5 repo directly into GitHub Desktop:
+
+![Clone RTK mosaic-X5 with GitHub Desktop](./img/CompileSource/Clone_Repo_To_GitHub_Desktop.png)
+
+If you want to _contribute_ to RTK Everywhere, and already have a GitHub account, you can Fork the repo:
+
+![Fork RTK Everywhere](./img/CompileSource/Fork_Repo.png)
+
+Clone your fork to your local machine, make changes, and send us a Pull Request. This is exactly what the SparkFun Team do when developing the code. Please use the `release_candidate` branch for any such changes. We are very unlikely to merge anything directly into `main`, unless it is (e.g.) docs corrections or improvements.
+
+If you don't want to do either of those, you can simply Download a Zip copy of the repo instead. You will receive a complete copy as a Zip file. You can do this from the green **Code** button, or click on the icon below to download a copy of the main (released) branch:
+
+[![Download ZIP](./img/CompileSource/Download_Zip.png)](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/archive/refs/heads/main.zip "Download ZIP (main branch)")
+
+For the real Wild West experience, you can also download a copy of the `release_candidate` code branch. This is where the team is actively changing and testing the code, before it becomes a full release. The code there will _usually_ compile and will _usually_ work, but we don't guarantee it! We may be part way through implementing some breaking changes at the time of your download...
+
+[![Download ZIP - release candidate](./img/CompileSource/Download_Zip.png)](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/archive/refs/heads/release_candidate.zip "Download ZIP (release_candidate branch)")
+
+#### Install Docker Desktop
+
+* **(Optional)** Head to [Docker](https://www.docker.com/) and create an account. A free "Personal" account will cover occasional compilations of the firmware
+* Download and install [Docker Desktop](https://docs.docker.com/get-started/get-docker/) - there are versions for Mac, Windows and Linux. You may need to restart to complete the installation.
+* Run the Desktop
+    * You don't _need_ to have an account and you don't _need_ to be signed in
+    * You only need to be signed in if you want to store or share your Container on Docker Hub
+    * If you don't sign in, Docker Desktop will run in Personal mode - which will cover local compilations of the firmware
+* On Windows, you may see an error saying "**WSL needs updating** Your version of Windows Subsystem for Linux (WSL) is too old". If you do:
+    * Open a command prompt
+	* Type `wsl --update` to update WSL. At the time of writing, this installs Windows Subsystem for Linux 2.6.1
+	* Restart the Docker Desktop
+* If you are using Docker for the first time, the "What is a container?" and "How do I run a container?" demos are useful - _but not essential_
+    * On Windows, you may want to give Docker Desktop permission to access to your Network, so it can access (e.g.) HTML ports
+	* You can Stop the container and Delete it when you are done
+* You may want to prevent Docker from running when your machine starts up
+    * Uncheck "Start Docker Desktop when you sign in to your computer" in the Desktop settings
+
+#### Using Docker to create the firmware binary
+
+* **Make sure you have Docker Desktop running.** You don't need to be signed in, but it needs to be running.
+* Open a Command Prompt and `cd` into the SparkFun_RTK_mosaic-X5 folder
+* Check you are in the right place. Type `dir` and hit enter. You should see the following files and folders:
+
+```
+    .gitattributes
+    .gitignore
+    CONTRIBUTING.md
+    ISSUE_TEMPLATE.md
+    LICENSE.md
+	mkdocs.yml
+    README.md
+```
+
+* `cd Firmware` and then `dir` again. You should see:
+
+```
+    RTK_mosaic-X5_Firmware
+	compile_run_terminal.bat
+	compile_with_docker.bat
+    Dockerfile
+    ESP32_FLASH_ERASE.bat
+    ESP32_FLASHER.bat
+    esptool.exe
+```
+
+* The file that does most of the work is the `Dockerfile`
+
+* Run `compile_with_docker.bat`. It does everything for you:
+
+![Output of the compile batch file](./img/CompileSource/compile_me_batch_file.png)
+
+* Hey presto! You have your newly compiled firmware binary!
+* The three new files are:
+	* **RTK_mosaic-X5_Firmware\build\RTK_mosaic-X5_Firmware.bin**
+	* **RTK_mosaic-X5_Firmware\build\bootloader\bootloader.bin**
+	* **RTK_mosaic-X5_Firmware\build\partition_table\partition-table.bin**
+
+You can then use (e.g.) [ESP32_FLASHER.bat](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/blob/main/Firmware/ESP32_FLASHER.bat) to upload the binary onto the ESP32.
