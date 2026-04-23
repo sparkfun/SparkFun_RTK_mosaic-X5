@@ -94,7 +94,7 @@ hide: toc
 		The following sections will help if your RTK mosaic-X5 is not working as expected:
 
 		??? info "Using mosaic-X5 firmware >= 4.15.1?"
-			With mosaic-X5 firmware 4.15.1, a user-defined username and password are mandatory on all IP interfaces. These must be entered as described in the [Log-in procedure](https://customersupport.septentrio.com/s/article/Cybersecurity-guidelines-Log-in-procedure) on all IP interfaces individually and separately. The ESP32 is connected via COM. It does not need to know the username and password unless you also change default access level for the COM ports. If you do, you need to ensure the RTK mosaic-X5 ESP32 firmware has been [upgraded to version >= 1.0.5](./software_overview.md#esp32-firmware---update) and that the username and password have been set using *set -u* and *set -x*
+			With mosaic-X5 firmware 4.15.1, a user-defined username and password are mandatory on all IP interfaces. These must be entered as described in the [Log-in procedure](https://customersupport.septentrio.com/s/article/Cybersecurity-guidelines-Log-in-procedure) on all IP interfaces individually and separately. The ESP32 is connected via COM. It does not need to know the username and password unless you also change default access level for the COM ports. If you do, you need to ensure the RTK mosaic-X5 ESP32 firmware has been [upgraded to version >= 1.0.5](./software_overview.md#esp32-firmware-update) and that the username and password have been set using *set -u* and *set -x*
 
 		??? info "No power?"
 			The red power (PWR) LED will light up when the RTK mosaic-X5 has power. If the PWR LED is off, make sure the wall adapter has power and the USB cable is connected.
@@ -288,7 +288,7 @@ hide: toc
 		The following sections will help if your RTK mosaic-X5 is not working as expected:
 
 		??? info "Using mosaic-X5 firmware >= 4.15.1?"
-			With mosaic-X5 firmware 4.15.1, a user-defined username and password are mandatory on all IP interfaces. These must be entered as described in the [Log-in procedure](https://customersupport.septentrio.com/s/article/Cybersecurity-guidelines-Log-in-procedure) on all IP interfaces individually and separately. The ESP32 is connected via COM. It does not need to know the username and password unless you also change default access level for the COM ports. If you do, you need to ensure the RTK mosaic-X5 ESP32 firmware has been [upgraded to version >= 1.0.5](./software_overview.md#esp32-firmware---update) and that the username and password have been set using *set -u* and *set -x*
+			With mosaic-X5 firmware 4.15.1, a user-defined username and password are mandatory on all IP interfaces. These must be entered as described in the [Log-in procedure](https://customersupport.septentrio.com/s/article/Cybersecurity-guidelines-Log-in-procedure) on all IP interfaces individually and separately. The ESP32 is connected via COM. It does not need to know the username and password unless you also change default access level for the COM ports. If you do, you need to ensure the RTK mosaic-X5 ESP32 firmware has been [upgraded to version >= 1.0.5](./software_overview.md#esp32-firmware-update) and that the username and password have been set using *set -u* and *set -x*
 
 		??? info "No power?"
 			The red power (PWR) LED will light up when the RTK mosaic-X5 has power. If the PWR LED is off, make sure the wall adapter has power and the USB cable is connected.
@@ -342,7 +342,7 @@ hide: toc
 		The following sections will help if your RTK mosaic-X5 is not working as expected:
 
 		??? info "Using mosaic-X5 firmware >= 4.15.1?"
-			With mosaic-X5 firmware 4.15.1, a user-defined username and password are mandatory on all IP interfaces. These must be entered as described in the [Log-in procedure](https://customersupport.septentrio.com/s/article/Cybersecurity-guidelines-Log-in-procedure) on all IP interfaces individually and separately. The ESP32 is connected via COM. It does not need to know the username and password unless you also change default access level for the COM ports. If you do, you need to ensure the RTK mosaic-X5 ESP32 firmware has been [upgraded to version >= 1.0.5](./software_overview.md#esp32-firmware---update) and that the username and password have been set using *set -u* and *set -x*
+			With mosaic-X5 firmware 4.15.1, a user-defined username and password are mandatory on all IP interfaces. These must be entered as described in the [Log-in procedure](https://customersupport.septentrio.com/s/article/Cybersecurity-guidelines-Log-in-procedure) on all IP interfaces individually and separately. The ESP32 is connected via COM. It does not need to know the username and password unless you also change default access level for the COM ports. If you do, you need to ensure the RTK mosaic-X5 ESP32 firmware has been [upgraded to version >= 1.0.5](./software_overview.md#esp32-firmware-update) and that the username and password have been set using *set -u* and *set -x*
 
 		??? info "No power?"
 			The red power (PWR) LED will light up when the RTK mosaic-X5 has power. If the PWR LED is off, make sure the USB cable is connected.

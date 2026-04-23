@@ -39,14 +39,14 @@ jobs:
       - name: Run Dockerfile and copy files
         run: |
           cd ./Firmware
-          docker build -t rtk_mosaic-X5_firmware --progress=plain --no-cache \
+          docker build -t rtk_mosaic-x5_firmware --progress=plain --no-cache \
             --build-arg FIRMWARE_VERSION=${{ env.FIRMWARE_VERSION }} \
             .
           docker create --name=rtk_mosaic-x5 rtk_mosaic-x5_firmware:latest
           mkdir ./artifact
-          docker cp rtk_mosaic-X5:/RTK_mosaic-X5_Firmware.bin ./artifact
-          docker cp rtk_mosaic-X5:/bootloader.bin ./artifact
-          docker cp rtk_mosaic-X5:/partition-table.bin ./artifact
+          docker cp rtk_mosaic-x5:/RTK_mosaic-X5_Firmware.bin ./artifact
+          docker cp rtk_mosaic-x5:/bootloader.bin ./artifact
+          docker cp rtk_mosaic-x5:/partition-table.bin ./artifact
           docker container rm rtk_mosaic-x5
 
       - name: Create artifact name
@@ -58,10 +58,12 @@ jobs:
           cd ./Firmware/artifact
           mkdir ${{ env.ARTIFACT }}
           mv RTK_mosaic-X5_Firmware.bin ${{ env.ARTIFACT }}
+          mv bootloader.bin ${{ env.ARTIFACT }}
+          mv partition-table.bin ${{ env.ARTIFACT }}
 
       - name: Upload artifact directory to action - avoid double-zip
         uses: actions/upload-artifact@v7
         with:
           name: ${{ env.ARTIFACT }}
-          path: ./Firmware/build/${{ env.ARTIFACT }}
+          path: ./Firmware/artifact/${{ env.ARTIFACT }}
           retention-days: 7
