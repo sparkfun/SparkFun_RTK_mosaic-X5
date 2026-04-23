@@ -2152,37 +2152,24 @@
 </div>
 </div>
 <h3 id="wifi-credentials-for-the-network-bridge">WiFi Credentials for the Network Bridge<a class="headerlink" data-preview="" href="#wifi-credentials-for-the-network-bridge" title="Permanent link"></a></h3>
+<p>With the CH340 USB driver and a terminal emulator installed, users will now be able to configure the WiFi credentials on the ESP32. In order for the firmware to operate properly, users should have their RTK mosaic-X5 assembled with the network bridge in <em>WiFi Mode</em>.</p>
+<figure>
+<p><a data-preview="" href="../assets/img/hookup_guide/WiFi_Mode.png" title="Click to enlarge"><img alt="WiFi Mode" src="../assets/img/hookup_guide/WiFi_Mode.png" width="400" /></a></p>
+<figcaption>
+<p><a data-preview="" href="../assets/img/hookup_guide/WiFi_Mode.png">WiFi Mode (PNG)</a> for the RTK mosaic-X5.</p>
+</figcaption>
+</figure>
 <dl>
-<dt>With the CH340 USB driver and a terminal emulator installed, users will now be able to configure the WiFi credentials on the ESP32. In order for the firmware to operate properly, users should have their RTK mosaic-X5 assembled with the network bridge in <em>WiFi Mode</em>.</dt>
-<dd>
-<ul>
-<li>To change the ESP32 firmware mode, you need to connect a computer to the <strong>CONFIG ESP32</strong> USB-C port and use a Serial Terminal to change the mode.</li>
-<li>You may need to install a driver, first, so that the CH340 serial interface chip is recognized. Please click the bar below for more details.</li>
-</ul>
-<p><figure markdown>
-<a data-preview="" href="../assets/img/hookup_guide/WiFi_Mode.png" title="Click to enlarge"><img alt="WiFi Mode" src="../assets/img/hookup_guide/WiFi_Mode.png" width="400" /></a>
-<figcaption markdown></p>
-</dd>
 <dt><code>1</code> - <strong>Open a Serial Terminal</strong></dt>
 <dd>Open the connection to the CH340 using a baud rate of <strong>115200bps</strong></dd>
-<dt><code>2</code> - <strong>Put the ESP32 firmware into WiFi mode</strong></dt>
-<dd>
-<ul>
-<li>If you are using Windows, we still recommend the <a href="https://learn.sparkfun.com/tutorials/terminal-basics/tera-term-windows" target="_blank" rel="noopener">Tera Term</a> serial terminal but there are plenty of alternatives. Please see our <a href="https://learn.sparkfun.com/tutorials/terminal-basics" target="_blank" rel="noopener">Serial Terminal Basics tutorial</a> for more details.</li>
-<li>Open the connection to the CH340 using <strong>115200 baud</strong> </li>
-</ul>
-</dd>
-<dt><code>6</code> - <strong>Put the ESP32 firmware into WiFi mode</strong></dt>
-<dd>
-<ul>
-<li>When you have the Serial Terminal open, you should see the <strong><code>RTK_X5&gt;</code></strong> console prompt. If you do not, hit Enter on your keyboard. If needed, click the <span class="keys"><kbd>RESET</kbd></span> button on the front of the RTK mosaic-X5 to restart the ESP32 firmware.</li>
-</ul>
-<p><figure markdown>
-<a data-preview="" href="../assets/img/hookup_guide/Console_Prompt.png" title="Click to enlarge"><img alt="Console Prompt" src="../assets/img/hookup_guide/Console_Prompt.png" width="400" /></a>
-<figcaption markdown>
-<a data-preview="" href="../assets/img/hookup_guide/Console_Prompt.png">Console Prompt (PNG)</a> for changing the RTK mosaic-X5 firmware mode.
+</dl>
+<p><code>2</code> - <strong>Put the ESP32 firmware into WiFi mode</strong></p>
+<figure>
+<p><a data-preview="" href="../assets/img/hookup_guide/Console_Prompt.png" title="Click to enlarge"><img alt="Console Prompt" src="../assets/img/hookup_guide/Console_Prompt.png" width="400" /></a></p>
+<figcaption>
+<p><a data-preview="" href="../assets/img/hookup_guide/Console_Prompt.png">Console Prompt (PNG)</a> for changing the RTK mosaic-X5 firmware mode.</p>
 </figcaption>
-</figure></p>
+</figure>
 <ul>
 <li>
 <p>Type <strong><code>help</code></strong> and hit enter to see the help.</p>
@@ -2257,18 +2244,20 @@
 <p>To clear the password - making it NULL / empty - type one of:</p>
 <div class="admonition terminal">
 <p class="admonition-title">Terminal</p>
-<p>``` bash</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nb">set</span><span class="w"> </span>-p<span class="w"> </span>%00
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nb">set</span><span class="w"> </span>--password<span class="o">=</span>%00
+</span></code></pre></div>
 </div>
 </details>
 </li>
 </ul>
-</dd>
-</dl>
 <p>Once the mosaic-X5 has acquired a satellite signal and is connected to the WiFi network, the OLED will display the antenna's position as Latitude (Lat), Longitude (Long) and Altitude (Alt); the WiFi IP (Internet Protocol) network address. The firmware mode, SSID and password are stored in flash (non-volatile) memory. After changing them, you can disconnect the computer and power the RTK mosaic-X5 using the supplied wall adapter.</p>
-<p>The firmware mode, SSID and password are stored in flash (non-volatile) memory. After changing them, you can disconnect the computer and power the RTK mosaic-X5 using the supplied wall adapter.</p>
 <figure>
 <p><a data-preview="" href="../assets/img/hookup_guide/WiFi_Connections.png" title="Click to enlarge"><img alt="WiFi Connections" src="../assets/img/hookup_guide/WiFi_Connections.png" width="400" /></a></p>
 <figcaption>
+<p><a data-preview="" href="../assets/img/hookup_guide/WiFi_Connections.png">WiFi Connections (PNG)</a> for the RTK mosaic-X5.</p>
+</figcaption>
+</figure>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>When powering the RTK mosaic-X5 on for the first time, you may see the firmware restart (reboot) several times while it waits for the mosaic-X5 to initialize. This is not an error or anything to be concerned about.</p>
@@ -2341,12 +2330,12 @@
 </ul>
 </li>
 </ul>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>ESP32_FLASH_ERASE.bat COM1
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>ESP32_FLASH_ERASE.bat COM1
 </span></code></pre></div>
 <ul>
 <li>If you need to run <code>esptool</code> manually, use the following replacing COM1 with your COM port:</li>
 </ul>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>esptool.exe --chip esp32 -p COM1 -b 460800 erase_flash
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>esptool.exe --chip esp32 -p COM1 -b 460800 erase_flash
 </span></code></pre></div>
 <ul>
 <li>Then run <em>ESP32_FLASHER.bat</em> to upload the firmware<ul>
@@ -2355,12 +2344,12 @@
 </ul>
 </li>
 </ul>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>ESP32_FLASHER.bat COM1
+<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>ESP32_FLASHER.bat COM1
 </span></code></pre></div>
 <ul>
 <li>If you need to run <code>esptool</code> manually, use:</li>
 </ul>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>esptool.exe --chip esp32 -p COM1 -b 460800 --before=default_reset --after=hard_reset write_flash --flash_mode dio --flash_freq 40m --flash_size 4MB 0x1000 RTK_mosaic-X5_Firmware\build\bootloader\bootloader.bin 0x10000 RTK_mosaic-X5_Firmware\build\RTK_mosaic-X5_Firmware.bin 0x8000 RTK_mosaic-X5_Firmware\build\partition_table\partition-table.bin
+<div class="language-text highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>esptool.exe --chip esp32 -p COM1 -b 460800 --before=default_reset --after=hard_reset write_flash --flash_mode dio --flash_freq 40m --flash_size 4MB 0x1000 RTK_mosaic-X5_Firmware\build\bootloader\bootloader.bin 0x10000 RTK_mosaic-X5_Firmware\build\RTK_mosaic-X5_Firmware.bin 0x8000 RTK_mosaic-X5_Firmware\build\partition_table\partition-table.bin
 </span></code></pre></div>
 <p>On Linux / MacOS, you can <code>pip install esptool</code> and then run the above commnds, replacing <code>esptool.exe</code> with <code>esptool</code></p>
 <h3 id="esp32-firmware-compiling-from-source">ESP32 Firmware - Compiling from source<a class="headerlink" data-preview="" href="#esp32-firmware-compiling-from-source" title="Permanent link"></a></h3>
@@ -2419,24 +2408,24 @@
 <li>Open a Command Prompt and <code>cd</code> into the SparkFun_RTK_mosaic-X5 folder</li>
 <li>Check you are in the right place. Type <code>dir</code> and hit enter. You should see the following files and folders:</li>
 </ul>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>    .gitattributes
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    .gitignore
-</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    CONTRIBUTING.md
-</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    ISSUE_TEMPLATE.md
-</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>    LICENSE.md
-</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>    mkdocs.yml
-</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>    README.md
+<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>    .gitattributes
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    .gitignore
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    CONTRIBUTING.md
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>    ISSUE_TEMPLATE.md
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>    LICENSE.md
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>    mkdocs.yml
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>    README.md
 </span></code></pre></div>
 <ul>
 <li><code>cd Firmware</code> and then <code>dir</code> again. You should see:</li>
 </ul>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>    RTK_mosaic-X5_Firmware
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    compile_run_terminal.bat
-</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    compile_with_docker.bat
-</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>    Dockerfile
-</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>    ESP32_FLASH_ERASE.bat
-</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>    ESP32_FLASHER.bat
-</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>    esptool.exe
+<div class="language-text highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>    RTK_mosaic-X5_Firmware
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>    compile_run_terminal.bat
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    compile_with_docker.bat
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    Dockerfile
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    ESP32_FLASH_ERASE.bat
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>    ESP32_FLASHER.bat
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>    esptool.exe
 </span></code></pre></div>
 <ul>
 <li>
@@ -2457,8 +2446,6 @@
 </li>
 </ul>
 <p>You can then use (e.g.) <a href="https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/blob/main/Firmware/ESP32_FLASHER.bat" target="_blank" rel="noopener">ESP32_FLASHER.bat</a> to upload the binary onto the ESP32.</p>
-</figcaption>
-</figure>
 <div class="footnote">
 <hr />
 <ol>
@@ -2514,7 +2501,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="April 23, 2026 09:00:28 UTC"><span class="timeago" datetime="2026-04-23T09:00:28+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="April 23, 2026 09:00:28 UTC">2026-04-23</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="April 23, 2026 09:38:29 UTC"><span class="timeago" datetime="2026-04-23T09:38:29+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="April 23, 2026 09:38:29 UTC">2026-04-23</span>
   </span>
 
     
