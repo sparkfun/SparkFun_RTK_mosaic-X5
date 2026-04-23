@@ -39,13 +39,13 @@
 
    Updates April 22nd 2026 (v1.0.5):
 
-   mosaic-X5 firmware 4.15.1 requires a mandatory username and password. v1.0.5 adds the two nvm
-   parameters x5_user (set -u) and x5_pass (set -x). These are passed to the X5 as
-   "login,<x5_user>,<x5_pass>".
+   mosaic-X5 firmware 4.15.1 requires a mandatory user-defined username and password on IP interfaces.
+   v1.0.5 adds the two nvm parameters x5_user (set -u) and x5_pass (set -x).
+   If defined, these are passed to the X5 as "login,<x5_user>,<x5_pass>"
    
-   It is not clear if it is best to update the X5 firmware (to 4.15.1) then update the ESP32
-   firmware (to 1.0.5). But you certainly need to do both, and set the username and password
-   via the Serial Terminal / console.
+   Please note: the ESP32 does not _need_ to know the username and password _unless_ you also change
+   the default access levels for the COM interfaces. Please see the docs for more details:
+   https://docs.sparkfun.com/SparkFun_RTK_mosaic-X5/software_overview/#esp32-firmware-update
 
    Type help for help.
 
