@@ -58,10 +58,12 @@ jobs:
           cd ./Firmware/artifact
           mkdir ${{ env.ARTIFACT }}
           mv RTK_mosaic-X5_Firmware.bin ${{ env.ARTIFACT }}
+          mv bootloader.bin ${{ env.ARTIFACT }}
+          mv partition-table.bin ${{ env.ARTIFACT }}
 
       - name: Upload artifact directory to action - avoid double-zip
         uses: actions/upload-artifact@v7
         with:
           name: ${{ env.ARTIFACT }}
-          path: ./Firmware/build/${{ env.ARTIFACT }}
+          path: ./Firmware/artifact/${{ env.ARTIFACT }}
           retention-days: 7
