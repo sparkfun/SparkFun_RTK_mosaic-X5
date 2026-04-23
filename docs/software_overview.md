@@ -329,14 +329,17 @@ The most recent version of the firmware is v1.0.5, released on April 22nd 2026. 
 Changes added at v1.0.5:
 
 * The firmware now supports a username and password for the X5 itself
-	* This is to support mosaic-X5 firmware versions >= 4.15.1 where a username and password are mandatory
-	* For more information about the X5 Log-in procedure, please follow [this link](https://customersupport.septentrio.com/s/article/Cybersecurity-guidelines-Log-in-procedure)
-	* When you upgrade the X5 firmware to 4.15.1:
+	* This is to support mosaic-X5 firmware versions >= 4.15.1 where a username and password are mandatory *on IP interfaces* (webUI, Ethernet-over-USB, CLI over TCP/IP)
+	* The username and password are *not* mandatory on COM and USB (virtual COM) ports, *unless* you set the `Default Access Level Per Interface` (`setDefaultAccessLevel` / `sdal`) to *none* for COM and/or USB ports
+	* The ESP32 firmware only needs to know the username and password if the default access levels have been changed
+	* For more information about the X5 Log-in procedure, please read [this Septentrio documentation](https://customersupport.septentrio.com/s/article/Cybersecurity-guidelines-Log-in-procedure)
+	* If you upgrade the X5 firmware to 4.15.1:
 		* Enter your user-defined username and password, using the Factory credentials *RxAdmin* and *S3pt3ntr10*, as described in the [Log-in procedure](https://customersupport.septentrio.com/s/article/Cybersecurity-guidelines-Log-in-procedure)
-		* Then upgrade the ESP32 Firmware to v1.0.5, following the procedure described below
-		* In the ESP32 Serial Terminal / console, use option *set -u* to set the X5 username and option *set -x* to set the X5 password
+		* You will need to enter the user-defined username and password whenever you connect over an IP interface
+		* Logging in via the ESP32 on a COM port does not remove the need to log in on IP interfaces. You still need to log in on each IP interface individually and separately
+		* Upgrade the ESP32 Firmware to v1.0.5, following the procedure described below
+		* If the ESP32 needs to know the username and password: in the ESP32 Serial Terminal / console, use option *set -u* to set the X5 username and option *set -x* to set the X5 password
 		* Turn the RTK mosaic-X5 off and back on again
-		* In the Serial Terminal / console log, you should see:
 
 Changes added at v1.0.4:
 
@@ -365,23 +368,30 @@ To upgrade the ESP32 firmware, using a Windows PC:
     * It should appear in Device Manager as a CH340 COM port
 * Run *ESP32_FLASH_ERASE.bat* to completely clear the ESP32 memory
     * The .bat file should find the COM port number for you
-	* If you need to run it manually, use the following replacing COM1 with your COM port:
+	* If you see the error ```'wmic' is not recognized as an internal or external command, operable program or batch file```, you will need to [install WMIC](https://techcommunity.microsoft.com/blog/windows-itpro-blog/how-to-install-wmic-feature-on-demand-on-windows-11/4189530) or provide the COM port manually:
+
+```
+ESP32_FLASH_ERASE.bat COM1
+```
+
+* If you need to run `esptool` manually, use the following replacing COM1 with your COM port:
 
 ```
 esptool.exe --chip esp32 -p COM1 -b 460800 erase_flash
 ```
 
 * Then run *ESP32_FLASHER.bat* to upload the firmware
-    * If you need to run it manually, use:
-
-```
-esptool.exe --chip esp32 -p COM1 -b 460800 --before=default_reset --after=hard_reset write_flash --flash_mode dio --flash_freq 40m --flash_size 4MB 0x1000 RTK_mosaic-X5_Firmware\build\bootloader\bootloader.bin 0x10000 RTK_mosaic-X5_Firmware\build\RTK_mosaic-X5_Firmware.bin 0x8000 RTK_mosaic-X5_Firmware\build\partition_table\partition-table.bin
-```
-
-* If you see the error ```'wmic' is not recognized as an internal or external command, operable program or batch file```, you will need to [install WMIC](https://techcommunity.microsoft.com/blog/windows-itpro-blog/how-to-install-wmic-feature-on-demand-on-windows-11/4189530) or provide the COM port manually:
+	* The .bat file should find the COM port number for you
+	* If you see the error ```'wmic' is not recognized as an internal or external command, operable program or batch file```, you will need to [install WMIC](https://techcommunity.microsoft.com/blog/windows-itpro-blog/how-to-install-wmic-feature-on-demand-on-windows-11/4189530) or provide the COM port manually:
 
 ```
 ESP32_FLASHER.bat COM1
+```
+
+* If you need to run `esptool` manually, use:
+
+```
+esptool.exe --chip esp32 -p COM1 -b 460800 --before=default_reset --after=hard_reset write_flash --flash_mode dio --flash_freq 40m --flash_size 4MB 0x1000 RTK_mosaic-X5_Firmware\build\bootloader\bootloader.bin 0x10000 RTK_mosaic-X5_Firmware\build\RTK_mosaic-X5_Firmware.bin 0x8000 RTK_mosaic-X5_Firmware\build\partition_table\partition-table.bin
 ```
 
 On Linux / MacOS, you can `pip install esptool` and then run the above commnds, replacing `esptool.exe` with `esptool`
@@ -399,7 +409,7 @@ At SparkFun, we use GitHub Actions and a Workflow to compile each release of the
 
 You are welcome to clone or fork this repo and do the exact same thing yourself. But you may need a paid GitHub Pro account to run the GitHub Actions, especially if you keep your clone / fork private.
 
-The [non-release-build](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/blob/main/.github/workflows/non-release-build.yml) builds the firmware binaries and attaches them as an Artifact to the workflow run. Navigate to Actions \ Non-Release Build, select the latest run of Non-Release Build, the binary files are in the Artifact.
+The [non-release-build workflow](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/blob/main/.github/workflows/non-release-build.yml) builds the firmware binaries and attaches them as an Artifact to the workflow run. Navigate to Actions \ Non-Release Build, select the latest run of Non-Release Build, the binary files are in the Artifact. This may be useful if you want to build the firmware on GitHub but don't want the changes pushed to your repo.
 
 You can then use (e.g.) [ESP32_FLASHER.bat](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/blob/main/Firmware/ESP32_FLASHER.bat) to upload the binary onto the ESP32.
 

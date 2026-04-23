@@ -2,6 +2,13 @@
 
 # Mostly taken from: https://github.com/espressif/esp-idf/blob/master/tools/docker/Dockerfile
 
+# If you want to use a later version of the IDF (e.g. 5.5.3), change:
+# FROM ubuntu:24.04 AS upstream
+# ARG IDF_CLONE_BRANCH_OR_TAG=release/v5.5
+# ARG IDF_CHECKOUT_REF=2c211b2
+# In "Install all the required tools", add:
+# && $IDF_PATH/tools/idf_tools.py --non-interactive install qemu* --targets=${IDF_INSTALL_TARGETS} \
+
 FROM ubuntu:22.04 AS upstream
 
 # switch to root
