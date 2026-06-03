@@ -377,25 +377,11 @@ extra_css:
   # SparkFun Customizations
   - stylesheet/extra.css
 
-  # Enables support for KaTeX
-  # Leave disabled - causes issue when listing prices
-  # - https://unpkg.com/katex@0/dist/katex.min.css
-
 
 # Enables support for rendering block and inline block equations through MathJax and KaTeX
 extra_javascript:
   # Enables script to adjust PCB color of 3D models
   - javascript/3d-color_adjust.js
-
-  # Enables support for MathJax
-  - javascript/mathjax.js
-  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
-
-  # Enables support for KaTeX
-  # Leave disabled - causes issue when listing prices
-  # - javascript/katex.js
-  # - https://unpkg.com/katex@0/dist/katex.min.js
-  # - https://unpkg.com/katex@0/dist/contrib/auto-render.min.js
 
 
 # Configures webpage navigation
