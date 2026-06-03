@@ -13,7 +13,7 @@ icon: material/tools
 	<figcaption markdown>Everything that is included in the RTK mosaic-X5 kit.</figcaption>
 	</figure>
 
-	Inside the box, users will find the [GNSS antenna](https://www.sparkfun.com/products/21801), RTK mosaic-X5 in its aluminum enclosure, and another box containing additional accessories. Inside, the accessory box, users will find the [CAT-6 Ethernet cable](https://www.sparkfun.com/products/8915), [USB cable](https://www.sparkfun.com/products/15424), [SMA to TNC cable](https://www.sparkfun.com/products/21740), [USB power supply](https://www.sparkfun.com/products/11456), [WiFi antenna](https://www.sparkfun.com/products/145), and [32GB SD card](https://www.sparkfun.com/products/19041).
+	Inside the box, users will find the [GNSS antenna](https://www.sparkfun.com/gnss-multi-band-l1-l2-l5-surveying-antenna-tnc-spk6618h.html), RTK mosaic-X5 in its aluminum enclosure, and another box containing additional accessories. Inside, the accessory box, users will find the [CAT-6 Ethernet cable](https://www.sparkfun.com/cat-6-cable-3ft.html), [USB cable](https://www.sparkfun.com/reversible-usb-a-to-c-cable-2m.html), [SMA to TNC cable](https://www.sparkfun.com/reinforced-interface-cable-sma-male-to-tnc-male-10m.html), [USB power supply](https://www.sparkfun.com/usb-wall-charger-5v-1a-black.html), [WiFi antenna](https://www.sparkfun.com/2-4ghz-duck-antenna-rp-sma.html), and [32GB SD card](https://www.sparkfun.com/microsd-card-32gb-class-10.html).
 
 	<div class="grid" markdown>
 
@@ -223,7 +223,7 @@ Users can easily attach accessories to the RTK mosaic-X5 by wiring them into the
 	<figcaption markdown>Components of the terminal block.</figcaption>
 	</figure>
 
-	Users can wiggle or use a soft/rigid object to carefully pry the terminal block off from its connector. In the picture below, a plastic name tag (~1.5mm thick) is used to carefully pry the terminal block up. We have also found the edge of a [PCB ruler](https://www.sparkfun.com/products/15295) works great too.
+	Users can wiggle or use a soft/rigid object to carefully pry the terminal block off from its connector. In the picture below, a plastic name tag (~1.5mm thick) is used to carefully pry the terminal block up. We have also found the edge of a [PCB ruler](https://www.sparkfun.com/sparkfun-pcb-ruler-12-inch.html) works great too.
 
 	<figure markdown>
 	[![Prying the Terminal Block](./assets/img/hookup_guide/disassembly-terminal_block.jpg){ width="400" }](./assets/img/hookup_guide/disassembly-terminal_block.jpg "Click to enlarge")
@@ -260,12 +260,12 @@ Users can easily attach accessories to the RTK mosaic-X5 by wiring them into the
 
 ??? tip "Connecting a Radio"
 	### Radio Transceivers
-	Users can also utilize the terminal blocks to interface with one of our radio transceivers for RTK correction data. We recommend utilizing our [breadboard cable](https://www.sparkfun.com/products/23353) to connect those radios to the RTK mosaic-X5.
+	Users can also utilize the terminal blocks to interface with one of our radio transceivers for RTK correction data. We recommend utilizing our [breadboard cable](https://www.sparkfun.com/breadboard-to-jst-ghr-06v-cable-6-pin-x-1-25mm-pitch-for-loraserial.html) to connect those radios to the RTK mosaic-X5.
 
 
 	<div class="grid cards col-2" markdown>
 
-	-   <a href="https://www.sparkfun.com/products/19032">
+	-   <a href="https://www.sparkfun.com/sik-telemetry-radio-v3-915mhz-100mw.html">
 		<figure markdown>
 		![Product Thumbnail](https://cdn.sparkfun.com/assets/parts/1/8/6/3/4/19032-SiK_Telemetry_Radio_V3_-_915MHz__100mW-01.jpg)
 		</figure>
@@ -275,7 +275,7 @@ Users can easily attach accessories to the RTK mosaic-X5 by wiring them into the
 		**SiK Telemetry Radio V3 - 915MHz, 100mW**<br>
 		WRL-19032</a>
 
-	-   <a href="https://www.sparkfun.com/products/20029">
+	-   <a href="https://www.sparkfun.com/sparkfun-loraserial-kit-915mhz-enclosed.html">
 		<figure markdown>
 		![Product Thumbnail](https://cdn.sparkfun.com/assets/parts/1/9/7/9/0/SparkFun_LoRaSerial_Enclosed_-_20029-1.jpg)
 		</figure>
@@ -285,7 +285,7 @@ Users can easily attach accessories to the RTK mosaic-X5 by wiring them into the
 		**SparkFun LoRaSerial Kit - 915MHz (Enclosed)**<br>
 		WRL-20029</a>
 	
-	-   <a href="https://www.sparkfun.com/products/23353">
+	-   <a href="https://www.sparkfun.com/breadboard-to-jst-ghr-06v-cable-6-pin-x-1-25mm-pitch-for-loraserial.html">
 		<figure markdown>
 		![Product Thumbnail](https://cdn.sparkfun.com/assets/parts/1/9/0/9/3/23353-_1.jpg)
 		</figure>

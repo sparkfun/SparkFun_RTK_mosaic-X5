@@ -25,7 +25,7 @@ icon: material/cog
 
 		</div>
 
-		-   <a href="https://www.sparkfun.com/products/25572">
+		-   <a href="https://www.sparkfun.com/ifixit-anti-static-wrist-strap.html">
 			<figure markdown>
 			![Product Thumbnail](https://cdn.sparkfun.com/assets/parts/2/6/1/2/7/TOL-25572-Anti-Static-Wrist-Strap-Feature.jpg)
 			</figure>		
@@ -59,7 +59,7 @@ Users can download the [full schematic for the RTK mosaic-X5](./assets/board_fil
 ## Dimensions
 
 === ":material-package-variant-closed: Metal Enclosure"
-	Details about the aluminum enclosure can be found on the [Metal Enclosure - Custom Aluminum Extrusion (6in. x 4in. PCB)](https://www.sparkfun.com/products/22640) product page.
+	Details about the aluminum enclosure can be found on the [Metal Enclosure - Custom Aluminum Extrusion (6in. x 4in. PCB)](https://www.sparkfun.com/metal-enclosure-custom-aluminum-extrusion-6in-x-4in-pcb.html) product page.
 
 	<figure markdown>
 	[![Enclosure Dimensions](./assets/board_files/dimensions-enclosure.png){ width="700" }](./assets/board_files/dimensions-enclosure.png "Click to enlarge")
@@ -93,7 +93,7 @@ Users can download the [full schematic for the RTK mosaic-X5](./assets/board_fil
 			</article>
 
 === ":material-video-input-antenna: Antenna"
-	The dimensions and technical specifications of the GNSS antenna can be found on the [GNSS Multi-Band L1/L2/L5 Surveying Antenna - TNC (SPK6618H)](https://www.sparkfun.com/products/21801) product page.
+	The dimensions and technical specifications of the GNSS antenna can be found on the [GNSS Multi-Band L1/L2/L5 Surveying Antenna - TNC (SPK6618H)](https://www.sparkfun.com/gnss-multi-band-l1-l2-l5-surveying-antenna-tnc-spk6618h.html) product page.
 
 	<figure markdown>
 	[![Antenna Dimensions](./assets/board_files/dimensions-antenna.png){ width="400" }](./assets/board_files/dimensions-antenna.png "Click to enlarge")
@@ -397,7 +397,7 @@ The ESP32 WiFi / BT SMA connector is reverse-polarity (RP). A short u.FL cable c
 
 
 ## I/O Terminals
-The RTK moasic-X5 is equipped with two [10-way 3.5mm screw cage terminal connectors](https://www.sparkfun.com/products/22461).
+The RTK moasic-X5 is equipped with two [10-way 3.5mm screw cage terminal connectors](https://www.sparkfun.com/10-way-terminal-socket.html).
 
 <div class="grid" markdown>
 

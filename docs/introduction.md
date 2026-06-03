@@ -5,7 +5,7 @@ icon: material/book-open-page-variant
 # Introduction
 <div class="grid cards desc" markdown>
 
--   <a href="https://www.sparkfun.com/products/23748">
+-   <a href="https://www.sparkfun.com/sparkfun-rtk-mosaic-x5.html">
 	**RTK mosaic-X5**<br>
 	**SKU:** GPS-23748
 
@@ -24,7 +24,7 @@ icon: material/book-open-page-variant
 
 
 	<article style="text-align: center;" markdown>
-	[&nbsp;![QR code to product page](./assets/img/qr_code/product-low.png){ .tinyqr }&nbsp;&nbsp;Purchase from SparkFun :fontawesome-solid-cart-plus:{ .heart }&nbsp;&nbsp;&nbsp;](https://www.sparkfun.com/products/23748){ .md-button .md-button--primary }
+	[&nbsp;![QR code to product page](./assets/img/qr_code/product-low.png){ .tinyqr }&nbsp;&nbsp;Purchase from SparkFun :fontawesome-solid-cart-plus:{ .heart }&nbsp;&nbsp;&nbsp;](https://www.sparkfun.com/sparkfun-rtk-mosaic-x5.html){ .md-button .md-button--primary }
 	</article>
 
 
@@ -267,16 +267,16 @@ The RTK mosaic-X5 comes with everything you need to get up and running.
 
 * [Quick Start Guide](./assets/quick_start_guide-v10.pdf)
 * Cased GNSS Receiver
-	* [Aluminum Enclosure](https://www.sparkfun.com/products/22640) (1)
-	* [10-Way Terminal Blocks](https://www.sparkfun.com/products/22461)
-	* [Qwiic 1.3" OLED Display](https://www.sparkfun.com/products/23453)
-* [L1/L2/L5 GNSS Surveying Antenna](https://www.sparkfun.com/products/21801)
-* [Reinforced RG58 TNC-SMA Cable (10m)](https://www.sparkfun.com/products/21740)
-* [SMA WiFi / Bluetooth Antenna](https://www.sparkfun.com/products/145)
-* [32GB microSD Card (Class 10)](https://www.sparkfun.com/products/19041)
-* [USB-C Power Supply (5V 1A wall adapter)](https://www.sparkfun.com/products/11456)
-* [USB-C Cable (A to C, 2m)](https://www.sparkfun.com/products/15424)
-* [Ethernet Cable (CAT-6, 1m)](https://www.sparkfun.com/products/8915)
+	* [Aluminum Enclosure](https://www.sparkfun.com/metal-enclosure-custom-aluminum-extrusion-6in-x-4in-pcb.html) (1)
+	* [10-Way Terminal Blocks](https://www.sparkfun.com/10-way-terminal-socket.html)
+	* [Qwiic 1.3" OLED Display](https://www.sparkfun.com/sparkfun-qwiic-oled-1-3in-128x64.html)
+* [L1/L2/L5 GNSS Surveying Antenna](https://www.sparkfun.com/gnss-multi-band-l1-l2-l5-surveying-antenna-tnc-spk6618h.html)
+* [Reinforced RG58 TNC-SMA Cable (10m)](https://www.sparkfun.com/reinforced-interface-cable-sma-male-to-tnc-male-10m.html)
+* [SMA WiFi / Bluetooth Antenna](https://www.sparkfun.com/2-4ghz-duck-antenna-rp-sma.html)
+* [32GB microSD Card (Class 10)](https://www.sparkfun.com/microsd-card-32gb-class-10.html)
+* [USB-C Power Supply (5V 1A wall adapter)](https://www.sparkfun.com/usb-wall-charger-5v-1a-black.html)
+* [USB-C Cable (A to C, 2m)](https://www.sparkfun.com/reversible-usb-a-to-c-cable-2m.html)
+* [Ethernet Cable (CAT-6, 1m)](https://www.sparkfun.com/cat-6-cable-3ft.html)
 
 </div>
 
@@ -292,7 +292,7 @@ The RTK mosaic-X5 comes with everything you need to get up and running.
 
 	<div class="grid cards" markdown>
 
-	-   <a href="https://www.sparkfun.com/products/22197">
+	-   <a href="https://www.sparkfun.com/gnss-antenna-mounting-hardware-kit.html">
 		<figure markdown>
 		![GNSS Antenna Mounting Hardware Kit](https://cdn.sparkfun.com/assets/parts/2/2/0/9/7/22197-_01.jpg)
 		</figure>
@@ -302,7 +302,7 @@ The RTK mosaic-X5 comes with everything you need to get up and running.
 		**GNSS Antenna Mounting Hardware Kit**<br>
 		KIT-22197</a>
 
-	-   <a href="https://www.sparkfun.com/products/21257">
+	-   <a href="https://www.sparkfun.com/gnss-magnetic-antenna-mount-5-8-11-tpi.html">
 		<figure markdown>
 		![GNSS Magnetic Antenna Mount - 5/8" 11-TPI](https://cdn.sparkfun.com/assets/parts/2/1/0/2/7/SparkFun-GNSS-Antenna-Magnetic-Mount-21257-1.jpg)
 		</figure>
@@ -319,7 +319,7 @@ The RTK mosaic-X5 comes with everything you need to get up and running.
 
 	<div class="grid cards" markdown>
 
-	-   <a href="https://www.sparkfun.com/products/21281">
+	-   <a href="https://www.sparkfun.com/interface-cable-sma-female-to-sma-male-10m-rg58.html">
 		<figure markdown>
 		![Interface Cable - SMA Female to SMA Male (10m, RG58)](https://cdn.sparkfun.com/assets/parts/2/1/0/6/5/21281-_CAB-_01.jpg)
 		</figure>
@@ -332,7 +332,7 @@ The RTK mosaic-X5 comes with everything you need to get up and running.
 		!!! tip
 			Use this extension cable for the GNSS antenna. This cable will not work with the WiFi/BLE antenna due to the polarity of the connectors.
 
-	-   <a href="https://www.sparkfun.com/products/22038">
+	-   <a href="https://www.sparkfun.com/interface-cable-rp-sma-male-to-rp-sma-female-10m-rg58.html">
 		<figure markdown>
 		![Interface Cable - RP-SMA Male to RP-SMA Female (10M, RG58)](https://cdn.sparkfun.com/assets/parts/2/1/9/0/5/22038-_CAB-_01.jpg)
 		</figure>

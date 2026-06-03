@@ -1,9 +1,9 @@
 SparkFun RTK mosaic-X5
 ========================================
 
-[![SparkFun RTK mosaic-X5](https://cdn.sparkfun.com/r/455-455/assets/parts/2/4/0/7/2/23748-RTK-Mosaic-X5-Kit-All-Feature-1.png)](https://www.sparkfun.com/products/23748)
+[![SparkFun RTK mosaic-X5](https://cdn.sparkfun.com/r/455-455/assets/parts/2/4/0/7/2/23748-RTK-Mosaic-X5-Kit-All-Feature-1.png)](https://www.sparkfun.com/sparkfun-rtk-mosaic-x5.html)
 
-[*SparkFun RTK mosaic-X5 (GPS-23748)*](https://www.sparkfun.com/products/23748)
+[*SparkFun RTK mosaic-X5 (GPS-23748)*](https://www.sparkfun.com/sparkfun-rtk-mosaic-x5.html)
 
 Designed and manufactured in Boulder, Colorado, USA, the SparkFun RTK mosaic-X5 is the perfect solution for your high-precision positioning and navigation needs. Based around the multi-constellation, multi-frequency, L5-ready mosaic-X5 from Septentrio, this is our most advanced RTK product to date. It supports GNSS signals from GPS (USA), GLONASS (Russia), Beidou (China), Galileo (Europe), Navic (India) plus special additional satellites (e.g. SBAS and QZSS). The mosaic-X5 also has built-in on-module support for other L-band correction services.
 
@@ -45,7 +45,7 @@ Repository Contents
 Product Variants
 ----------------
 
-* [GPS-23748](https://www.sparkfun.com/products/23748)- v1.0, Initial Release
+* [GPS-23748](https://www.sparkfun.com/sparkfun-rtk-mosaic-x5.html)- v1.0, Initial Release
 
 Version History
 ---------------

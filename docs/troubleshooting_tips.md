@@ -16,7 +16,7 @@ icon: sfe
 
 
 ## What is in the Box?
-The RTK mosaic-X5 comes packaged as a complete kit, with all the accessories you'd need to set up an RTK base station. Inside the box, users will find the [GNSS antenna](https://www.sparkfun.com/products/21801), RTK mosaic-X5 in its aluminum enclosure, and another box containing additional accessories. Inside, the accessory box, users will find the [CAT-6 Ethernet cable](https://www.sparkfun.com/products/8915), [USB cable](https://www.sparkfun.com/products/15424), [SMA to TNC cable](https://www.sparkfun.com/products/21740), [USB power supply](https://www.sparkfun.com/products/11456), [WiFi antenna](https://www.sparkfun.com/products/145), and [32GB SD card](https://www.sparkfun.com/products/19041).
+The RTK mosaic-X5 comes packaged as a complete kit, with all the accessories you'd need to set up an RTK base station. Inside the box, users will find the [GNSS antenna](https://www.sparkfun.com/gnss-multi-band-l1-l2-l5-surveying-antenna-tnc-spk6618h.html), RTK mosaic-X5 in its aluminum enclosure, and another box containing additional accessories. Inside, the accessory box, users will find the [CAT-6 Ethernet cable](https://www.sparkfun.com/cat-6-cable-3ft.html), [USB cable](https://www.sparkfun.com/reversible-usb-a-to-c-cable-2m.html), [SMA to TNC cable](https://www.sparkfun.com/reinforced-interface-cable-sma-male-to-tnc-male-10m.html), [USB power supply](https://www.sparkfun.com/usb-wall-charger-5v-1a-black.html), [WiFi antenna](https://www.sparkfun.com/2-4ghz-duck-antenna-rp-sma.html), and [32GB SD card](https://www.sparkfun.com/microsd-card-32gb-class-10.html).
 
 <div class="grid" markdown>
 
@@ -275,7 +275,7 @@ Due to the ESD sensitivity of the mosaic-X5 module, we don't recommend disassemb
 
 		</div>
 
-		-   <a href="https://www.sparkfun.com/products/25572">
+		-   <a href="https://www.sparkfun.com/ifixit-anti-static-wrist-strap.html">
 			<figure markdown>
 			![Product Thumbnail](https://cdn.sparkfun.com/assets/parts/2/6/1/2/7/TOL-25572-Anti-Static-Wrist-Strap-Feature.jpg)
 			</figure>		
@@ -299,7 +299,7 @@ The RTK mosaic-X5 PCB is held in place by the front and rear panels of the enclo
 	<figcaption markdown>Using a soft/rigid object to carefully pry the terminal block off.</figcaption>
 	</figure>
 
-	Users can wiggle or use a soft/rigid object to carefully pry the terminal block off. In the picture above, a plastic name tag (~1.5mm thick) is used to carefully pry the terminal block up. We have also found the edge of a [PCB ruler](https://www.sparkfun.com/products/15295) works great too.
+	Users can wiggle or use a soft/rigid object to carefully pry the terminal block off. In the picture above, a plastic name tag (~1.5mm thick) is used to carefully pry the terminal block up. We have also found the edge of a [PCB ruler](https://www.sparkfun.com/sparkfun-pcb-ruler-12-inch.html) works great too.
 
 
 Once the terminal blocks have been removed, users can remove the front and rear panels of the enclosure. They are held in place with four, M3, Phillips head screws on the corners of each panel.
