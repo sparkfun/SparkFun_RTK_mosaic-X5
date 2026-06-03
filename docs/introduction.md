@@ -256,9 +256,7 @@ The RTK mosaic-X5 comes with everything you need to get up and running.
 <figure markdown>
 
 [![Kit contents](https://cdn.sparkfun.com/assets/parts/2/4/0/7/2/23748-RTK-Mosaic-X5-Kit-All.jpg){ width="300" }](https://cdn.sparkfun.com/assets/parts/2/4/0/7/2/23748-RTK-Mosaic-X5-Kit-All.jpg "Click to enlarge")
-<figcaption markdown>
-Everything that is included in the RTK mosaic-X5 kit.
-</figcaption>
+<figcaption markdown>Everything that is included in the RTK mosaic-X5 kit.</figcaption>
 </figure>
 
 </div>

@@ -24,9 +24,7 @@ The RTK mosaic-X5 comes packaged as a complete kit, with all the accessories you
 
 <figure markdown>
 [![Kit contents](https://cdn.sparkfun.com/assets/parts/2/4/0/7/2/23748-RTK-Mosaic-X5-Kit-All.jpg){ width="300" }](https://cdn.sparkfun.com/assets/parts/2/4/0/7/2/23748-RTK-Mosaic-X5-Kit-All.jpg "Click to enlarge")
-<figcaption markdown>
-Everything that is included in the RTK mosaic-X5 kit.
-</figcaption>
+<figcaption markdown>Everything that is included in the RTK mosaic-X5 kit.</figcaption>
 </figure>
 
 </div>
@@ -35,9 +33,7 @@ Everything that is included in the RTK mosaic-X5 kit.
 
 <figure markdown>
 [![Kit contents](./assets/img/hookup_guide/packaged_box.jpg){ width="300" }](./assets/img/hookup_guide/packaged_box.jpg "Click to enlarge")
-<figcaption markdown>
-The contents of the RTK mosaic-X5 package.
-</figcaption>
+<figcaption markdown>The contents of the RTK mosaic-X5 package.</figcaption>
 </figure>
 
 </div>
@@ -46,9 +42,7 @@ The contents of the RTK mosaic-X5 package.
 
 <figure markdown>
 [![Kit contents](https://cdn.sparkfun.com/assets/parts/2/4/0/7/2/23748-RTK-Mosaic-X5-Kit-Accessories.jpg){ width="300" }](https://cdn.sparkfun.com/assets/parts/2/4/0/7/2/23748-RTK-Mosaic-X5-Kit-Accessories.jpg "Click to enlarge")
-<figcaption markdown>
-Products in the accessories box.
-</figcaption>
+<figcaption markdown>Products in the accessories box.</figcaption>
 </figure>
 
 </div>

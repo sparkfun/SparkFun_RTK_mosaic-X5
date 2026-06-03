@@ -17,9 +17,7 @@ Onocoy provides users with documentation for [mining rewards](https://docs.onoco
 
 <figure markdown>
 [![Onocoy documentaion](./assets/img/hookup_guide/onocoy-docs.png){ width="400" }](./assets/img/hookup_guide/onocoy-docs.png "Click to enlarge")
-<figcaption markdown>
-Onocoy documentaion for [mining rewards](https://docs.onocoy.com/documentation/quick-start-guides/mine-rewards).
-</figcaption>
+<figcaption markdown>Onocoy documentaion for [mining rewards](https://docs.onocoy.com/documentation/quick-start-guides/mine-rewards).</figcaption>
 </figure>
 
 
@@ -49,9 +47,7 @@ In order to connect the RTK mosaic-X5 to the Onocoy network, users will need to 
 
 <figure markdown>
 [![NTRIP configuration settings](./assets/img/hookup_guide/onocoy-ntrip_settings.png){ width="400" }](./assets/img/hookup_guide/onocoy-ntrip_settings.png "Click to enlarge")
-<figcaption markdown>
-The [specific parameters](https://docs.onocoy.com/documentation/quick-start-guides/mine-rewards/3.-connect-your-station-to-onocoy#head-back-to-your-receiver-firmware) for connecting an NTRIP server to the Onocoy network, as listed in their documentation.
-</figcaption>
+<figcaption markdown>The [specific parameters](https://docs.onocoy.com/documentation/quick-start-guides/mine-rewards/3.-connect-your-station-to-onocoy#head-back-to-your-receiver-firmware) for connecting an NTRIP server to the Onocoy network, as listed in their documentation.</figcaption>
 </figure>
 
 
@@ -79,9 +75,7 @@ Most of steps for these requirements, are documented in the [**Configure the NTR
 
 		<figure markdown>
 		[![Configuring the NTRIP server](./assets/img/hookup_guide/onocoy-ntrip_server.png){ width="400" }](./assets/img/hookup_guide/onocoy-ntrip_server.png "Click to enlarge")
-		<figcaption markdown>
-		[Configuring the NTRIP server (PNG)](./assets/img/hookup_guide/onocoy-ntrip_server.png).
-		</figcaption>
+		<figcaption markdown>[Configuring the NTRIP server (PNG)](./assets/img/hookup_guide/onocoy-ntrip_server.png).</figcaption>
 		</figure>
 
 	--8<-- "./docs/ntrip_server.md:76:83"
@@ -99,9 +93,7 @@ Most of steps for these requirements, are documented in the [**Configure the NTR
 
 		<figure markdown>
 		[![RTCMv3 messages](./assets/img/hookup_guide/onocoy-rtcm_messages.png){ width="400" }](./assets/img/hookup_guide/onocoy-rtcm_messages.png "Click to enlarge")
-		<figcaption markdown>
-		[RTCMv3 messages (PNG)](./assets/img/hookup_guide/onocoy-rtcm_messages.png).
-		</figcaption>
+		<figcaption markdown>[RTCMv3 messages (PNG)](./assets/img/hookup_guide/onocoy-rtcm_messages.png).</figcaption>
 		</figure>
 
 	--8<-- "./docs/ntrip_server.md:94:95"

@@ -10,9 +10,7 @@ icon: material/tools
 
 	<figure markdown>
 	[![Kit contents](https://cdn.sparkfun.com/assets/parts/2/4/0/7/2/23748-RTK-Mosaic-X5-Kit-All.jpg){ width="300" }](https://cdn.sparkfun.com/assets/parts/2/4/0/7/2/23748-RTK-Mosaic-X5-Kit-All.jpg "Click to enlarge")
-	<figcaption markdown>
-	Everything that is included in the RTK mosaic-X5 kit.
-	</figcaption>
+	<figcaption markdown>Everything that is included in the RTK mosaic-X5 kit.</figcaption>
 	</figure>
 
 	Inside the box, users will find the [GNSS antenna](https://www.sparkfun.com/products/21801), RTK mosaic-X5 in its aluminum enclosure, and another box containing additional accessories. Inside, the accessory box, users will find the [CAT-6 Ethernet cable](https://www.sparkfun.com/products/8915), [USB cable](https://www.sparkfun.com/products/15424), [SMA to TNC cable](https://www.sparkfun.com/products/21740), [USB power supply](https://www.sparkfun.com/products/11456), [WiFi antenna](https://www.sparkfun.com/products/145), and [32GB SD card](https://www.sparkfun.com/products/19041).
@@ -23,9 +21,7 @@ icon: material/tools
 
 	<figure markdown>
 	[![Kit contents](./assets/img/hookup_guide/packaged_box.jpg){ width="300" }](./assets/img/hookup_guide/packaged_box.jpg "Click to enlarge")
-	<figcaption markdown>
-	The contents of the RTK mosaic-X5 package.
-	</figcaption>
+	<figcaption markdown>The contents of the RTK mosaic-X5 package.</figcaption>
 	</figure>
 
 	</div>
@@ -34,9 +30,7 @@ icon: material/tools
 
 	<figure markdown>
 	[![Kit contents](https://cdn.sparkfun.com/assets/parts/2/4/0/7/2/23748-RTK-Mosaic-X5-Kit-Accessories.jpg){ width="300" }](https://cdn.sparkfun.com/assets/parts/2/4/0/7/2/23748-RTK-Mosaic-X5-Kit-Accessories.jpg "Click to enlarge")
-	<figcaption markdown>
-	Products in the accessories box.
-	</figcaption>
+	<figcaption markdown>Products in the accessories box.</figcaption>
 	</figure>
 
 	</div>

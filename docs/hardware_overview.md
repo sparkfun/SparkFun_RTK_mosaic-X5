@@ -63,9 +63,7 @@ Users can download the [full schematic for the RTK mosaic-X5](./assets/board_fil
 
 	<figure markdown>
 	[![Enclosure Dimensions](./assets/board_files/dimensions-enclosure.png){ width="700" }](./assets/board_files/dimensions-enclosure.png "Click to enlarge")
-	<figcaption markdown>
-	[Dimensions (PDF)](./assets/board_files/dimensions-enclosure.pdf) of the RTK mosaic-X5 aluminum enclosure and the front/rear panels, in millimeters.
-	</figcaption>
+	<figcaption markdown>[Dimensions (PDF)](./assets/board_files/dimensions-enclosure.pdf) of the RTK mosaic-X5 aluminum enclosure and the front/rear panels, in millimeters.</figcaption>
 	</figure>
 
 === ":fontawesome-solid-microchip: Printed Circuit Board"
@@ -73,9 +71,7 @@ Users can download the [full schematic for the RTK mosaic-X5](./assets/board_fil
 
 	<figure markdown>
 	[![Board Dimensions](./assets/board_files/dimensions.png){ width="400" }](./assets/board_files/dimensions.png "Click to enlarge")
-	<figcaption markdown>
-	[Dimensions (PDF)](./assets/board_files/dimensions.pdf) of the RTK mosaic-X5 PCB, in inches.
-	</figcaption>
+	<figcaption markdown>[Dimensions (PDF)](./assets/board_files/dimensions.pdf) of the RTK mosaic-X5 PCB, in inches.</figcaption>
 	</figure>
 
 	??? tip "Need more measurements?"
@@ -101,10 +97,8 @@ Users can download the [full schematic for the RTK mosaic-X5](./assets/board_fil
 
 	<figure markdown>
 	[![Antenna Dimensions](./assets/board_files/dimensions-antenna.png){ width="400" }](./assets/board_files/dimensions-antenna.png "Click to enlarge")
-	<figcaption markdown>
-	Dimensions of the included GNSS antenna, in mm.<br>
-	Source: [SPK6618H Datasheet (PDF)](https://cdn.sparkfun.com/assets/f/f/5/1/7/SparkFun_SPK6618H_Datasheet.pdf)
-	</figcaption>
+	<figcaption markdown>Dimensions of the included GNSS antenna, in mm.<br>
+	Source: [SPK6618H Datasheet (PDF)](https://cdn.sparkfun.com/assets/f/f/5/1/7/SparkFun_SPK6618H_Datasheet.pdf)</figcaption>
 	</figure>
 
 
@@ -668,16 +662,12 @@ There are six status LEDs on the RTK mosaic-X5:
 
 <figure markdown>
 [![LEDs](./assets/img/hookup_guide/LEDs.png){ width="400" }](./assets/img/hookup_guide/LEDs.png "Click to enlarge")
-<figcaption markdown>
-The status indicator LEDs on the RTK mosaic-X5.
-</figcaption>
+<figcaption markdown>The status indicator LEDs on the RTK mosaic-X5.</figcaption>
 </figure>
 
 <figure markdown>
 [![LEDs](./assets/img/hookup_guide/LEDs-PCB.png){ width="400" }](./assets/img/hookup_guide/LEDs-PCB.png "Click to enlarge")
-<figcaption markdown>
-The status indicator LEDs on the RTK mosaic-X5 PCB.
-</figcaption>
+<figcaption markdown>The status indicator LEDs on the RTK mosaic-X5 PCB.</figcaption>
 </figure>
 
 </div>
@@ -690,9 +680,7 @@ The RTK mosaic-X5 has a 128x64 pixel OLED display, controlled by the ESP32 via I
 
 <figure markdown>
 [![LEDs](./assets/img/hookup_guide/OLED3.png){ width="750" }](./assets/img/hookup_guide/OLED3.png "Click to enlarge")
-<figcaption markdown>
-The OLED display on the RTK mosaic-X5.
-</figcaption>
+<figcaption markdown>The OLED display on the RTK mosaic-X5.</figcaption>
 </figure>
 
 * **Time:** - Universal Time Coordinate (UTC) in `HHMMSS.SS` format
@@ -718,9 +706,7 @@ The OLED display on the RTK mosaic-X5.
 
 	<figure markdown>
 	[![LEDs](./assets/img/hookup_guide/OLED-sparkfun.png){ width="500" }](./assets/img/hookup_guide/OLED-sparkfun.png "Click to enlarge")
-	<figcaption markdown>
-	Example information on the OLED display of the RTK mosaic-X5.
-	</figcaption>
+	<figcaption markdown>Example information on the OLED display of the RTK mosaic-X5.</figcaption>
 	</figure>
 
 	</div>
@@ -743,9 +729,7 @@ The OLED display on the RTK mosaic-X5.
 
 	<figure markdown>
 	<iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d642.644955184578!2d-105.18511963541232!3d40.0903902657445!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNDDCsDA1JzI1LjAiTiAxMDXCsDExJzA1LjIiVw!5e1!3m2!1sen!2sus!4v1700260975996!5m2!1sen!2sus" width="800" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-	<figcaption markdown>
-	The location of the antenna on Google Maps, as determined from the coordinates on the OLED display. Source: [Google Maps](https://www.google.com/maps/@40.0838666,-105.18528,15z?entry=ttu)
-	</figcaption>
+	<figcaption markdown>The location of the antenna on Google Maps, as determined from the coordinates on the OLED display. Source: [Google Maps](https://www.google.com/maps/@40.0838666,-105.18528,15z?entry=ttu)</figcaption>
 	</figure>
 
 
@@ -834,9 +818,7 @@ There are several jumpers on the RTK moasic-X5 PCB which can be used to (e.g.) d
 
 <figure markdown>
 [![Jumpers](./assets/img/hookup_guide/Jumpers-top.png){ width="400" }](./assets/img/hookup_guide/Jumpers-top.png "Click to enlarge")
-<figcaption markdown>
-The jumpers on the top of the RTK mosaic-X5 PCB.
-</figcaption>
+<figcaption markdown>The jumpers on the top of the RTK mosaic-X5 PCB.</figcaption>
 </figure>
 
 </div>
@@ -845,9 +827,7 @@ The jumpers on the top of the RTK mosaic-X5 PCB.
 
 <figure markdown>
 [![Jumpers](./assets/img/hookup_guide/Jumpers-bottom.png){ width="400" }](./assets/img/hookup_guide/Jumpers-bottom.png "Click to enlarge")
-<figcaption markdown>
-The jumpers on the bottom of the RTK mosaic-X5 PCB.
-</figcaption>
+<figcaption markdown>The jumpers on the bottom of the RTK mosaic-X5 PCB.</figcaption>
 </figure>
 
 </div>

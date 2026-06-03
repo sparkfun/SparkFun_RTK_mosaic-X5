@@ -29,9 +29,7 @@ hide: toc
 
 	<figure markdown>
 	[![Clicking on tabs Gif](./assets/img/hookup_guide/quick_start.gif)](./assets/img/hookup_guide/quick_start.gif "Click to enlarge")
-	<figcaption markdown>
-	Click on the tab of your preferred interface (below), to get started with the RTK mosaic-X5.
-	</figcaption>
+	<figcaption markdown>Click on the tab of your preferred interface (below), to get started with the RTK mosaic-X5.</figcaption>
 	</figure>
 
 	</div>
@@ -44,9 +42,7 @@ hide: toc
 
 		<figure markdown>
 		[![Scan QR Code to Download PDF File](./assets/img/qr_code/quick_start_guide.png){ width="150" }]( "Scan with a Mobile Device")
-		<figcaption markdown>
-		[:octicons-download-16:{ .heart } Download the Quick Start Guide :fontawesome-solid-file-pdf:](./assets/quick_start_guide-v10.pdf "Click to Download"){ .md-button .md-button--primary }
-		</figcaption>
+		<figcaption markdown>[:octicons-download-16:{ .heart } Download the Quick Start Guide :fontawesome-solid-file-pdf:](./assets/quick_start_guide-v10.pdf "Click to Download"){ .md-button .md-button--primary }</figcaption>
 		</figure>
 		<article style="text-align: center;" markdown>
 		*Click on the button (above) or scan the QR code with a mobile device, to download the `*.pdf` file of the quick start pamphlet.*
@@ -60,9 +56,7 @@ hide: toc
 
 	<figure markdown>
 	[![Ethernet Connections](./assets/img/hookup_guide/Ethernet_Connections.png){ width="400" }](./assets/img/hookup_guide/Ethernet_Connections.png "Click to enlarge")
-	<figcaption markdown>
-	[Ethernet Connections (PNG)](./assets/img/hookup_guide/Ethernet_Connections.png) for the RTK mosaic-X5.
-	</figcaption>
+	<figcaption markdown>[Ethernet Connections (PNG)](./assets/img/hookup_guide/Ethernet_Connections.png) for the RTK mosaic-X5.</figcaption>
 	</figure>
 
 	**`1`** - **Connect the GNSS antenna**
@@ -85,9 +79,7 @@ hide: toc
 
 	<figure markdown>
 	![mosaic X5 web page](./assets/img/hookup_guide/x5_web_page.gif)
-	<figcaption markdown>
-	[mosaic X5 web page (GIF)](./assets/img/hookup_guide/x5_web_page.gif) for the RTK mosaic-X5.
-	</figcaption>
+	<figcaption markdown>[mosaic X5 web page (GIF)](./assets/img/hookup_guide/x5_web_page.gif) for the RTK mosaic-X5.</figcaption>
 	</figure>
 
 	!!! tip "Not working?"
@@ -142,9 +134,7 @@ hide: toc
 
 		<figure markdown>
 		[![WiFi Mode](./assets/img/hookup_guide/WiFi_Mode.png){ width="400" }](./assets/img/hookup_guide/WiFi_Mode.png "Click to enlarge")
-		<figcaption markdown>
-		[WiFi Mode (PNG)](./assets/img/hookup_guide/WiFi_Mode.png) for the RTK mosaic-X5.
-		</figcaption>
+		<figcaption markdown>[WiFi Mode (PNG)](./assets/img/hookup_guide/WiFi_Mode.png) for the RTK mosaic-X5.</figcaption>
 		</figure>
 
 		??? tip "Install CH340 Driver"
@@ -190,27 +180,21 @@ hide: toc
 
 		<figure markdown>
 		[![Console Prompt](./assets/img/hookup_guide/Console_Prompt.png){ width="400" }](./assets/img/hookup_guide/Console_Prompt.png "Click to enlarge")
-		<figcaption markdown>
-		[Console Prompt (PNG)](./assets/img/hookup_guide/Console_Prompt.png) for changing the RTK mosaic-X5 firmware mode.
-		</figcaption>
+		<figcaption markdown>[Console Prompt (PNG)](./assets/img/hookup_guide/Console_Prompt.png) for changing the RTK mosaic-X5 firmware mode.</figcaption>
 		</figure>
 
 		* Type **`help`** and hit enter to see the help.
 
 			<figure markdown>
 			[![Console Help](./assets/img/hookup_guide/Console_Help.png){ width="400" }](./assets/img/hookup_guide/Console_Help.png "Click to enlarge")
-			<figcaption markdown>
-			[Console Help (PNG)](./assets/img/hookup_guide/Console_Help.png) for changing the RTK mosaic-X5 firmware mode.
-			</figcaption>
+			<figcaption markdown>[Console Help (PNG)](./assets/img/hookup_guide/Console_Help.png) for changing the RTK mosaic-X5 firmware mode.</figcaption>
 			</figure>
 
 		* Type **`show`** to see the current configuration.
 
 			<figure markdown>
 			[![Console Show](./assets/img/hookup_guide/Console_Show.png){ width="400" }](./assets/img/hookup_guide/Console_Show.png "Click to enlarge")
-			<figcaption markdown>
-			[Console Show (PNG)](./assets/img/hookup_guide/Console_Show.png) for changing the RTK mosaic-X5 firmware mode.
-			</figcaption>
+			<figcaption markdown>[Console Show (PNG)](./assets/img/hookup_guide/Console_Show.png) for changing the RTK mosaic-X5 firmware mode.</figcaption>
 			</figure>
 
 		* By default the firmware will be in **Mode: `1`** (Ethernet). To change the mode to **Mode: `2`** (WiFi), we type:
@@ -278,9 +262,7 @@ hide: toc
 
 	<figure markdown>
 	[![WiFi Connections](./assets/img/hookup_guide/WiFi_Connections.png){ width="400" }](./assets/img/hookup_guide/WiFi_Connections.png "Click to enlarge")
-	<figcaption markdown>
-	[WiFi Connections (PNG)](./assets/img/hookup_guide/WiFi_Connections.png) for the RTK mosaic-X5.
-	</figcaption>
+	<figcaption markdown>[WiFi Connections (PNG)](./assets/img/hookup_guide/WiFi_Connections.png) for the RTK mosaic-X5.</figcaption>
 	</figure>
 
 
@@ -316,9 +298,7 @@ hide: toc
 
 	<figure markdown>
 	[![USB Connections](./assets/img/hookup_guide/USB_Connections.png){ width="400" }](./assets/img/hookup_guide/USB_Connections.png "Click to enlarge")
-	<figcaption markdown>
-	[USB Connections (PNG)](./assets/img/hookup_guide/USB_Connections.png) for the RTK mosaic-X5.
-	</figcaption>
+	<figcaption markdown>[USB Connections (PNG)](./assets/img/hookup_guide/USB_Connections.png) for the RTK mosaic-X5.</figcaption>
 	</figure>
 
 	`1` - **Connect the GNSS antenna**
