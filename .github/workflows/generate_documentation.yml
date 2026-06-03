@@ -1,0 +1,93 @@
+name: Build & Deploy Documentation
+
+on:
+  # Runs on pushes targeting the default branch
+  push:
+    branches: ["main"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+
+jobs:
+  # Builds the documentation using the mkdocs-material theme and commits the files to the gh-pages branch
+  build:
+
+    # Sets permissions of the GITHUB_TOKEN to allow commits to the gh-pages branch
+    permissions:
+      contents: write
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install pgnquant for optimize plugin
+        run: sudo apt-get install pngquant
+
+      - name: Set up Python runtime
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Set up build cache
+        run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
+      - uses: actions/cache@v4
+        with:
+          key: mkdocs-material-${{ env.cache_id }}
+          path: .cache
+          restore-keys: |
+            mkdocs-material-
+
+      - name: Build Webpage
+        run: mkdocs gh-deploy --force
+
+
+  # Deploys the documentation files from the gh-pages branch to GitHub Pages
+  deploy:
+    # Add a dependency to the build job
+    needs: build
+
+    # Grant GITHUB_TOKEN the permissions to allow deployment to GitHub Pages
+    permissions:
+      pages: write # to deploy to Pages
+      id-token: write # to verify the deployment originates from an appropriate source
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    if: github.event.repository.fork == false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: 'gh-pages'
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Upload entire repository
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
