@@ -9,10 +9,10 @@ icon: sfe
 	[SparkFun Technical Assistance Page](https://www.sparkfun.com/technical_assistance){ .md-button .md-button--primary }
 	</article>
 
-	If you can't find what you need there, the [SparkFun GNSS Forum](https://forum.sparkfun.com/viewforum.php?f=116) is a great place to ask questions.
+	If you can't find what you need there, the [SparkFun GNSS Forum](https://community.sparkfun.com/c/global-positioning-system-gps/96) is a great place to ask questions.
 
 	!!! info "Account Registration Required"
-		If this is your first visit to our forum, you'll need to create a [Forum Account](https://forum.sparkfun.com/ucp.php?mode=register) to post questions.
+		If this is your first visit to our forum, you'll need to create a [Forum Account](https://community.sparkfun.com/signup) to post questions.
 
 
 ## What is in the Box?
@@ -52,7 +52,7 @@ The RTK mosaic-X5 comes packaged as a complete kit, with all the accessories you
 If you are missing any of these items, please reach out to us in our forum.
 
 <article style="text-align: center;" markdown>
-[:sfe: SparkFun Forum - GNSS Topic](https://forum.sparkfun.com/viewforum.php?f=116){ .md-button .md-button--primary }
+[:sfe: SparkFun Forum - GNSS Topic](https://community.sparkfun.com/c/global-positioning-system-gps/96){ .md-button .md-button--primary }
 </article>
 
 
@@ -106,7 +106,7 @@ For data logging issues, here are some simple troubleshooting tips:
 Got a few dead pixels on your OLED display? Please reach out to us in our forum.
 
 <article style="text-align: center;" markdown>
-[:sfe: SparkFun Forum - GNSS Topic](https://forum.sparkfun.com/viewforum.php?f=116){ .md-button .md-button--primary }
+[:sfe: SparkFun Forum - GNSS Topic](https://community.sparkfun.com/c/global-positioning-system-gps/96){ .md-button .md-button--primary }
 </article>
 
 

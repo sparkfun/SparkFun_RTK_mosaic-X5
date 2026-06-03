@@ -60,7 +60,7 @@ This product is ***open source***!
 
 Please review the [LICENSE.md](./LICENSE.md) file for license information.
 
-If you have any questions or concerns about licensing, please contact technical support on our [SparkFun forums](https://forum.sparkfun.com/viewforum.php?f=152).
+If you have any questions or concerns about licensing, please contact technical support on our [SparkFun forums](https://community.sparkfun.com/).
 
 Distributed as-is; no warranty is given.
 

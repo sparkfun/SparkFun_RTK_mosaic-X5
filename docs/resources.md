@@ -20,7 +20,7 @@ icon: material/book-open-page-variant
 
 * [GNSS Product Category](https://www.sparkfun.com/categories/4)
 * :material-account-supervisor: [SparkFun Technical Assistance](https://www.sparkfun.com/technical_assistance)
-* :material-forum: [SparkFun Forum: GNSS Topics](https://forum.sparkfun.com/viewforum.php?f=116)
+* :material-forum: [SparkFun Forum: GNSS Topics](https://community.sparkfun.com/c/global-positioning-system-gps/96)
 
 
 ### 🏭&nbsp;Manufacturer's Resources
