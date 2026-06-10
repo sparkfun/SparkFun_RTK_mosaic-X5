@@ -34,8 +34,9 @@ Repository Contents
         * [img/hookup_guide/](/docs/assets/img/hookup_guide/) - Images for hookup guide documentation
 * **[/Hardware](/Hardware/)** - Eagle design files (.brd, .sch)
 * **[/Production](/Production/)** - PCB panel production files
-* **[/Front_Panel](/Front_Panel/)** - Eagle design files (.brd, .sch) for the prototype (PCB) enclosure panel used to validate the dimensions
-* **[/Rear_Panel](/Rear_Panel/)** - Eagle design files (.brd, .sch) for the prototype (PCB) enclosure panel used to validate the dimensions
+* **[/Extruded_Case](/Extruded_Case/)** - Drawings and STEP file for the extruded case
+* **[/Front_Panel](/Front_Panel/)** - Drawings and STEP file. Eagle design files (.brd, .sch) for the prototype (PCB) enclosure panel used to validate the dimensions
+* **[/Rear_Panel](/Rear_Panel/)** - Drawings and STEP file. Eagle design files (.brd, .sch) for the prototype (PCB) enclosure panel used to validate the dimensions
 * **[/Front_Sticker](/Front_Sticker/)** - DXF and PDF files for the front sticker
 * **[/Rear_Sticker](/Rear_Sticker/)** - DXF and PDF files for the rear sticker
 * **[/Firmware](/Firmware/)** - ESP IDF source code and binaries for the firmware which runs on the ESP32-WROVER
