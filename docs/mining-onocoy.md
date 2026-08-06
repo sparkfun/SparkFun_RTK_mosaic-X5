@@ -36,7 +36,7 @@ Before setting up the RTK mosaic-X5 as an NTRIP server, users will need to enabl
 
 	---
 
-	--8<-- "./docs/L5.md:123:160"
+	--8<-- "./docs/L5.md:123:154"
 
 </div>
 
@@ -59,11 +59,11 @@ Most of steps for these requirements, are documented in the [**Configure the NTR
 
 	---
 
-	--8<-- "./docs/ntrip_server.md:49:65"
+	--8<-- "./docs/ntrip_server.md:49:55"
 
 	??? failure "Ignore this information for this step"
 		<s>
-		--8<-- "./docs/ntrip_server.md:67:74"
+		--8<-- "./docs/ntrip_server.md:57:62"
 		</s>
 
 	!!! success
@@ -78,11 +78,11 @@ Most of steps for these requirements, are documented in the [**Configure the NTR
 		<figcaption markdown>[Configuring the NTRIP server (PNG)](./assets/img/hookup_guide/onocoy-ntrip_server.png).</figcaption>
 		</figure>
 
-	--8<-- "./docs/ntrip_server.md:76:83"
+	--8<-- "./docs/ntrip_server.md:64:69"
 
 	??? failure "Ignore this information for this step"
 		<s>
-		--8<-- "./docs/ntrip_server.md:85:92"
+		--8<-- "./docs/ntrip_server.md:71:76"
 		</s>
 
 	!!! success
@@ -96,7 +96,7 @@ Most of steps for these requirements, are documented in the [**Configure the NTR
 		<figcaption markdown>[RTCMv3 messages (PNG)](./assets/img/hookup_guide/onocoy-rtcm_messages.png).</figcaption>
 		</figure>
 
-	--8<-- "./docs/ntrip_server.md:94:95"
+	--8<-- "./docs/ntrip_server.md:78:79"
 
 </div>
 
@@ -114,7 +114,7 @@ The last step in configuring the NTRIP server, users will need to enable the GPS
 
 	---
 
-	--8<-- "./docs/L5.md:173"
+	--8<-- "./docs/L5.md:167"
 
 </div>
 
