@@ -411,7 +411,7 @@ Users can easily attach accessories to the RTK mosaic-X5 by wiring them into the
 		</div>
 		
 		<div markdown>
- 
+
 		<figure markdown>
 		[![Flow Control](https://docs.sparkfun.com/SparkFun_LoRaSerial/img/SAMD21%20Flow%20control.png){ width="400" }](https://docs.sparkfun.com/SparkFun_LoRaSerial/img/SAMD21%20Flow%20control.png "Click to enlarge")
 		<figcaption markdown>Wiring instructions for the LoRaSerial radio.<br>Source: [LoRaSerial product manual](https://docs.sparkfun.com/SparkFun_LoRaSerial)</figcaption>

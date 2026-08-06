@@ -7,7 +7,7 @@ These are the production files SparkFun uses for printing PCBs.
 
 License Information
 -------------------
-This product is open source! 
+This product is open source!
 
 The hardware is released under [Creative Commons ShareAlike 4.0 International](https://creativecommons.org/licenses/by-sa/4.0/).
 

@@ -174,7 +174,7 @@ hide: toc
 
 	`5` - **Open a Serial Terminal**
 	: * If you are using Windows, we still recommend the [Tera Term](https://learn.sparkfun.com/tutorials/terminal-basics/tera-term-windows) serial terminal but there are plenty of alternatives. Please see our [Serial Terminal Basics tutorial](https://learn.sparkfun.com/tutorials/terminal-basics) for more details.
-		* Open the connection to the CH340 using **115200 baud** 
+		* Open the connection to the CH340 using **115200 baud**
 	`6` - **Put the ESP32 firmware into WiFi mode**
 	: * When you have the Serial Terminal open, you should see the **`RTK_X5>`** console prompt. If you do not, hit Enter on your keyboard. If needed, click the ++"RESET"++ button on the front of the RTK mosaic-X5 to restart the ESP32 firmware.
 

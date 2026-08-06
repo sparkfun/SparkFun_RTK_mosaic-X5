@@ -175,7 +175,7 @@ Users should install the [RXTools software suite](https://www.septentrio.com/en/
 	Once installed, the driver emulates two virtual serial ports, which can be accessed as standard `COM` ports to the receiver.
 
 	??? tip "Terminal Emulators"
-		Most [terminal emulation programs](https://learn.sparkfun.com/tutorials/112) will not make a distinction between virtual or native COM ports. However, for virtual serial ports, the port settings *(i.e. baud rate, etc.)* are not relevant and the default configuration is used in the terminal emulation program. However, the physical/native `COM` ports will have the following default setting: 
+		Most [terminal emulation programs](https://learn.sparkfun.com/tutorials/112) will not make a distinction between virtual or native COM ports. However, for virtual serial ports, the port settings *(i.e. baud rate, etc.)* are not relevant and the default configuration is used in the terminal emulation program. However, the physical/native `COM` ports will have the following default setting:
 
 		* Baudrate: 115200bps
 		* Data Bits: 8
