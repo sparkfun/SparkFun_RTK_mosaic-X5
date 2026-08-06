@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../assets/img/sfe-logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -2045,7 +2045,7 @@
 <p>Once installed, the driver emulates two virtual serial ports, which can be accessed as standard <code>COM</code> ports to the receiver.</p>
 <details class="tip">
 <summary>Terminal Emulators</summary>
-<p>Most <a href="https://learn.sparkfun.com/tutorials/112" target="_blank" rel="noopener">terminal emulation programs</a> will not make a distinction between virtual or native COM ports. However, for virtual serial ports, the port settings <em>(i.e. baud rate, etc.)</em> are not relevant and the default configuration is used in the terminal emulation program. However, the physical/native <code>COM</code> ports will have the following default setting: </p>
+<p>Most <a href="https://learn.sparkfun.com/tutorials/112" target="_blank" rel="noopener">terminal emulation programs</a> will not make a distinction between virtual or native COM ports. However, for virtual serial ports, the port settings <em>(i.e. baud rate, etc.)</em> are not relevant and the default configuration is used in the terminal emulation program. However, the physical/native <code>COM</code> ports will have the following default setting:</p>
 <ul>
 <li>Baudrate: 115200bps</li>
 <li>Data Bits: 8</li>
@@ -2153,98 +2153,107 @@
 </div>
 <h3 id="wifi-credentials-for-the-network-bridge">WiFi Credentials for the Network Bridge<a class="headerlink" data-preview="" href="#wifi-credentials-for-the-network-bridge" title="Permanent link"></a></h3>
 <p>With the CH340 USB driver and a terminal emulator installed, users will now be able to configure the WiFi credentials on the ESP32. In order for the firmware to operate properly, users should have their RTK mosaic-X5 assembled with the network bridge in <em>WiFi Mode</em>.</p>
-<article style="text-align: center;">
-<p><a class="md-button md-button--primary" href="https://www.wch-ic.com/downloads/CH341SER_ZIP.html" target="_blank" rel="noopener"><span class="twemoji heart"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14Z"/><path d="M7.25 7.689V2a.75.75 0 0 1 1.5 0v5.689l1.97-1.969a.749.749 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 6.78a.749.749 0 1 1 1.06-1.06z"/></svg></span> Download the latest CH340 USB driver from WCH</a></p>
-</article>
-<details class="abstract">
-<summary>Need Directions?</summary>
-<p>For more information, check out our video and hookup guide:</p>
-</details>
+<figure>
+<p><a data-preview="" href="../assets/img/hookup_guide/WiFi_Mode.png" title="Click to enlarge"><img alt="WiFi Mode" src="../assets/img/hookup_guide/WiFi_Mode.png" width="400" /></a></p>
+<figcaption>
+<p><a data-preview="" href="../assets/img/hookup_guide/WiFi_Mode.png">WiFi Mode (PNG)</a> for the RTK mosaic-X5.</p>
+</figcaption>
+</figure>
 <dl>
 <dt><code>1</code> - <strong>Open a Serial Terminal</strong></dt>
 <dd>Open the connection to the CH340 using a baud rate of <strong>115200bps</strong></dd>
 </dl>
-<p><code>2</code> - <strong>Put the ESP32 firmware into WiFi mode</strong>
-        </figure></p>
-<div class="language-text highlight"><pre><span></span><code>* Type **`show`** to see the current configuration.
-
-    &lt;figure markdown&gt;
-    [![Console Show](./assets/img/hookup_guide/Console_Show.png){ width=&quot;400&quot; }](./assets/img/hookup_guide/Console_Show.png &quot;Click to enlarge&quot;)
-    &lt;figcaption markdown&gt;[Console Show (PNG)](./assets/img/hookup_guide/Console_Show.png) for changing the RTK mosaic-X5 firmware mode.&lt;/figcaption&gt;
-    &lt;/figure&gt;
-
-* By default the firmware will be in **Mode: `1`** (Ethernet). To change the mode to **Mode: `2`** (WiFi), we type:
-
-    !!! terminal
-        ``` bash
-        set -m 2
-        ```
-
-        !!! tip &quot;Long Arguments&quot;
-            The console supports both short and long args, so we could type:
-
-            ``` bash
-            set --mode=2
-            ```
-
-* To set the WiFi SSID, type one of:
-
-    !!! terminal
-        ``` bash
-        set -s YOUR_SSID
-        set --ssid=YOUR_SSID
-        ```
-
-    * Likewise, to set the WiFi password, type one of:
-
-        !!! terminal
-            ``` bash
-            set -p YOUR_PASSWORD
-            set --password=YOUR_PASSWORD
-            ```
-
-    * To save time, you can set all three together with one of:
-
-        !!! terminal
-            ``` bash
-            set -m 2 -s YOUR_SSID -p YOUR_PASSWORD
-            set --mode=2 --ssid=YOUR_SSID --password=YOUR_PASSWORD
-            ```
-
-* Finally, type **`restart`** to restart the firmware with the new settings:
-
-    !!! terminal
-        ``` bash
-        restart
-        ```
-
-    ??? tip &quot;NULL (empty) password&quot;
-        To clear the password - making it NULL / empty - type one of:
-
-        !!! terminal
-            ``` bash
-            set -p %00
-            set --password=%00
-            ```
-</code></pre></div>
-<p>Once the mosaic-X5 has acquired a satellite signal and is connected to the WiFi network, the OLED will display: the antenna's position as Latitude (Lat), Longitude (Long) and Altitude (Alt); the WiFi IP (Internet Protocol) network address.</p>
-<p>When powering the RTK mosaic-X5 on for the first time, you may see the firmware restart (reboot) several times while it waits for the mosaic-X5 to initialize. This is not an error or anything to be concerned about.</p>
-<p>Connect your computer, tablet or phone to the same network, open a web browser and navigate to the IP address shown on the OLED display. You should see the mosaic-X5's internal web page. The web page displays a lot of helpful information and can also be used to fully configure the mosaic-X5.</p>
-<p>The firmware mode, SSID and password are stored in flash (non-volatile) memory. After changing them, you can disconnect the computer and power the RTK mosaic-X5 using the supplied wall adapter.</p>
+<p><code>2</code> - <strong>Put the ESP32 firmware into WiFi mode</strong></p>
+<figure>
+<p><a data-preview="" href="../assets/img/hookup_guide/Console_Prompt.png" title="Click to enlarge"><img alt="Console Prompt" src="../assets/img/hookup_guide/Console_Prompt.png" width="400" /></a></p>
+<figcaption>
+<p><a data-preview="" href="../assets/img/hookup_guide/Console_Prompt.png">Console Prompt (PNG)</a> for changing the RTK mosaic-X5 firmware mode.</p>
+</figcaption>
+</figure>
+<ul>
+<li>
+<p>Type <strong><code>help</code></strong> and hit enter to see the help.</p>
+<p><figure markdown>
+<a data-preview="" href="../assets/img/hookup_guide/Console_Help.png" title="Click to enlarge"><img alt="Console Help" src="../assets/img/hookup_guide/Console_Help.png" width="400" /></a>
+<figcaption markdown><a data-preview="" href="../assets/img/hookup_guide/Console_Help.png">Console Help (PNG)</a> for changing the RTK mosaic-X5 firmware mode.</figcaption>
+</figure></p>
+</li>
+<li>
+<p>Type <strong><code>show</code></strong> to see the current configuration.</p>
+<p><figure markdown>
+<a data-preview="" href="../assets/img/hookup_guide/Console_Show.png" title="Click to enlarge"><img alt="Console Show" src="../assets/img/hookup_guide/Console_Show.png" width="400" /></a>
+<figcaption markdown><a data-preview="" href="../assets/img/hookup_guide/Console_Show.png">Console Show (PNG)</a> for changing the RTK mosaic-X5 firmware mode.</figcaption>
+</figure></p>
+</li>
+<li>
+<p>By default the firmware will be in <strong>Mode: <code>1</code></strong> (Ethernet). To change the mode to <strong>Mode: <code>2</code></strong> (WiFi), we type:</p>
+<div class="admonition terminal">
+<p class="admonition-title">Terminal</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">set</span><span class="w"> </span>-m<span class="w"> </span><span class="m">2</span>
+</span></code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Long Arguments</p>
+<p>The console supports both short and long args, so we could type:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">set</span><span class="w"> </span>--mode<span class="o">=</span><span class="m">2</span>
+</span></code></pre></div>
+</div>
+</div>
+</li>
+<li>
+<p>To set the WiFi SSID, type one of:</p>
+<div class="admonition terminal">
+<p class="admonition-title">Terminal</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">set</span><span class="w"> </span>-s<span class="w"> </span>YOUR_SSID
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nb">set</span><span class="w"> </span>--ssid<span class="o">=</span>YOUR_SSID
+</span></code></pre></div>
+</div>
+<ul>
+<li>
+<p>Likewise, to set the WiFi password, type one of:</p>
+<div class="admonition terminal">
+<p class="admonition-title">Terminal</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nb">set</span><span class="w"> </span>-p<span class="w"> </span>YOUR_PASSWORD
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="nb">set</span><span class="w"> </span>--password<span class="o">=</span>YOUR_PASSWORD
+</span></code></pre></div>
+</div>
+</li>
+<li>
+<p>To save time, you can set all three together with one of:</p>
+<div class="admonition terminal">
+<p class="admonition-title">Terminal</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nb">set</span><span class="w"> </span>-m<span class="w"> </span><span class="m">2</span><span class="w"> </span>-s<span class="w"> </span>YOUR_SSID<span class="w"> </span>-p<span class="w"> </span>YOUR_PASSWORD
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nb">set</span><span class="w"> </span>--mode<span class="o">=</span><span class="m">2</span><span class="w"> </span>--ssid<span class="o">=</span>YOUR_SSID<span class="w"> </span>--password<span class="o">=</span>YOUR_PASSWORD
+</span></code></pre></div>
+</div>
+</li>
+</ul>
+</li>
+<li>
+<p>Finally, type <strong><code>restart</code></strong> to restart the firmware with the new settings:</p>
+<div class="admonition terminal">
+<p class="admonition-title">Terminal</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>restart
+</span></code></pre></div>
+</div>
+<details class="tip">
+<summary>NULL (empty) password</summary>
+<p>To clear the password - making it NULL / empty - type one of:</p>
+<div class="admonition terminal">
+<p class="admonition-title">Terminal</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nb">set</span><span class="w"> </span>-p<span class="w"> </span>%00
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nb">set</span><span class="w"> </span>--password<span class="o">=</span>%00
+</span></code></pre></div>
+</div>
+</details>
+</li>
+</ul>
+<p>Once the mosaic-X5 has acquired a satellite signal and is connected to the WiFi network, the OLED will display the antenna's position as Latitude (Lat), Longitude (Long) and Altitude (Alt); the WiFi IP (Internet Protocol) network address. The firmware mode, SSID and password are stored in flash (non-volatile) memory. After changing them, you can disconnect the computer and power the RTK mosaic-X5 using the supplied wall adapter.</p>
 <figure>
 <p><a data-preview="" href="../assets/img/hookup_guide/WiFi_Connections.png" title="Click to enlarge"><img alt="WiFi Connections" src="../assets/img/hookup_guide/WiFi_Connections.png" width="400" /></a></p>
 <figcaption>
 <p><a data-preview="" href="../assets/img/hookup_guide/WiFi_Connections.png">WiFi Connections (PNG)</a> for the RTK mosaic-X5.</p>
 </figcaption>
 </figure>
-<p>Once the mosaic-X5 has acquired a satellite signal and is connected to the WiFi network, the OLED will display the antenna's position as Latitude (Lat), Longitude (Long) and Altitude (Alt); the WiFi IP (Internet Protocol) network address. The firmware mode, SSID and password are stored in flash (non-volatile) memory. After changing them, you can disconnect the computer and power the RTK mosaic-X5 using the supplied wall adapter.</p>
-<div class="language-text highlight"><pre><span></span><code>The OLED display will only show position information (Lat, Long, Alt etc.) once a satellite signal has been acquired. If you see only the IP address on the display, check the SMA to TNC cable is connected correctly and that the antenna is outside with a clear view of the sky. Use a [male-female SMA extension cable](https://www.sparkfun.com/interface-cable-sma-female-to-sma-male-10m-rg58.html) if needed to increase the cable length.
-</code></pre></div>
-<details class="info">
-<summary>No IP address?</summary>
-<p>The mosaic-X5 Ethernet port is configured for Dynamic Host Configuration Protocol (DHCP). It expects the WiFi network to provide it with an IP address. If the IP address is all zeros (0.0.0.0), check that your router has DHCP enabled. Most do.</p>
-<p>Subnet 3 is reserved for the mosaic-X5's USB-C connection (Ethernet-over-USB). If your router / switch is allocating addresses using subnet 3 (192.168.3.***), please change its settings so it uses a different subnet.</p>
-</details>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>When powering the RTK mosaic-X5 on for the first time, you may see the firmware restart (reboot) several times while it waits for the mosaic-X5 to initialize. This is not an error or anything to be concerned about.</p>
@@ -2488,7 +2497,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="April 23, 2026 11:52:54 UTC"><span class="timeago" datetime="2026-04-23T11:52:54+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="April 23, 2026 11:52:54 UTC">2026-04-23</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="August 6, 2026 20:59:00 UTC"><span class="timeago" datetime="2026-08-06T20:59:00+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="August 6, 2026 20:59:00 UTC">2026-08-06</span>
   </span>
 
     
@@ -2516,14 +2525,14 @@
     
     <nav>
       
-        <a href="https://github.com/PaulZC" class="md-author" title="@PaulZC" target="_blank" rel="noopener">
-          
-          <img src="../assets/external/avatars.githubusercontent.com/u/5690545.fe356448.jpg" alt="PaulZC">
-        </a>
-      
         <a href="https://github.com/santaimpersonator" class="md-author" title="@santaimpersonator" target="_blank" rel="noopener">
           
           <img src="../assets/external/avatars.githubusercontent.com/u/36016723.fe356448.png" alt="santaimpersonator">
+        </a>
+      
+        <a href="https://github.com/PaulZC" class="md-author" title="@PaulZC" target="_blank" rel="noopener">
+          
+          <img src="../assets/external/avatars.githubusercontent.com/u/5690545.fe356448.jpg" alt="PaulZC">
         </a>
       
       
@@ -2882,7 +2891,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.code.copy", "content.code.select", "content.code.annotate", "content.action.edit", "content.tooltips", "navigation.footer", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.path", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../js/timeago.min.js"></script>
       
