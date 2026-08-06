@@ -4,7 +4,7 @@ icon: material/book-open-page-variant
 
 ## Product Resources
 
-* :sfe: [Product Page](https://www.sparkfun.com/sparkfun-rtk-mosaic-x5.html)
+* :sfe: [Product Page](https://www.sparkpnt.com/products/sparkpnt-sxm-e-cors)
 * [Quick Start Guide](./assets/quick_start_guide-v10.pdf)
 * :material-folder-cog: Design Files:
 	* :fontawesome-solid-file-pdf: [Schematic](./assets/board_files/schematic.pdf)
