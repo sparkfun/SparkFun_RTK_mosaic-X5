@@ -4,16 +4,11 @@ Spot something wrong? Please let us know. <a href="https://github.com/sparkfun/S
 
 <!-- Technical Assistance Box -->
 !!! warning "Need Help?"
-	If you need technical assistance or more information on a product that is not working as you expected, we recommend heading on over to the [SparkFun Technical Assistance](https://www.sparkfun.com/technical_assistanc) page for some initial troubleshooting. This **Submit Issues** page is not where users should seek assistance.
+	If you need technical assistance or more information on a product that is not working as you expected, we recommend heading on over to the [SparkPNT Forums](https://community.sparkpnt.com).
 
-	<article style="text-align: center;" markdown>
-	[SparkFun Technical Assistance Page](https://www.sparkfun.com/technical_assistance){ .md-button .md-button--primary }
-	</article>
-
-	If you can't find what you need there, the [SparkFun Forums](https://community.sparkfun.com/) is a great place to search the product forums and ask questions.
 
 	!!! info "Account Registration Required"
-		For your first visit to our forum, you'll need to create a [Forum Account](https://community.sparkfun.com/signup) to post questions.
+		If this is your first visit to our forum, you'll need to create a [Forum Account](https://community.sparkpnt.com/signup) to post questions.
 
 
 ## Discrepancies in the Documentation

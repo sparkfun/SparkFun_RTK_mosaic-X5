@@ -1,5 +1,16 @@
 {% extends "base.html" %}
 
+<!-- Announcement bar -->
+{% block announce %}
+  <article style="text-align: center;">
+    <span class="twemoji sfe">
+      {% include ".icons/sparkpnt.svg" %}
+    </span>
+    <strong>Deprecated:</strong> This guide is deprecated. Our latest documentation is now available at: <a href="https://docs.sparkpnt.com/SXM-E">docs.sparkpnt.com/SXM-E</a>
+  </article>
+{% endblock %}
+
+
 {% block content %}
 
 <!-- Adds file-eye icon to view hookup guide as a single page -->

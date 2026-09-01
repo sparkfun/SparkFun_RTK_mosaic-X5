@@ -332,26 +332,26 @@ markdown_extensions:
 
 extra:
   # Configures the hyperlink for the logo in the header
-  homepage: https://www.sparkfun.com
+  homepage: https://www.sparkpnt.com
 
   generator: right
 
   # Configures social icons in the footer
   social:
     - icon: sfe
-      link: https://www.sparkfun.com/products/23748
+      link: https://www.sparkpnt.com/products/sparkpnt-sxm-e-cors
     - icon: fontawesome/brands/youtube
-      link: https://www.youtube.com/sparkfun
+      link: https://www.youtube.com/sparkpnt
     - icon: fontawesome/brands/instagram
-      link: https://www.instagram.com/sparkfun
+      link: https://www.instagram.com/sparkpnt
     - icon: fontawesome/brands/github
-      link: https://www.github.com/sparkfun
+      link: https://www.github.com/sparkpnt
     - icon: fontawesome/brands/facebook
-      link: https://www.facebook.com/SparkFun
+      link: https://www.facebook.com/sparkpnt
     - icon: fontawesome/brands/x-twitter
-      link: https://twitter.com/sparkfun
+      link: https://twitter.com/sparkpnt
     - icon: simple/discourse
-      link: https://community.sparkfun.com/
+      link: https://community.sparkpnt.com/
 
   # Configures Google Analytics
   analytics:

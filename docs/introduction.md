@@ -2,6 +2,11 @@
 icon: material/book-open-page-variant
 ---
 
+
+!!! failure "Deprecated Documentation"
+	As of Sept 1, 2026 this guide has been retired. Users can find our latest documentation at: [https://docs.sparkpnt.com/SXM-E](https://docs.sparkpnt.com/SXM-E)
+
+
 # Introduction
 <div class="grid cards desc" markdown>
 
@@ -24,7 +29,7 @@ icon: material/book-open-page-variant
 
 
 	<article style="text-align: center;" markdown>
-	[&nbsp;![QR code to product page](./assets/img/qr_code/product-low.png){ .tinyqr }&nbsp;&nbsp;Purchase from SparkFun :fontawesome-solid-cart-plus:{ .heart }&nbsp;&nbsp;&nbsp;](https://www.sparkpnt.com/products/sparkpnt-sxm-e-cors){ .md-button .md-button--primary }
+	[&nbsp;![QR code to product page](./assets/img/qr_code/product-low.png){ .tinyqr }&nbsp;&nbsp;Purchase from SparkPNT :fontawesome-solid-cart-plus:{ .heart }&nbsp;&nbsp;&nbsp;](https://www.sparkpnt.com/products/sparkpnt-sxm-e-cors){ .md-button .md-button--primary }
 	</article>
 
 

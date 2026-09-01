@@ -3,6 +3,10 @@ icon: material/run-fast
 hide: toc
 ---
 
+!!! failure "Deprecated Documentation"
+	As of Sept 1, 2026 this guide has been retired. Users can find our latest documentation at: [https://docs.sparkpnt.com/SXM-E](https://docs.sparkpnt.com/SXM-E)
+
+
 !!! abstract "Directions"
 
 	This *quick start* guide is intended to help users get started with their RTK mosaic-X5, without having to review the technical details of the product. It includes the minimum instructions to initially set up the RTK mosaic-X5, depending on the primary interface that users would like to utilize:

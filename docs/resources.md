@@ -2,6 +2,11 @@
 icon: material/book-open-page-variant
 ---
 
+
+!!! failure "Deprecated Documentation"
+	As of Sept 1, 2026 this guide has been retired. Users can find our latest documentation at: [https://docs.sparkpnt.com/SXM-E](https://docs.sparkpnt.com/SXM-E)
+
+
 ## Product Resources
 
 * :sfe: [Product Page](https://www.sparkpnt.com/products/sparkpnt-sxm-e-cors)
@@ -18,9 +23,7 @@ icon: material/book-open-page-variant
 
 ### :sfe: Additional Resources
 
-* [GNSS Product Category](https://www.sparkfun.com/categories/4)
-* :material-account-supervisor: [SparkFun Technical Assistance](https://www.sparkfun.com/technical_assistance)
-* :material-forum: [SparkFun Forum: GNSS Topics](https://community.sparkfun.com/c/global-positioning-system-gps/96)
+* :material-forum: [SparkPNT Forum: GNSS Topics](https://community.sparkpnt.com/)
 
 
 ### 🏭&nbsp;Manufacturer's Resources
