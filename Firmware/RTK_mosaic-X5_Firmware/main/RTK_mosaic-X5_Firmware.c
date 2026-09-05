@@ -40,6 +40,8 @@
    Updates September 7th 2026 (v1.0.6):
 
    WiFi mode improvements:
+     Fixed an error where it was possible for the original ESP32 Ethernet MAC address to
+      replace the desired spoofed mosaic-X5 MAC address
      The firmware ignores an all-zeros MAC Address in IPStatus (or an Ethernet packet)
         This was causing problems when starting in WiFi mode
      The IP_EVENT_STA_GOT_IP event IP address is copied to the OLED display
@@ -47,10 +49,11 @@
         This ensures the IP address is displayed even if the IPStatus is missed
      The firmware no longer sends "seth,off" to turn Ethernet off before configuring DHCP
         It looks like this caused more problems than it solved
-     Reduced the wait-for-IPStatus timeout from 5s to 3s. It is received quicker than that
+     Reduced the wait-for-IPStatus timeout from 5s to 3s
+        It is received quicker than that
    General improvements:
      The minimal vTaskDelay has been increased from vTaskDelay(0) to vTaskDelay(1)
-     This prevents unwanted Watchdog resets during during wait-for-command-response
+        This prevents unwanted Watchdog resets during during wait-for-command-response
 
    ---
 
@@ -460,9 +463,10 @@ static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t ev
     switch (event_id) {
     case ETHERNET_EVENT_CONNECTED:
         ESP_LOGI(TAG, "Ethernet Link Up");
-        ESP_ERROR_CHECK(esp_eth_ioctl(s_eth_handle, ETH_CMD_G_MAC_ADDR, &eth_mac));
-        ESP_LOGI(TAG, "Got MAC address: %02X:%02X:%02X:%02X:%02X:%02X", 
-            eth_mac[0], eth_mac[1], eth_mac[2], eth_mac[3], eth_mac[4], eth_mac[5]);
+        uint8_t got_eth_mac[6];
+        ESP_ERROR_CHECK(esp_eth_ioctl(s_eth_handle, ETH_CMD_G_MAC_ADDR, &got_eth_mac));
+        ESP_LOGI(TAG, "Ethernet MAC address is currently: %02X:%02X:%02X:%02X:%02X:%02X", 
+            got_eth_mac[0], got_eth_mac[1], got_eth_mac[2], got_eth_mac[3], got_eth_mac[4], got_eth_mac[5]);
         break;
 
     case ETHERNET_EVENT_DISCONNECTED:

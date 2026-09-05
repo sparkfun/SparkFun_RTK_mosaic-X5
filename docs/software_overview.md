@@ -329,6 +329,7 @@ The most recent version of the firmware is v1.0.6, released on September 7th 202
 Changes added at v1.0.6:
 
 * WiFi mode improvements:
+	* Fixed an error where it was possible for the original ESP32 Ethernet MAC address to replace the desired spoofed mosaic-X5 MAC address
 	* The firmware ignores the initial all-zeros MAC Address in IPStatus (or an Ethernet packet)
 		* This was causing problems when starting in WiFi mode
 	* The IP_EVENT_STA_GOT_IP event IP address is copied to the OLED display
@@ -340,7 +341,7 @@ Changes added at v1.0.6:
 		* It is received quicker than that
 * General improvements:
 	* The minimal vTaskDelay has been increased from ```vTaskDelay(0)``` to ```vTaskDelay(1)```
-		* This prevents unwanted Watchdog resets during during wait-for-command-response
+		* This prevents unwanted Watchdog resets during wait-for-command-response
 
 Changes added at v1.0.5:
 
