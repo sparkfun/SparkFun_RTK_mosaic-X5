@@ -324,7 +324,17 @@ With the RTK mosaic-X5 operating with the configured WiFi network bridge, users 
 
 The firmware running on the ESP32 is based heavily on the firmware for the [Septentrio mowi](https://github.com/septentrio-gnss/mowi). SparkFun added some bells and whistles, primarily to support the OLED display. The full firmware source code is available in the [GitHub repo](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/tree/main/Firmware/RTK_mosaic-X5_Firmware). It was developed and compiled with the Espressif ESP-IDF version 5.1.5.
 
-The most recent version of the firmware is v1.0.5, released on April 22nd 2026. If you purchased your RTK mosaic-X5 before this date, you may enjoy the improvements in v1.0.5:
+The most recent version of the firmware is v1.0.6, released on September 7th 2026. If you purchased your RTK mosaic-X5 before this date, you may enjoy the improvements in v1.0.6:
+
+Changes added at v1.0.6:
+
+* Fix for all-zeros MACAddress
+	* We noticed that IPStatus can be output initially with the MACAddress set to all-zeros
+	* This would cause problems with firmware up to v1.0.5: all-zeros would be captured and used when connecting to WiFi in mode 2; WiFi-Ethernet forwarding would fail once the X5 started using its correct MACAddress
+	* From v1.0.6, the all-zeros MACAddress is ignored. The firmware waits until it receives a non-zero address from IPStatus or an Ethernet packet
+* IPStatus is periodic, with an interval of 5 seconds
+	* With firmware up to v1.0.5, IPStatus was set to on-change. We believe the message may have occasionally been missed, causing the IP Address on the OLED not to update
+	* From v1.0.6, the IP Address shown on the OLED is updated every 5 seconds
 
 Changes added at v1.0.5:
 

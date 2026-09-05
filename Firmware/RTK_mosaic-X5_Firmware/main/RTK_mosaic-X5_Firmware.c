@@ -37,6 +37,13 @@
 
    ---
 
+   Updates September 7th 2026 (v1.0.6):
+
+   The firmware ignores an all-zeros MAC Address in IPStatus or Ethernet packet
+   IPStatus is periodic, with an interval of 5 seconds
+
+   ---
+
    Updates April 22nd 2026 (v1.0.5):
 
    mosaic-X5 firmware 4.15.1 requires a mandatory user-defined username and password on IP interfaces.
@@ -208,7 +215,7 @@ const char MOSAIC_CMD_DATA_IN_OUT_RESPONSE[] = "DataInOut";
 
 const char MOSAIC_CMD_NMEA_STREAM10[] = "sno,Stream10,COM4,GGA,sec1\n\r"; // NMEA GGA every second
 const char MOSAIC_CMD_NMEA_STREAM10_RESPONSE[] = "NMEAOutput";
-const char MOSAIC_CMD_SBF_STREAM10[] = "sso,Stream10,COM4,IPStatus,OnChange\n\r"; // SBF IPStatus (4058) on change
+const char MOSAIC_CMD_SBF_STREAM10[] = "sso,Stream10,COM4,IPStatus,sec5\n\r"; // SBF IPStatus (4058) every 5 seconds
 const char MOSAIC_CMD_SBF_STREAM10_RESPONSE[] = "SBFOutput";
 
 const char MOSAIC_CMD_ETHERNET_OFF[] = "seth,off\n\r";
@@ -395,10 +402,19 @@ static void eth2wifi_flow_control_task(void *args)
             if (msg.length) {
                 do {
                     if(!eth_mac_is_set) {
-                        memcpy(eth_mac, (uint8_t*)msg.packet + 6, sizeof(eth_mac));
-                        eth_mac_is_set = true;
-                        ESP_LOGI(TAG, "Extracted MAC address from packet: %02X:%02X:%02X:%02X:%02X:%02X", 
-                            eth_mac[0], eth_mac[1], eth_mac[2], eth_mac[3], eth_mac[4], eth_mac[5]);
+                        uint8_t *macPtr = (uint8_t*)msg.packet + 6;
+                        if ((macPtr[0] == 0) && (macPtr[1] == 0) && (macPtr[2] == 0)
+                             && (macPtr[3] == 0) && (macPtr[4] == 0) && (macPtr[5] == 0))
+                        {
+                            ESP_LOGI(TAG, "Ethernet packet MAC address is all zeros");
+                        }
+                        else
+                        {
+                            memcpy(eth_mac, macPtr, sizeof(eth_mac));
+                            eth_mac_is_set = true;
+                            ESP_LOGI(TAG, "Extracted MAC address from packet: %02X:%02X:%02X:%02X:%02X:%02X", 
+                                eth_mac[0], eth_mac[1], eth_mac[2], eth_mac[3], eth_mac[4], eth_mac[5]);
+                        }
                     }
 
                     vTaskDelay(pdMS_TO_TICKS(timeout));
@@ -537,10 +553,12 @@ static void x5_uart_task(void *args)
 {
     // Create a buffer for the incoming data
     // NMEA GPGGA could be close to 100 bytes, depending on the position precision
-    // IPStatus (SBF 4058) is 88 bytes
-    // IPStatus is "on change" and will be far less frequent than GPGGA
+    // IPStatus (SBF 4058) Rev1 is 88 bytes
+    // IPStatus is less frequent than GPGGA
+    // We decode GGA from the end of the FIFO
     // We can use GPGGA to 'push' IPStatus to the start of the FIFO
-    size_t buf_size = 100 * sizeof(uint8_t);
+    // We decode SBF from the start of the FIFO
+    size_t buf_size = 128 * sizeof(uint8_t);
     static uint8_t *uart_buf = NULL;
     if (uart_buf == NULL) {
         uart_buf = (uint8_t *) malloc(buf_size);
@@ -601,15 +619,23 @@ static void x5_uart_task(void *args)
                                         if (!eth_mac_is_set)
                                         {
                                             // MACAddress (6 bytes) is in bytes 14-19
-                                            eth_mac[0] = *(ptr1 + 14);
-                                            eth_mac[1] = *(ptr1 + 15);
-                                            eth_mac[2] = *(ptr1 + 16);
-                                            eth_mac[3] = *(ptr1 + 17);
-                                            eth_mac[4] = *(ptr1 + 18);
-                                            eth_mac[5] = *(ptr1 + 19);
-                                            eth_mac_is_set = true;
-                                            ESP_LOGI(TAG, "Extracted MAC address from IPStatus: %02X:%02X:%02X:%02X:%02X:%02X", 
-                                                     eth_mac[0], eth_mac[1], eth_mac[2], eth_mac[3], eth_mac[4], eth_mac[5]);
+                                            if ((*(ptr1 + 14) == 0) && (*(ptr1 + 15) == 0) && (*(ptr1 + 16) == 0)
+                                                && (*(ptr1 + 17) == 0) && (*(ptr1 + 18) == 0) && (*(ptr1 + 19) == 0))
+                                            {
+                                                ESP_LOGI(TAG, "IPStatus MAC address is all zeros");
+                                            }
+                                            else
+                                            {
+                                                eth_mac[0] = *(ptr1 + 14);
+                                                eth_mac[1] = *(ptr1 + 15);
+                                                eth_mac[2] = *(ptr1 + 16);
+                                                eth_mac[3] = *(ptr1 + 17);
+                                                eth_mac[4] = *(ptr1 + 18);
+                                                eth_mac[5] = *(ptr1 + 19);
+                                                eth_mac_is_set = true;
+                                                ESP_LOGI(TAG, "Extracted MAC address from IPStatus: %02X:%02X:%02X:%02X:%02X:%02X", 
+                                                        eth_mac[0], eth_mac[1], eth_mac[2], eth_mac[3], eth_mac[4], eth_mac[5]);
+                                            }
                                         }
 
                                         // IPAddress (4 bytes) is in bytes 32-35
