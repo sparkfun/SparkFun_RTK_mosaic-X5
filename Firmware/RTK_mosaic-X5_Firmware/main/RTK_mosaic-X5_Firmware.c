@@ -39,8 +39,18 @@
 
    Updates September 7th 2026 (v1.0.6):
 
-   The firmware ignores an all-zeros MAC Address in IPStatus or Ethernet packet
-   IPStatus is periodic, with an interval of 5 seconds
+   WiFi mode improvements:
+     The firmware ignores an all-zeros MAC Address in IPStatus (or an Ethernet packet)
+        This was causing problems when starting in WiFi mode
+     The IP_EVENT_STA_GOT_IP event IP address is copied to the OLED display
+        This is received before the IPStatus update
+        This ensures the IP address is displayed even if the IPStatus is missed
+     The firmware no longer sends "seth,off" to turn Ethernet off before configuring DHCP
+        It looks like this caused more problems than it solved
+     Reduced the wait-for-IPStatus timeout from 5s to 3s. It is received quicker than that
+   General improvements:
+     The minimal vTaskDelay has been increased from vTaskDelay(0) to vTaskDelay(1)
+     This prevents unwanted Watchdog resets during during wait-for-command-response
 
    ---
 
@@ -215,7 +225,7 @@ const char MOSAIC_CMD_DATA_IN_OUT_RESPONSE[] = "DataInOut";
 
 const char MOSAIC_CMD_NMEA_STREAM10[] = "sno,Stream10,COM4,GGA,sec1\n\r"; // NMEA GGA every second
 const char MOSAIC_CMD_NMEA_STREAM10_RESPONSE[] = "NMEAOutput";
-const char MOSAIC_CMD_SBF_STREAM10[] = "sso,Stream10,COM4,IPStatus,sec5\n\r"; // SBF IPStatus (4058) every 5 seconds
+const char MOSAIC_CMD_SBF_STREAM10[] = "sso,Stream10,COM4,IPStatus,OnChange\n\r"; // SBF IPStatus (4058) on change
 const char MOSAIC_CMD_SBF_STREAM10_RESPONSE[] = "SBFOutput";
 
 const char MOSAIC_CMD_ETHERNET_OFF[] = "seth,off\n\r";
@@ -403,8 +413,8 @@ static void eth2wifi_flow_control_task(void *args)
                 do {
                     if(!eth_mac_is_set) {
                         uint8_t *macPtr = (uint8_t*)msg.packet + 6;
-                        if ((macPtr[0] == 0) && (macPtr[1] == 0) && (macPtr[2] == 0)
-                             && (macPtr[3] == 0) && (macPtr[4] == 0) && (macPtr[5] == 0))
+                        if ((*(macPtr + 0) == 0) && (*(macPtr + 1) == 0) && (*(macPtr + 2) == 0)
+                             && (*(macPtr + 3) == 0) && (*(macPtr + 4) == 0) && (*(macPtr + 5) == 0))
                         {
                             ESP_LOGI(TAG, "Ethernet packet MAC address is all zeros");
                         }
@@ -504,6 +514,8 @@ static void ip_event_handler(void* arg, esp_event_base_t event_base, int32_t eve
     if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
         ESP_LOGI(TAG, "WiFi STA got IP Address:" IPSTR, IP2STR(&event->ip_info.ip));
+        uint8_t *ptr = (uint8_t *)&event->ip_info.ip;
+        snprintf(ipAddress, sizeof(ipAddress), "IP:   %d.%d.%d.%d", *(ptr + 0), *(ptr + 1), *(ptr + 2), *(ptr + 3));
         wifi_is_connected = true;
         gpio_set_level(CONFIG_RTK_X5_WIFI_GPIO_PIN, true);
 
@@ -622,7 +634,7 @@ static void x5_uart_task(void *args)
                                             if ((*(ptr1 + 14) == 0) && (*(ptr1 + 15) == 0) && (*(ptr1 + 16) == 0)
                                                 && (*(ptr1 + 17) == 0) && (*(ptr1 + 18) == 0) && (*(ptr1 + 19) == 0))
                                             {
-                                                ESP_LOGI(TAG, "IPStatus MAC address is all zeros");
+                                                ESP_LOGI(TAG, "IPStatus MACAddress is all zeros");
                                             }
                                             else
                                             {
@@ -633,7 +645,7 @@ static void x5_uart_task(void *args)
                                                 eth_mac[4] = *(ptr1 + 18);
                                                 eth_mac[5] = *(ptr1 + 19);
                                                 eth_mac_is_set = true;
-                                                ESP_LOGI(TAG, "Extracted MAC address from IPStatus: %02X:%02X:%02X:%02X:%02X:%02X", 
+                                                ESP_LOGI(TAG, "Extracted MACAddress from IPStatus: %02X:%02X:%02X:%02X:%02X:%02X", 
                                                         eth_mac[0], eth_mac[1], eth_mac[2], eth_mac[3], eth_mac[4], eth_mac[5]);
                                             }
                                         }
@@ -880,7 +892,7 @@ static void x5_uart_task(void *args)
             }
         }
 
-        vTaskDelay(0); // Yield - to allow watchdog to be reset
+        vTaskDelay(1); // Yield - to allow watchdog to be reset
 
     }
 
@@ -1014,7 +1026,7 @@ bool send_command_check_response(const char *command, const char *response, int6
                 }
             }
 
-            vTaskDelay(0); // Yield - to allow watchdog to be reset
+            vTaskDelay(1); // Yield - to allow watchdog to be reset
         }
 
         try++;
@@ -1038,7 +1050,7 @@ bool send_command_check_response(const char *command, const char *response, int6
                 }
             }
 
-            vTaskDelay(0); // Yield - to allow watchdog to be reset
+            vTaskDelay(1); // Yield - to allow watchdog to be reset
         }
 
         if (large_ptr > large_buf)
@@ -1104,13 +1116,13 @@ void initialize_ethernet(void)
 
 
     // Disable Mosaic Ethernet - iterate to initialize connection
-    ESP_LOGI(TAG, "Configuring Mosaic Ethernet DHCP");
-    print_oled("Configure Ethernet DHCP");
-    if (!send_command_check_response(MOSAIC_CMD_ETHERNET_OFF, MOSAIC_CMD_ETHERNET_OFF_RESPONSE, 2000, 50, 5))
-    {
-        ESP_LOGE(TAG, "Disable Mosaic Ethernet response failed");
-        x5_not_ready();
-    }
+    // ESP_LOGI(TAG, "Configuring Mosaic Ethernet DHCP");
+    // print_oled("Configure Ethernet DHCP");
+    // if (!send_command_check_response(MOSAIC_CMD_ETHERNET_OFF, MOSAIC_CMD_ETHERNET_OFF_RESPONSE, 2000, 50, 5))
+    // {
+    //     ESP_LOGE(TAG, "Disable Mosaic Ethernet response failed");
+    //     x5_not_ready();
+    // }
 
     // Set Mosaic Ethernet DHCP with MTU
     if (!send_command_check_response(MOSAIC_CMD_IP_DHCP, MOSAIC_CMD_IP_DHCP_RESPONSE, 2000, 50, 5))
@@ -1134,7 +1146,7 @@ void initialize_ethernet(void)
     print_oled("DHCP Configured");
 
     // Wait for Mosaic to report its MAC address
-    // (This should have already been parsed from SBF IPStatus)
+    // (This _may_ have already been parsed from SBF IPStatus)
     if (!eth_mac_is_set) {
         ESP_LOGI(TAG, "Waiting for Mosaic Ethernet MAC address");
         print_oled("Waiting for MAC address");
@@ -1497,7 +1509,7 @@ void initialize_X5(void)
         x5_not_ready();
     }    
 
-    // Initialize the displayed IP address. Will be updated by the arrival of SBF IPStatus
+    // Initialize the displayed IP address. Will be updated by the arrival of SBF IPStatus or STA Connect
     snprintf(ipAddress, sizeof(ipAddress), "IP:   0.0.0.0");
 }
 
@@ -1678,11 +1690,17 @@ void app_main(void)
         ESP_LOGI(TAG, "Firmware is in mode 2: WiFi");
         print_oled("Mode 2: WiFi");
 
-        // Wait for up to 5 seconds for the IPStatus to be received
+        // Wait for up to 3 seconds for the IPStatus to be received
         int64_t timeMicros = esp_timer_get_time();
-        while ((!eth_mac_is_set) && (esp_timer_get_time() < (timeMicros + (5000 * 1000))))
+        while ((!eth_mac_is_set) && (esp_timer_get_time() < (timeMicros + (3000 * 1000))))
         {
             vTaskDelay(10);
+        }
+
+        if (!eth_mac_is_set)
+        {
+            ESP_LOGI(TAG, "IPStatus not received or MACAddress was all zeros");
+            ESP_LOGI(TAG, "MAC address will be extracted from an Ethernet packet");
         }
 
         x5_uart_task_running = false; // Pause the uart task so send_command_check_response can receive the response

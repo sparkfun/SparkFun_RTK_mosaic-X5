@@ -328,13 +328,19 @@ The most recent version of the firmware is v1.0.6, released on September 7th 202
 
 Changes added at v1.0.6:
 
-* Fix for all-zeros MACAddress
-	* We noticed that IPStatus can be output initially with the MACAddress set to all-zeros
-	* This would cause problems with firmware up to v1.0.5: all-zeros would be captured and used when connecting to WiFi in mode 2; WiFi-Ethernet forwarding would fail once the X5 started using its correct MACAddress
-	* From v1.0.6, the all-zeros MACAddress is ignored. The firmware waits until it receives a non-zero address from IPStatus or an Ethernet packet
-* IPStatus is periodic, with an interval of 5 seconds
-	* With firmware up to v1.0.5, IPStatus was set to on-change. We believe the message may have occasionally been missed, causing the IP Address on the OLED not to update
-	* From v1.0.6, the IP Address shown on the OLED is updated every 5 seconds
+* WiFi mode improvements:
+	* The firmware ignores the initial all-zeros MAC Address in IPStatus (or an Ethernet packet)
+		* This was causing problems when starting in WiFi mode
+	* The IP_EVENT_STA_GOT_IP event IP address is copied to the OLED display
+		* This is received before the IPStatus update
+		* This ensures the IP address is displayed even if the IPStatus is missed
+	* The firmware no longer sends "seth,off" to turn Ethernet off before configuring DHCP
+		* It looks like this caused more problems than it solved
+	* Reduced the wait-for-IPStatus timeout from 5s to 3s
+		* It is received quicker than that
+* General improvements:
+	* The minimal vTaskDelay has been increased from ```vTaskDelay(0)``` to ```vTaskDelay(1)```
+		* This prevents unwanted Watchdog resets during during wait-for-command-response
 
 Changes added at v1.0.5:
 
