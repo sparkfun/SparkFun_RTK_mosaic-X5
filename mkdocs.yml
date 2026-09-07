@@ -404,7 +404,8 @@ nav:
     - Quick Start Guide: quick_start.md
     - Hardware Overview: hardware_overview.md
     - Hardware Assembly: hardware_assembly.md
-    - Software Setup: software_overview.md
+    - Software Setup:
+      - Software Overview: software_overview.md
       - Change Log: change_log.md
     - RTK Configurations:
       - RTK Base: base.md
