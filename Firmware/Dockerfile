@@ -71,10 +71,10 @@ RUN : \
 # Use IDF_CLONE_SHALLOW_DEPTH=X to define the depth if IDF_CLONE_SHALLOW is used (i.e. --depth=X)
 # Use IDF_INSTALL_TARGETS to install tools only for selected chip targets (CSV)
 
-# Use: https://github.com/espressif/esp-idf/releases/tag/v5.1.5
+# Use: https://github.com/espressif/esp-idf/releases/tag/v5.1.7
 ARG IDF_CLONE_URL=https://github.com/espressif/esp-idf.git
 ARG IDF_CLONE_BRANCH_OR_TAG=release/v5.1
-ARG IDF_CHECKOUT_REF=454782b
+ARG IDF_CHECKOUT_REF=9be7466
 ARG IDF_CLONE_SHALLOW=
 ARG IDF_CLONE_SHALLOW_DEPTH=1
 ARG IDF_INSTALL_TARGETS=esp32

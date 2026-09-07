@@ -322,9 +322,29 @@ With the RTK mosaic-X5 operating with the configured WiFi network bridge, users 
 
 ### ESP32 Firmware - Update
 
-The firmware running on the ESP32 is based heavily on the firmware for the [Septentrio mowi](https://github.com/septentrio-gnss/mowi). SparkFun added some bells and whistles, primarily to support the OLED display. The full firmware source code is available in the [GitHub repo](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/tree/main/Firmware/RTK_mosaic-X5_Firmware). It was developed and compiled with the Espressif ESP-IDF version 5.1.5.
+The firmware running on the ESP32 is based heavily on the firmware for the [Septentrio mowi](https://github.com/septentrio-gnss/mowi). SparkFun added some bells and whistles, primarily to support the OLED display. The full firmware source code is available in the [GitHub repo](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/tree/main/Firmware/RTK_mosaic-X5_Firmware). It was developed and compiled with the Espressif ESP-IDF version 5.1.7.
 
-The most recent version of the firmware is v1.0.5, released on April 22nd 2026. If you purchased your RTK mosaic-X5 before this date, you may enjoy the improvements in v1.0.5:
+The most recent version of the firmware is v1.0.6, released on September 7th 2026. If you purchased your RTK mosaic-X5 before this date, you may enjoy the improvements in v1.0.6:
+
+Changes added at v1.0.6:
+
+* ESP-IDF:
+	* Bump to ESP-IDF v5.1.7
+	* Add ```CONFIG_ETH_TRANSMIT_MUTEX=y```
+* WiFi mode improvements:
+	* Fixed an error where it was possible for the original ESP32 Ethernet MAC address to replace the desired spoofed mosaic-X5 MAC address
+	* The firmware ignores the initial all-zeros MAC Address in IPStatus (or an Ethernet packet)
+		* This was causing problems when starting in WiFi mode
+	* The IP_EVENT_STA_GOT_IP event IP address is copied to the OLED display
+		* This is received before the IPStatus update
+		* This ensures the IP address is displayed even if the IPStatus is missed
+	* The firmware no longer sends "seth,off" to turn Ethernet off before configuring DHCP
+		* It looks like this caused more problems than it solved
+	* Reduced the wait-for-IPStatus timeout from 5s to 3s
+		* It is received quicker than that
+* General improvements:
+	* The minimal vTaskDelay has been increased from ```vTaskDelay(0)``` to ```vTaskDelay(1)```
+		* This prevents unwanted Watchdog resets during wait-for-command-response
 
 Changes added at v1.0.5:
 

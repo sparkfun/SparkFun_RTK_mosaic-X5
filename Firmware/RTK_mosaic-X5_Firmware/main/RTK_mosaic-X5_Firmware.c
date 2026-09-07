@@ -37,6 +37,29 @@
 
    ---
 
+   Updates September 7th 2026 (v1.0.6):
+
+   ESP-IDF:
+	 Bump to ESP-IDF v5.1.7
+	 Add CONFIG_ETH_TRANSMIT_MUTEX=y
+   WiFi mode improvements:
+     Fixed an error where it was possible for the original ESP32 Ethernet MAC address to
+      replace the desired spoofed mosaic-X5 MAC address
+     The firmware ignores an all-zeros MAC Address in IPStatus (or an Ethernet packet)
+        This was causing problems when starting in WiFi mode
+     The IP_EVENT_STA_GOT_IP event IP address is copied to the OLED display
+        This is received before the IPStatus update
+        This ensures the IP address is displayed even if the IPStatus is missed
+     The firmware no longer sends "seth,off" to turn Ethernet off before configuring DHCP
+        It looks like this caused more problems than it solved
+     Reduced the wait-for-IPStatus timeout from 5s to 3s
+        It is received quicker than that
+   General improvements:
+     The minimal vTaskDelay has been increased from vTaskDelay(0) to vTaskDelay(1)
+        This prevents unwanted Watchdog resets during during wait-for-command-response
+
+   ---
+
    Updates April 22nd 2026 (v1.0.5):
 
    mosaic-X5 firmware 4.15.1 requires a mandatory user-defined username and password on IP interfaces.
@@ -86,7 +109,7 @@
 
    ---
 
-   Written for and tested on ESP IDF v5.1.5
+   Written for and tested on ESP IDF v5.1.7
 
    Needs:
    idf.py add-dependency "espressif/ssd1306^1.0.5"
@@ -173,6 +196,113 @@ char* password = NULL;
 char* x5_user = NULL;
 char* x5_pass = NULL;
 char* esp_log_level = NULL;
+
+const char *cidr2mask(uint8_t cidr) {
+    switch (cidr) {
+        default:
+            return "Invalid";
+            break;
+        case 32:
+            return "255.255.255.255";
+            break;
+        case 31:
+            return "255.255.255.254";
+            break;
+        case 30:
+            return "255.255.255.252";
+            break;
+        case 29:
+            return "255.255.255.248";
+            break;
+        case 28:
+            return "255.255.255.240";
+            break;
+        case 27:
+            return "255.255.255.224";
+            break;
+        case 26:
+            return "255.255.255.192";
+            break;
+        case 25:
+            return "255.255.255.128";
+            break;
+        case 24:
+            return "255.255.255.0";
+            break;
+        case 23:
+            return "255.255.254.0";
+            break;
+        case 22:
+            return "255.255.252.0";
+            break;
+        case 21:
+            return "255.255.248.0";
+            break;
+        case 20:
+            return "255.255.240.0";
+            break;
+        case 19:
+            return "255.255.224.0";
+            break;
+        case 18:
+            return "255.255.192.0";
+            break;
+        case 17:
+            return "255.255.128.0";
+            break;
+        case 16:
+            return "255.255.0.0";
+            break;
+        case 15:
+            return "255.254.0.0";
+            break;
+        case 14:
+            return "255.252.0.0";
+            break;
+        case 13:
+            return "255.248.0.0";
+            break;
+        case 12:
+            return "255.240.0.0";
+            break;
+        case 11:
+            return "255.224.0.0";
+            break;
+        case 10:
+            return "255.192.0.0";
+            break;
+        case 9:
+            return "255.128.0.0";
+            break;
+        case 8:
+            return "255.0.0.0";
+            break;
+        case 7:
+            return "254.0.0.0";
+            break;
+        case 6:
+            return "252.0.0.0";
+            break;
+        case 5:
+            return "248.0.0.0";
+            break;
+        case 4:
+            return "240.0.0.0";
+            break;
+        case 3:
+            return "224.0.0.0";
+            break;
+        case 2:
+            return "192.0.0.0";
+            break;
+        case 1:
+            return "128.0.0.0";
+            break;
+        case 0:
+            return "0.0.0.0";
+            break;
+    }
+}
 
 static volatile bool x5_uart_task_running = true;
 
@@ -395,10 +525,19 @@ static void eth2wifi_flow_control_task(void *args)
             if (msg.length) {
                 do {
                     if(!eth_mac_is_set) {
-                        memcpy(eth_mac, (uint8_t*)msg.packet + 6, sizeof(eth_mac));
-                        eth_mac_is_set = true;
-                        ESP_LOGI(TAG, "Extracted MAC address from packet: %02X:%02X:%02X:%02X:%02X:%02X", 
-                            eth_mac[0], eth_mac[1], eth_mac[2], eth_mac[3], eth_mac[4], eth_mac[5]);
+                        uint8_t *macPtr = (uint8_t*)msg.packet + 6;
+                        if ((*(macPtr + 0) == 0) && (*(macPtr + 1) == 0) && (*(macPtr + 2) == 0)
+                             && (*(macPtr + 3) == 0) && (*(macPtr + 4) == 0) && (*(macPtr + 5) == 0))
+                        {
+                            ESP_LOGI(TAG, "Ethernet packet MAC address is all zeros");
+                        }
+                        else
+                        {
+                            memcpy(eth_mac, macPtr, sizeof(eth_mac));
+                            eth_mac_is_set = true;
+                            ESP_LOGI(TAG, "Extracted MAC address from packet: %02X:%02X:%02X:%02X:%02X:%02X", 
+                                eth_mac[0], eth_mac[1], eth_mac[2], eth_mac[3], eth_mac[4], eth_mac[5]);
+                        }
                     }
 
                     vTaskDelay(pdMS_TO_TICKS(timeout));
@@ -434,9 +573,10 @@ static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t ev
     switch (event_id) {
     case ETHERNET_EVENT_CONNECTED:
         ESP_LOGI(TAG, "Ethernet Link Up");
-        ESP_ERROR_CHECK(esp_eth_ioctl(s_eth_handle, ETH_CMD_G_MAC_ADDR, &eth_mac));
-        ESP_LOGI(TAG, "Got MAC address: %02X:%02X:%02X:%02X:%02X:%02X", 
-            eth_mac[0], eth_mac[1], eth_mac[2], eth_mac[3], eth_mac[4], eth_mac[5]);
+        uint8_t got_eth_mac[6];
+        ESP_ERROR_CHECK(esp_eth_ioctl(s_eth_handle, ETH_CMD_G_MAC_ADDR, &got_eth_mac));
+        ESP_LOGI(TAG, "Ethernet MAC address is currently: %02X:%02X:%02X:%02X:%02X:%02X", 
+            got_eth_mac[0], got_eth_mac[1], got_eth_mac[2], got_eth_mac[3], got_eth_mac[4], got_eth_mac[5]);
         break;
 
     case ETHERNET_EVENT_DISCONNECTED:
@@ -488,6 +628,8 @@ static void ip_event_handler(void* arg, esp_event_base_t event_base, int32_t eve
     if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
         ESP_LOGI(TAG, "WiFi STA got IP Address:" IPSTR, IP2STR(&event->ip_info.ip));
+        uint8_t *ptr = (uint8_t *)&event->ip_info.ip;
+        snprintf(ipAddress, sizeof(ipAddress), "IP:   %d.%d.%d.%d", *(ptr + 0), *(ptr + 1), *(ptr + 2), *(ptr + 3));
         wifi_is_connected = true;
         gpio_set_level(CONFIG_RTK_X5_WIFI_GPIO_PIN, true);
 
@@ -537,10 +679,12 @@ static void x5_uart_task(void *args)
 {
     // Create a buffer for the incoming data
     // NMEA GPGGA could be close to 100 bytes, depending on the position precision
-    // IPStatus (SBF 4058) is 88 bytes
-    // IPStatus is "on change" and will be far less frequent than GPGGA
+    // IPStatus (SBF 4058) Rev1 is 88 bytes
+    // IPStatus is less frequent than GPGGA
+    // We decode GGA from the end of the FIFO
     // We can use GPGGA to 'push' IPStatus to the start of the FIFO
-    size_t buf_size = 100 * sizeof(uint8_t);
+    // We decode SBF from the start of the FIFO
+    size_t buf_size = 128 * sizeof(uint8_t);
     static uint8_t *uart_buf = NULL;
     if (uart_buf == NULL) {
         uart_buf = (uint8_t *) malloc(buf_size);
@@ -601,19 +745,32 @@ static void x5_uart_task(void *args)
                                         if (!eth_mac_is_set)
                                         {
                                             // MACAddress (6 bytes) is in bytes 14-19
-                                            eth_mac[0] = *(ptr1 + 14);
-                                            eth_mac[1] = *(ptr1 + 15);
-                                            eth_mac[2] = *(ptr1 + 16);
-                                            eth_mac[3] = *(ptr1 + 17);
-                                            eth_mac[4] = *(ptr1 + 18);
-                                            eth_mac[5] = *(ptr1 + 19);
-                                            eth_mac_is_set = true;
-                                            ESP_LOGI(TAG, "Extracted MAC address from IPStatus: %02X:%02X:%02X:%02X:%02X:%02X", 
-                                                     eth_mac[0], eth_mac[1], eth_mac[2], eth_mac[3], eth_mac[4], eth_mac[5]);
+                                            if ((*(ptr1 + 14) == 0) && (*(ptr1 + 15) == 0) && (*(ptr1 + 16) == 0)
+                                                && (*(ptr1 + 17) == 0) && (*(ptr1 + 18) == 0) && (*(ptr1 + 19) == 0))
+                                            {
+                                                ESP_LOGI(TAG, "IPStatus MACAddress is all zeros");
+                                            }
+                                            else
+                                            {
+                                                eth_mac[0] = *(ptr1 + 14);
+                                                eth_mac[1] = *(ptr1 + 15);
+                                                eth_mac[2] = *(ptr1 + 16);
+                                                eth_mac[3] = *(ptr1 + 17);
+                                                eth_mac[4] = *(ptr1 + 18);
+                                                eth_mac[5] = *(ptr1 + 19);
+                                                eth_mac_is_set = true;
+                                                ESP_LOGI(TAG, "Extracted MACAddress from IPStatus: %02X:%02X:%02X:%02X:%02X:%02X", 
+                                                         eth_mac[0], eth_mac[1], eth_mac[2], eth_mac[3], eth_mac[4], eth_mac[5]);
+                                            }
                                         }
 
                                         // IPAddress (4 bytes) is in bytes 32-35
                                         snprintf(ipAddress, sizeof(ipAddress), "IP:   %d.%d.%d.%d", *(ptr1 + 32), *(ptr1 + 33), *(ptr1 + 34), *(ptr1 + 35));
+                                        ESP_LOGI(TAG, "IPStatus IPAddress: %d.%d.%d.%d Gateway: %d.%d.%d.%d Subnet Mask: %s", 
+                                                 *(ptr1 + 32), *(ptr1 + 33), *(ptr1 + 34), *(ptr1 + 35),
+                                                 *(ptr1 + 48), *(ptr1 + 49), *(ptr1 + 50), *(ptr1 + 51),
+                                                 cidr2mask(*(ptr1 + 52)));
+
                                     }
                                 }
                                 else
@@ -854,7 +1011,7 @@ static void x5_uart_task(void *args)
             }
         }
 
-        vTaskDelay(0); // Yield - to allow watchdog to be reset
+        vTaskDelay(1); // Yield - to allow watchdog to be reset
 
     }
 
@@ -988,7 +1145,7 @@ bool send_command_check_response(const char *command, const char *response, int6
                 }
             }
 
-            vTaskDelay(0); // Yield - to allow watchdog to be reset
+            vTaskDelay(1); // Yield - to allow watchdog to be reset
         }
 
         try++;
@@ -1012,7 +1169,7 @@ bool send_command_check_response(const char *command, const char *response, int6
                 }
             }
 
-            vTaskDelay(0); // Yield - to allow watchdog to be reset
+            vTaskDelay(1); // Yield - to allow watchdog to be reset
         }
 
         if (large_ptr > large_buf)
@@ -1077,14 +1234,15 @@ void initialize_ethernet(void)
     ESP_ERROR_CHECK(esp_event_handler_register(ETH_EVENT, ESP_EVENT_ANY_ID, &eth_event_handler, NULL));
 
 
-    // Disable Mosaic Ethernet - iterate to initialize connection
     ESP_LOGI(TAG, "Configuring Mosaic Ethernet DHCP");
     print_oled("Configure Ethernet DHCP");
-    if (!send_command_check_response(MOSAIC_CMD_ETHERNET_OFF, MOSAIC_CMD_ETHERNET_OFF_RESPONSE, 2000, 50, 5))
-    {
-        ESP_LOGE(TAG, "Disable Mosaic Ethernet response failed");
-        x5_not_ready();
-    }
+
+    // Disable Mosaic Ethernet - iterate to initialize connection
+    // if (!send_command_check_response(MOSAIC_CMD_ETHERNET_OFF, MOSAIC_CMD_ETHERNET_OFF_RESPONSE, 2000, 50, 5))
+    // {
+    //     ESP_LOGE(TAG, "Disable Mosaic Ethernet response failed");
+    //     x5_not_ready();
+    // }
 
     // Set Mosaic Ethernet DHCP with MTU
     if (!send_command_check_response(MOSAIC_CMD_IP_DHCP, MOSAIC_CMD_IP_DHCP_RESPONSE, 2000, 50, 5))
@@ -1108,7 +1266,7 @@ void initialize_ethernet(void)
     print_oled("DHCP Configured");
 
     // Wait for Mosaic to report its MAC address
-    // (This should have already been parsed from SBF IPStatus)
+    // (This _may_ have already been parsed from SBF IPStatus)
     if (!eth_mac_is_set) {
         ESP_LOGI(TAG, "Waiting for Mosaic Ethernet MAC address");
         print_oled("Waiting for MAC address");
@@ -1123,7 +1281,10 @@ void initialize_ethernet(void)
     ESP_LOGI(TAG, "Got Mosaic %s", mac_str);
     print_oled(mac_str);
 
-    // Mask ESP MAC address with Mosaic one
+    // Mask ESP32 Base MAC address with Mosaic one
+    // ESP32 WiFi STAtion MAC address will spoof / replicate the mosaic address
+    // ESP32 Ethernet MAC address final octet will switch to the mosaic address
+    // final octet + 3
     ESP_ERROR_CHECK(esp_base_mac_addr_set(eth_mac));
     ESP_LOGI(TAG, "ESP base MAC address set to mosaic-X5 address");
 }
@@ -1471,7 +1632,7 @@ void initialize_X5(void)
         x5_not_ready();
     }    
 
-    // Initialize the displayed IP address. Will be updated by the arrival of SBF IPStatus
+    // Initialize the displayed IP address. Will be updated by the arrival of SBF IPStatus or STA Connect
     snprintf(ipAddress, sizeof(ipAddress), "IP:   0.0.0.0");
 }
 
@@ -1652,11 +1813,17 @@ void app_main(void)
         ESP_LOGI(TAG, "Firmware is in mode 2: WiFi");
         print_oled("Mode 2: WiFi");
 
-        // Wait for up to 5 seconds for the IPStatus to be received
+        // Wait for up to 3 seconds for the IPStatus to be received
         int64_t timeMicros = esp_timer_get_time();
-        while ((!eth_mac_is_set) && (esp_timer_get_time() < (timeMicros + (5000 * 1000))))
+        while ((!eth_mac_is_set) && (esp_timer_get_time() < (timeMicros + (3000 * 1000))))
         {
             vTaskDelay(10);
+        }
+
+        if (!eth_mac_is_set)
+        {
+            ESP_LOGI(TAG, "IPStatus not received or MACAddress was all zeros");
+            ESP_LOGI(TAG, "MAC address will be extracted from an Ethernet packet");
         }
 
         x5_uart_task_running = false; // Pause the uart task so send_command_check_response can receive the response
