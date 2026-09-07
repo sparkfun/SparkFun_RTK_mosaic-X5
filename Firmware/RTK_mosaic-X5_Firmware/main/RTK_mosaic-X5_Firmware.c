@@ -1281,7 +1281,10 @@ void initialize_ethernet(void)
     ESP_LOGI(TAG, "Got Mosaic %s", mac_str);
     print_oled(mac_str);
 
-    // Mask ESP MAC address with Mosaic one
+    // Mask ESP32 Base MAC address with Mosaic one
+    // ESP32 WiFi STAtion MAC address will spoof / replicate the mosaic address
+    // ESP32 Ethernet MAC address final octet will switch to the mosaic address
+    // final octet + 3
     ESP_ERROR_CHECK(esp_base_mac_addr_set(eth_mac));
     ESP_LOGI(TAG, "ESP base MAC address set to mosaic-X5 address");
 }
