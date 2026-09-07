@@ -39,6 +39,9 @@
 
    Updates September 7th 2026 (v1.0.6):
 
+   ESP-IDF:
+	 Bump to ESP-IDF v5.1.7
+	 Add CONFIG_ETH_TRANSMIT_MUTEX=y
    WiFi mode improvements:
      Fixed an error where it was possible for the original ESP32 Ethernet MAC address to
       replace the desired spoofed mosaic-X5 MAC address
@@ -106,7 +109,7 @@
 
    ---
 
-   Written for and tested on ESP IDF v5.1.5
+   Written for and tested on ESP IDF v5.1.7
 
    Needs:
    idf.py add-dependency "espressif/ssd1306^1.0.5"
@@ -193,6 +196,113 @@ char* password = NULL;
 char* x5_user = NULL;
 char* x5_pass = NULL;
 char* esp_log_level = NULL;
+
+const char *cidr2mask(uint8_t cidr) {
+    switch (cidr) {
+        default:
+            return "Invalid";
+            break;
+        case 32:
+            return "255.255.255.255";
+            break;
+        case 31:
+            return "255.255.255.254";
+            break;
+        case 30:
+            return "255.255.255.252";
+            break;
+        case 29:
+            return "255.255.255.248";
+            break;
+        case 28:
+            return "255.255.255.240";
+            break;
+        case 27:
+            return "255.255.255.224";
+            break;
+        case 26:
+            return "255.255.255.192";
+            break;
+        case 25:
+            return "255.255.255.128";
+            break;
+        case 24:
+            return "255.255.255.0";
+            break;
+        case 23:
+            return "255.255.254.0";
+            break;
+        case 22:
+            return "255.255.252.0";
+            break;
+        case 21:
+            return "255.255.248.0";
+            break;
+        case 20:
+            return "255.255.240.0";
+            break;
+        case 19:
+            return "255.255.224.0";
+            break;
+        case 18:
+            return "255.255.192.0";
+            break;
+        case 17:
+            return "255.255.128.0";
+            break;
+        case 16:
+            return "255.255.0.0";
+            break;
+        case 15:
+            return "255.254.0.0";
+            break;
+        case 14:
+            return "255.252.0.0";
+            break;
+        case 13:
+            return "255.248.0.0";
+            break;
+        case 12:
+            return "255.240.0.0";
+            break;
+        case 11:
+            return "255.224.0.0";
+            break;
+        case 10:
+            return "255.192.0.0";
+            break;
+        case 9:
+            return "255.128.0.0";
+            break;
+        case 8:
+            return "255.0.0.0";
+            break;
+        case 7:
+            return "254.0.0.0";
+            break;
+        case 6:
+            return "252.0.0.0";
+            break;
+        case 5:
+            return "248.0.0.0";
+            break;
+        case 4:
+            return "240.0.0.0";
+            break;
+        case 3:
+            return "224.0.0.0";
+            break;
+        case 2:
+            return "192.0.0.0";
+            break;
+        case 1:
+            return "128.0.0.0";
+            break;
+        case 0:
+            return "0.0.0.0";
+            break;
+    }
+}
 
 static volatile bool x5_uart_task_running = true;
 
@@ -650,12 +760,17 @@ static void x5_uart_task(void *args)
                                                 eth_mac[5] = *(ptr1 + 19);
                                                 eth_mac_is_set = true;
                                                 ESP_LOGI(TAG, "Extracted MACAddress from IPStatus: %02X:%02X:%02X:%02X:%02X:%02X", 
-                                                        eth_mac[0], eth_mac[1], eth_mac[2], eth_mac[3], eth_mac[4], eth_mac[5]);
+                                                         eth_mac[0], eth_mac[1], eth_mac[2], eth_mac[3], eth_mac[4], eth_mac[5]);
                                             }
                                         }
 
                                         // IPAddress (4 bytes) is in bytes 32-35
                                         snprintf(ipAddress, sizeof(ipAddress), "IP:   %d.%d.%d.%d", *(ptr1 + 32), *(ptr1 + 33), *(ptr1 + 34), *(ptr1 + 35));
+                                        ESP_LOGI(TAG, "IPStatus IPAddress: %d.%d.%d.%d Gateway: %d.%d.%d.%d Subnet Mask: %s", 
+                                                 *(ptr1 + 32), *(ptr1 + 33), *(ptr1 + 34), *(ptr1 + 35),
+                                                 *(ptr1 + 48), *(ptr1 + 49), *(ptr1 + 50), *(ptr1 + 51),
+                                                 cidr2mask(*(ptr1 + 52)));
+
                                     }
                                 }
                                 else
@@ -1119,9 +1234,10 @@ void initialize_ethernet(void)
     ESP_ERROR_CHECK(esp_event_handler_register(ETH_EVENT, ESP_EVENT_ANY_ID, &eth_event_handler, NULL));
 
 
+    ESP_LOGI(TAG, "Configuring Mosaic Ethernet DHCP");
+    print_oled("Configure Ethernet DHCP");
+
     // Disable Mosaic Ethernet - iterate to initialize connection
-    // ESP_LOGI(TAG, "Configuring Mosaic Ethernet DHCP");
-    // print_oled("Configure Ethernet DHCP");
     // if (!send_command_check_response(MOSAIC_CMD_ETHERNET_OFF, MOSAIC_CMD_ETHERNET_OFF_RESPONSE, 2000, 50, 5))
     // {
     //     ESP_LOGE(TAG, "Disable Mosaic Ethernet response failed");
