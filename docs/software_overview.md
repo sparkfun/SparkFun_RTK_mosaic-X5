@@ -322,12 +322,15 @@ With the RTK mosaic-X5 operating with the configured WiFi network bridge, users 
 
 ### ESP32 Firmware - Update
 
-The firmware running on the ESP32 is based heavily on the firmware for the [Septentrio mowi](https://github.com/septentrio-gnss/mowi). SparkFun added some bells and whistles, primarily to support the OLED display. The full firmware source code is available in the [GitHub repo](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/tree/main/Firmware/RTK_mosaic-X5_Firmware). It was developed and compiled with the Espressif ESP-IDF version 5.1.5.
+The firmware running on the ESP32 is based heavily on the firmware for the [Septentrio mowi](https://github.com/septentrio-gnss/mowi). SparkFun added some bells and whistles, primarily to support the OLED display. The full firmware source code is available in the [GitHub repo](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/tree/main/Firmware/RTK_mosaic-X5_Firmware). It was developed and compiled with the Espressif ESP-IDF version 5.1.7.
 
 The most recent version of the firmware is v1.0.6, released on September 7th 2026. If you purchased your RTK mosaic-X5 before this date, you may enjoy the improvements in v1.0.6:
 
 Changes added at v1.0.6:
 
+* ESP-IDF:
+	* Bump to ESP-IDF v5.1.7
+	* Add ```CONFIG_ETH_TRANSMIT_MUTEX=y```
 * WiFi mode improvements:
 	* Fixed an error where it was possible for the original ESP32 Ethernet MAC address to replace the desired spoofed mosaic-X5 MAC address
 	* The firmware ignores the initial all-zeros MAC Address in IPStatus (or an Ethernet packet)
