@@ -18,7 +18,7 @@
         <link rel="prev" href="../hardware_assembly/">
       
       
-        <link rel="next" href="../base/">
+        <link rel="next" href="../change_log/">
       
       
         
@@ -29,7 +29,7 @@
     
     
       
-        <title>Software Setup - Product Manual - SparkFun RTK mosaic-X5</title>
+        <title>Software Overview - Product Manual - SparkFun RTK mosaic-X5</title>
       
     
     
@@ -289,7 +289,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Software Setup
+              Software Overview
             
           </span>
         </div>
@@ -839,6 +839,58 @@
   
   
   
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_1_5" id="__nav_1_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Software Setup
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Software Setup
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
     <li class="md-nav__item md-nav__item--active">
       
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
@@ -854,7 +906,7 @@
   <span class="md-ellipsis">
     
   
-    Software Setup
+    Software Overview
   
 
     
@@ -874,7 +926,7 @@
   <span class="md-ellipsis">
     
   
-    Software Setup
+    Software Overview
   
 
     
@@ -1111,6 +1163,42 @@
     </ul>
   
 </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../change_log/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Change Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
       
     </li>
   
@@ -1860,6 +1948,49 @@
 
 
 
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../introduction/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="./" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Software Setup
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
               
               <article class="md-content__inner md-typeset">
                 
@@ -1884,7 +2015,7 @@
   
 
 
-  <h1>Software Setup</h1>
+  <h1>Software Overview</h1>
 
 <div class="admonition code">
 <p class="admonition-title">ESP32 Firmware</p>
@@ -2275,88 +2406,7 @@
 <p>With the RTK mosaic-X5 operating with the configured WiFi network bridge, users should be able to open a web browser on any connected device and navigate to the IP address shown on the OLED display. The browser should be able to access the mosaic-X5's internal web page, where users can configure the mosaic-X5.</p>
 <h3 id="esp32-firmware-update">ESP32 Firmware - Update<a class="headerlink" data-preview="" href="#esp32-firmware-update" title="Permanent link"></a></h3>
 <p>The firmware running on the ESP32 is based heavily on the firmware for the <a href="https://github.com/septentrio-gnss/mowi" target="_blank" rel="noopener">Septentrio mowi</a>. SparkFun added some bells and whistles, primarily to support the OLED display. The full firmware source code is available in the <a href="https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/tree/main/Firmware/RTK_mosaic-X5_Firmware" target="_blank" rel="noopener">GitHub repo</a>. It was developed and compiled with the Espressif ESP-IDF version 5.1.7.</p>
-<p>The most recent version of the firmware is v1.0.6, released on September 7th 2026. If you purchased your RTK mosaic-X5 before this date, you may enjoy the improvements in v1.0.6:</p>
-<p>Changes added at v1.0.6:</p>
-<ul>
-<li>ESP-IDF:<ul>
-<li>Bump to ESP-IDF v5.1.7</li>
-<li>Add <code>CONFIG_ETH_TRANSMIT_MUTEX=y</code></li>
-</ul>
-</li>
-<li>WiFi mode improvements:<ul>
-<li>Fixed an error where it was possible for the original ESP32 Ethernet MAC address to replace the desired spoofed mosaic-X5 MAC address</li>
-<li>The firmware ignores the initial all-zeros MAC Address in IPStatus (or an Ethernet packet)<ul>
-<li>This was causing problems when starting in WiFi mode</li>
-</ul>
-</li>
-<li>The IP_EVENT_STA_GOT_IP event IP address is copied to the OLED display<ul>
-<li>This is received before the IPStatus update</li>
-<li>This ensures the IP address is displayed even if the IPStatus is missed</li>
-</ul>
-</li>
-<li>The firmware no longer sends "seth,off" to turn Ethernet off before configuring DHCP<ul>
-<li>It looks like this caused more problems than it solved</li>
-</ul>
-</li>
-<li>Reduced the wait-for-IPStatus timeout from 5s to 3s<ul>
-<li>It is received quicker than that</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>General improvements:<ul>
-<li>The minimal vTaskDelay has been increased from <code>vTaskDelay(0)</code> to <code>vTaskDelay(1)</code><ul>
-<li>This prevents unwanted Watchdog resets during wait-for-command-response</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<p>Changes added at v1.0.5:</p>
-<ul>
-<li>The firmware now supports a username and password for the X5 itself<ul>
-<li>This is to support mosaic-X5 firmware versions &gt;= 4.15.1 where a username and password are mandatory <em>on IP interfaces</em> (webUI, Ethernet-over-USB, CLI over TCP/IP)</li>
-<li>The username and password are <em>not</em> mandatory on COM and USB (virtual COM) ports, <em>unless</em> you set the <code>Default Access Level Per Interface</code> (<code>setDefaultAccessLevel</code> / <code>sdal</code>) to <em>none</em> for COM and/or USB ports</li>
-<li>The ESP32 firmware only needs to know the username and password if the default access levels have been changed</li>
-<li>For more information about the X5 Log-in procedure, please read <a href="https://customersupport.septentrio.com/s/article/Cybersecurity-guidelines-Log-in-procedure" target="_blank" rel="noopener">this Septentrio documentation</a></li>
-<li>If you upgrade the X5 firmware to 4.15.1:<ul>
-<li>Enter your user-defined username and password, using the Factory credentials <em>RxAdmin</em> and <em>S3pt3ntr10</em>, as described in the <a href="https://customersupport.septentrio.com/s/article/Cybersecurity-guidelines-Log-in-procedure" target="_blank" rel="noopener">Log-in procedure</a></li>
-<li>You will need to enter the user-defined username and password whenever you connect over an IP interface</li>
-<li>Logging in via the ESP32 on a COM port does not remove the need to log in on IP interfaces. You still need to log in on each IP interface individually and separately</li>
-<li>Upgrade the ESP32 Firmware to v1.0.5, following the procedure described below</li>
-<li>If the ESP32 needs to know the username and password: in the ESP32 Serial Terminal / console, use option <em>set -u</em> to set the X5 username and option <em>set -x</em> to set the X5 password</li>
-<li>Turn the RTK mosaic-X5 off and back on again</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<p>Changes added at v1.0.4:</p>
-<ul>
-<li>The firmware now includes an efficient SBF and NMEA parser<ul>
-<li>Previously the NMEA GPGGA and SBF IPStatus messages were polled, this resulted in the OLED being updated once every ~2 seconds</li>
-<li>In v1.0.4: NMEA Stream10 carries the GPGGA message at 1Hz; SBF Stream10 carries the IPStatus message OnChange</li>
-<li>The OLED is now updated on the arrival of the GPGGA message, at exactly 1Hz</li>
-</ul>
-</li>
-<li>The firmware now ensures that the SBF and NMEA protocols are enabled for output on X5 COM4<ul>
-<li>Previously, the firmware would stall if either SBF or NMEA were disabled</li>
-</ul>
-</li>
-<li>The firmware now supports the NMEA <em>GN</em> Talker ID, in addition to <em>GP</em><ul>
-<li>Previously setting the Talker ID to <em>GN</em> would cause the firmware to stall</li>
-</ul>
-</li>
-<li>The OLED now displays the Latitude and Longitude in <em>DD MM SS.SSSS</em> format, to match the format of the X5's internal web page<ul>
-<li>Previously the format was <em>DDMM.MMMMMM</em>, copied directly from the GPGGA message</li>
-</ul>
-</li>
-<li>The firmware will perform a soft reset of the GNSS during startup - if needed<ul>
-<li>The X5 can go into a <a href="https://customersupport.septentrio.com/s/article/How-to-troubleshoot-receiver-reporting-Ready-for-SUF-download" target="_blank" rel="noopener">Ready for SUF download</a> state if it is reset four times with no antenna connected</li>
-<li>This can be cleared with a soft reset</li>
-</ul>
-</li>
-</ul>
+<p>The most recent version of the firmware is v1.0.6, released on September 7th 2026. If you purchased your RTK mosaic-X5 before this date, you may enjoy the improvements in v1.0.6. Please see the <a data-preview="" href="../change_log/">change_log</a> or <a href="https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/releases" target="_blank" rel="noopener">releases</a> for more details.</p>
 <p>To upgrade the ESP32 firmware, using a Windows PC:</p>
 <ul>
 <li>Download the complete RTK mosaic-X5 repo as a Zip file:<ul>
@@ -2547,7 +2597,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="September 7, 2026 09:58:03 UTC"><span class="timeago" datetime="2026-09-07T09:58:03+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="September 7, 2026 09:58:03 UTC">2026-09-07</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="September 7, 2026 12:16:52 UTC"><span class="timeago" datetime="2026-09-07T12:16:52+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="September 7, 2026 12:16:52 UTC">2026-09-07</span>
   </span>
 
     
@@ -2640,13 +2690,13 @@
         
         
           
-          <a href="../base/" class="md-footer__link md-footer__link--next" aria-label="Next: RTK Base">
+          <a href="../change_log/" class="md-footer__link md-footer__link--next" aria-label="Next: Change Log">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                RTK Base
+                Change Log
               </div>
             </div>
             <div class="md-footer__button md-icon">
