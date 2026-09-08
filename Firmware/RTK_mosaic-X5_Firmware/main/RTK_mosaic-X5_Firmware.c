@@ -17,13 +17,13 @@
    save the settings without them being overwritten.
 
    Mode 2 allows you to connect the RTK mosaic-X5 to your WiFi network. Link the MOSAIC and
-   ESP32 ETHERNET ports using a standard Ethernet patch cable. The ESP32 acts as a WiFi Bridge,
-   forwarding all traffic from X5 Ethernet to WiFi and vice versa.
+   ESP32 ETHERNET ports using a standard Ethernet patch cable. The ESP32 provides Network Address
+   Port Translation between X5 Ethernet and WiFi. ESP32 is the DHCP server for mosaic-X5 Ethernet.
    The WiFi SSID and password are set using the CONFIG ESP32 USB serial console.
    Once the ESP32 is connected to WiFi, you can view the X5's internal web page at the IP address
    shown on the OLED display.
    In Mode 2 the ESP32 sets the X5 Ethernet interface to DHCP, so that the X5 can request an IP
-   address from the WiFi router transparently through the ESP32.
+   address from the ESP32.
 
    The mode can be changed via the CONFIG ESP32 USB serial console. Connect to the CONFIG ESP32
    USB port and open a terminal at 115200 baud to see the console. Type help for help.
@@ -34,6 +34,15 @@
    show
    set --mode=2 --ssid=SSID --password=PASSWORD
    restart
+
+   ---
+
+   Updates September 8th 2026 (v1.1.0):
+
+   Major update - based on:
+   https://github.com/espressif/esp-protocols/tree/master/examples/esp_netif/eth_gateway_wifi_sta
+
+   Tested with ESP-IDF v6.1
 
    ---
 
@@ -134,45 +143,54 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <sdkconfig.h>
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
-#include <freertos/event_groups.h>
-#include <freertos/queue.h>
+#include "sdkconfig.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+//#include "freertos/event_groups.h>"
+//#include "freertos/queue.h"
 
-#include <esp_log.h>
-#include <esp_wifi.h>
-#include <esp_eth.h>
-#include <esp_eth_driver.h>
-#include <esp_mac.h>
-#include <esp_event.h>
-#include <esp_netif.h>
-#include <nvs_flash.h>
+#include "esp_log.h"
+#include "esp_wifi.h"
+#include "esp_wifi_types.h"
+#include "esp_eth.h"
+//#include "esp_eth_driver.h"
+//#include "esp_mac.h"
+#include "esp_event.h"
+#include "esp_netif.h"
+#include "nvs_flash.h"
 
-#include <esp_private/wifi.h>
-#include <driver/gpio.h>
-#include <driver/uart.h>
-#include <hal/uart_hal.h>
+#include "dhcpserver/dhcpserver.h"
+#include "dhcpserver/dhcpserver_options.h"
+#include "ethernet_init.h"
 
-#include "ssd1306.h"
-#include "ssd1306_fonts.h"
+//#include <esp_private/wifi.h>
+#include "driver/gpio.h"
+#include "driver/uart.h"
+#include "hal/uart_hal.h"
+
+#include "esp_lcd_panel_io.h"
+#include "esp_lcd_panel_vendor.h"
+#include "esp_lcd_panel_ops.h"
+
+//#include "ssd1306.h"
+//#include "ssd1306_fonts.h"
 #include "fnt_5x8.h"
 
-#include <esp_timer.h>
-#include <driver/i2c.h>
+#include "esp_timer.h"
+#include "driver/i2c_master.h"
 
-#include <esp_console.h>
-#include <esp_vfs_dev.h>
-#include <linenoise/linenoise.h>
-#include <argtable3/argtable3.h>
-#include <esp_vfs_fat.h>
-#include <nvs.h>
-#include <nvs_flash.h>
+#include "esp_console.h"
+#include "esp_vfs_dev.h"
+#include "linenoise/linenoise.h"
+#include "argtable3/argtable3.h"
+#include "esp_vfs_fat.h"
+#include "nvs.h"
+//#include "nvs_flash.h"
 #include "cmd_nvs.h"
 #include "cmd_rtk.h"
 
-#include <lwip/inet.h>
-#include <lwip/ip4_addr.h>
+//#include <lwip/inet.h>
+//#include <lwip/ip4_addr.h>
 
 /* The firmware version is updated by the Dockerfile */
 static const char *VERSION = "Firmware v0.0.0";
@@ -180,14 +198,14 @@ static const char *TAG = "RTK_mosaic-X5_Firmware";
 #define PROMPT_STR "RTK_X5"
 static const char* prompt;
 
-static esp_eth_handle_t s_eth_handle = NULL;
-static esp_eth_mac_t *s_mac = NULL;
-static esp_eth_phy_t *s_phy = NULL;
-static QueueHandle_t flow_control_queue = NULL;
+/** Event group bit: set when Wi-Fi station receives IPv4 (IP_EVENT_STA_GOT_IP). */
+#define EXAMPLE_WIFI_STA_GOT_IP_BIT (1U << 0)
 
-static uint8_t eth_mac[6];
-static volatile bool eth_mac_is_set = false;
-static bool wifi_is_connected = false;
+static EventGroupHandle_t event_group = NULL;
+
+esp_netif_t *eth_netif = NULL;
+
+//static bool wifi_is_connected = false;
 static char ipAddress[25];
 
 int* mode = NULL;
@@ -306,11 +324,6 @@ const char *cidr2mask(uint8_t cidr) {
 
 static volatile bool x5_uart_task_running = true;
 
-typedef struct {
-    void *packet;
-    uint16_t length;
-} flow_control_msg_t;
-
 /* These could be in Kconfig, but who will want to change them? */
 #define CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM (1)
 #define CONFIG_RTK_X5_MOSAIC_UART_BUF_SIZE (1024)
@@ -353,6 +366,8 @@ const char MOSAIC_CMD_EXE_IPSTATUS_ONCE[] = "esoc,COM4,IPStatus\n\r"; // Execute
 const char MOSAIC_CMD_SOFT_RESET[] = "erst,Soft,none\n\r"; // Execute soft reset
 const char MOSAIC_CMD_SOFT_RESET_RESPONSE[] = "ResetReceiver";
 
+bool send_command_check_response(const char *command, const char *response, int64_t timeoutMillis, int waitMillis, int tries); // Header
+
 /* I2C OLED */
 #define I2C_HOST  0
 #define RTK_X5_LCD_PIXEL_CLOCK_HZ    (400 * 1000)
@@ -361,8 +376,11 @@ const char MOSAIC_CMD_SOFT_RESET_RESPONSE[] = "ResetReceiver";
 #define RTK_X5_PIN_NUM_RST           -1
 #define RTK_X5_OLED_HW_ADDR          0x3D
 
+i2c_master_bus_handle_t bus_handle = NULL;
+esp_lcd_panel_io_handle_t io_handle = NULL;
+esp_lcd_panel_handle_t panel_handle = NULL;
+
 void print_text(char *txt); // Header
-static ssd1306_handle_t disp;
 
 const uint8_t oled_x_chars = 25; // 128 / 5
 const uint8_t oled_y_chars = 8;  // 64 / 8
@@ -374,30 +392,6 @@ void print_oled(char *txt); // Header
 void set_oled(char *txt); // Header
 void update_oled(void); // Header
 void display_IP(void); // Header
-bool send_command_check_response(const char *command, const char *response, int64_t timeoutMillis, int waitMillis, int tries); // Header
-
-/* Extra SSD1306 commands - if needed */
-#define RTK_SSD1306_CMD_SET_MEMORY_ADDR_MODE  0x20
-#define RTK_SSD1306_CMD_SET_COLUMN_RANGE      0x21
-#define RTK_SSD1306_CMD_SET_PAGE_RANGE        0x22
-#define RTK_SSD1306_CMD_SET_START_LINE        0x40
-#define RTK_SSD1306_CMD_SET_CONTRAST_BANK0    0x81
-#define RTK_SSD1306_CMD_SET_CHARGE_PUMP       0x8D
-#define RTK_SSD1306_CMD_MIRROR_X_OFF          0xA0
-#define RTK_SSD1306_CMD_MIRROR_X_ON           0xA1
-#define RTK_SSD1306_CMD_DISPLAY_ALL_ON_RESUME 0xA4
-#define RTK_SSD1306_CMD_INVERT_OFF            0xA6
-#define RTK_SSD1306_CMD_INVERT_ON             0xA7
-#define RTK_SSD1306_CMD_MULTIPLEX_RATIO       0xA8
-#define RTK_SSD1306_CMD_DISP_OFF              0xAE
-#define RTK_SSD1306_CMD_DISP_ON               0xAF
-#define RTK_SSD1306_CMD_MIRROR_Y_OFF          0xC0
-#define RTK_SSD1306_CMD_MIRROR_Y_ON           0xC8
-#define RTK_SSD1306_CMD_DISPLAY_OFFSET        0xD3
-#define RTK_SSD1306_CMD_CLOCK_DIVIDER         0xD5
-#define RTK_SSD1306_CMD_PRE_CHARGE            0xD9
-#define RTK_SSD1306_CMD_COM_PINS              0xDA
-#define RTK_SSD1306_CMD_SET_VCOMH_DESELECT    0xDB
 
 /* Console history - in NVS */
 #define MOUNT_PATH "/data"
@@ -467,116 +461,29 @@ uint16_t ccitt_crc_update(uint16_t crc, const uint8_t data)
 #define tokenValid ((*token != ',') && (*token != '*') && (*token != 0))
 #define remainderValid ((*remainder != ',') && (*remainder != '*') && (*remainder != 0))
 
-/* PACKETS / DATA FORWARDING */
-
-// Forward packets from Wi-Fi to Ethernet
-static esp_err_t pkt_wifi2eth(void *buffer, uint16_t len, void *eb)
-{
-    if (esp_eth_transmit(s_eth_handle, buffer, len) != ESP_OK) {
-        ESP_LOGE(TAG, "Ethernet send packet failed");
-    }
-#if CONFIG_RTK_X5_VERBOSE_LOG
-    else {
-        uint8_t *ptr = (uint8_t *)buffer;
-        ESP_LOGI(TAG, "Sent Ethernet packet L:%d D:%02X:%02X:%02X:%02X:%02X:%02X S:%02X:%02X:%02X:%02X:%02X:%02X IPS:%d.%d.%d.%d IPD:%d.%d.%d.%d",
-            len, ptr[0], ptr[1], ptr[2], ptr[3], ptr[4], ptr[5], ptr[6], ptr[7], ptr[8], ptr[9], ptr[10], ptr[11],
-            ptr[26], ptr[27], ptr[28], ptr[29], ptr[30], ptr[31], ptr[32], ptr[33]);
-    }
-#endif
-
-    esp_wifi_internal_free_rx_buffer(eb);
-    return ESP_OK;
-}
-
-// Forward packets from Ethernet to Wi-Fi
-// Note that, Ethernet works faster than Wi-Fi on ESP32,
-// so we need to add an extra queue to balance their speed difference.
-static esp_err_t pkt_eth2wifi(esp_eth_handle_t eth_handle, uint8_t *buffer, uint32_t len, void *priv)
-{
-    esp_err_t ret = ESP_OK;
-    flow_control_msg_t msg = {
-        .packet = buffer,
-        .length = len
-    };
-
-    if (xQueueSend(flow_control_queue, &msg, pdMS_TO_TICKS(CONFIG_RTK_X5_FLOW_CONTROL_QUEUE_TIMEOUT_MS)) != pdTRUE) {
-        ESP_LOGE(TAG, "Send flow control message failed or timeout");
-        free(buffer);
-        ret = ESP_FAIL;
-    }
-// #if CONFIG_RTK_X5_VERBOSE_LOG
-//     else {
-//         ESP_LOGI(TAG, "Queued WiFi packet of length %d", (int)len);
-//     }
-// #endif
-    return ret;
-}
-
-// This task will fetch the packet from the queue, and then send out through Wi-Fi.
-// Wi-Fi handles packets slower than Ethernet, we might add some delay between each transmitting.
-static void eth2wifi_flow_control_task(void *args)
-{
-    flow_control_msg_t msg;
-    int res = 0;
-    uint32_t timeout = 0;
-    while (true) {
-        if (xQueueReceive(flow_control_queue, &msg, pdMS_TO_TICKS(CONFIG_RTK_X5_FLOW_CONTROL_QUEUE_TIMEOUT_MS)) == pdTRUE) {
-            timeout = 0;
-            if (msg.length) {
-                do {
-                    if(!eth_mac_is_set) {
-                        uint8_t *macPtr = (uint8_t*)msg.packet + 6;
-                        if ((*(macPtr + 0) == 0) && (*(macPtr + 1) == 0) && (*(macPtr + 2) == 0)
-                             && (*(macPtr + 3) == 0) && (*(macPtr + 4) == 0) && (*(macPtr + 5) == 0))
-                        {
-                            ESP_LOGI(TAG, "Ethernet packet MAC address is all zeros");
-                        }
-                        else
-                        {
-                            memcpy(eth_mac, macPtr, sizeof(eth_mac));
-                            eth_mac_is_set = true;
-                            ESP_LOGI(TAG, "Extracted MAC address from packet: %02X:%02X:%02X:%02X:%02X:%02X", 
-                                eth_mac[0], eth_mac[1], eth_mac[2], eth_mac[3], eth_mac[4], eth_mac[5]);
-                        }
-                    }
-
-                    vTaskDelay(pdMS_TO_TICKS(timeout));
-                    timeout += 2;
-                    if(wifi_is_connected) {
-                        res = esp_wifi_internal_tx(ESP_IF_WIFI_STA, msg.packet, msg.length);
-                    }
-                } while (res && timeout < CONFIG_RTK_X5_FLOW_CONTROL_WIFI_SEND_TIMEOUT_MS);
-                if (res != ESP_OK) {
-                    ESP_LOGE(TAG, "WiFi send packet failed: %d", res);
-                }
-#if CONFIG_RTK_X5_VERBOSE_LOG
-                else {
-                    uint8_t *ptr = (uint8_t *)msg.packet;
-                    ESP_LOGI(TAG, "Sent WiFi packet L:%d D:%02X:%02X:%02X:%02X:%02X:%02X S:%02X:%02X:%02X:%02X:%02X:%02X IPS:%d.%d.%d.%d IPD:%d.%d.%d.%d",
-                        msg.length, ptr[0], ptr[1], ptr[2], ptr[3], ptr[4], ptr[5], ptr[6], ptr[7], ptr[8], ptr[9], ptr[10], ptr[11],
-                        ptr[26], ptr[27], ptr[28], ptr[29], ptr[30], ptr[31], ptr[32], ptr[33]);
-                }
-#endif
-            }
-            free(msg.packet);
-        }
-    }
-    vTaskDelete(NULL);
-}
-
-
 /* EVENT HANDLERS */
 
 // Event handler for Ethernet
 static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
+    uint8_t mac_addr[6] = {0};
+    esp_eth_handle_t eth_handle = *(esp_eth_handle_t *)event_data;
+    esp_netif_t *eth_netif = (esp_netif_t *)arg;
+
     switch (event_id) {
     case ETHERNET_EVENT_CONNECTED:
         ESP_LOGI(TAG, "Ethernet Link Up");
-        uint8_t got_eth_mac[6];
-        ESP_ERROR_CHECK(esp_eth_ioctl(s_eth_handle, ETH_CMD_G_MAC_ADDR, &got_eth_mac));
+        ESP_ERROR_CHECK(esp_eth_ioctl(eth_handle, ETH_CMD_G_MAC_ADDR, mac_addr));
         ESP_LOGI(TAG, "Ethernet MAC address is currently: %02X:%02X:%02X:%02X:%02X:%02X", 
-            got_eth_mac[0], got_eth_mac[1], got_eth_mac[2], got_eth_mac[3], got_eth_mac[4], got_eth_mac[5]);
+            mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3], mac_addr[4], mac_addr[5]);
+        {
+            esp_err_t err = esp_netif_dhcps_start(eth_netif);
+            if (err != ESP_OK) {
+                ESP_LOGE(TAG, "DHCP server start: %s", esp_err_to_name(err));
+            } else {
+                ESP_LOGI(TAG, "DHCP server started on %s", esp_netif_get_desc(eth_netif));
+            }
+        }
         break;
 
     case ETHERNET_EVENT_DISCONNECTED:
@@ -603,39 +510,129 @@ static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t ev
 // Event handler for Wi-Fi
 static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)
 { 
-    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
-        ESP_LOGI(TAG, "WiFi started. Connecting...");
-        ESP_ERROR_CHECK(esp_wifi_connect());
+    if (event_base == WIFI_EVENT) {
+        ESP_LOGI(TAG, "Wi-Fi Event: base=%s, id=%ld", event_base, event_id);
+        switch (event_id) {
+        case WIFI_EVENT_STA_START:
+            ESP_LOGI(TAG, "Wi-Fi STA started. Connecting...");
+            esp_wifi_connect();
+            break;
+        case WIFI_EVENT_STA_STOP:
+            ESP_LOGI(TAG, "Wi-Fi STA stopped");
+            break;
+        case WIFI_EVENT_STA_CONNECTED:
+            ESP_LOGI(TAG, "Wi-Fi STA connected. Waiting for IP...");
+            break;
+        case WIFI_EVENT_STA_DISCONNECTED:
+            ESP_LOGI(TAG, "Wi-Fi STA disconnected, retrying...");
+            //wifi_is_connected = false;
+            gpio_set_level(CONFIG_RTK_X5_WIFI_GPIO_PIN, false);
+            esp_wifi_connect();
+            break;
+        default:
+            ESP_LOGW(TAG, "Unhandled Wi-Fi event: id=%ld", event_id);
+            break;
+        }
     }
+    else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
+        ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
+        const esp_netif_ip_info_t *ip_info = &event->ip_info;
+        esp_netif_t *netif = event->esp_netif;
+        esp_netif_dns_info_t dns_info;
 
-    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_CONNECTED) {
-        ESP_LOGI(TAG, "WiFi connected. Waiting for IP...");
-    }
+        ESP_LOGI(TAG, "Wi-Fi STA Got IP Address");
+        ESP_LOGI(TAG, "Event: base=%s, id=%ld", event_base, event_id);
+        ESP_LOGI(TAG, "~~~~~~~~~~~");
+        ESP_LOGI(TAG, "STAIP:" IPSTR, IP2STR(&ip_info->ip));
+        ESP_LOGI(TAG, "STAMASK:" IPSTR, IP2STR(&ip_info->netmask));
+        ESP_LOGI(TAG, "STAGW:" IPSTR, IP2STR(&ip_info->gw));
 
-    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
-        ESP_LOGI(TAG, "WiFi disconnected");
-        wifi_is_connected = false;
-        gpio_set_level(CONFIG_RTK_X5_WIFI_GPIO_PIN, false);
+        // Print DHCP DNS information
+        if (esp_netif_get_dns_info(netif, ESP_NETIF_DNS_MAIN, &dns_info) == ESP_OK) {
+            ESP_LOGI(TAG, "DHCP_DNS_MAIN:" IPSTR, IP2STR(&dns_info.ip.u_addr.ip4));
+        }
+        if (esp_netif_get_dns_info(netif, ESP_NETIF_DNS_BACKUP, &dns_info) == ESP_OK) {
+            ESP_LOGI(TAG, "DHCP_DNS_BACKUP:" IPSTR, IP2STR(&dns_info.ip.u_addr.ip4));
+        }
 
-        // Stop forwarding WiFi and Ethernet data
-        ESP_ERROR_CHECK(esp_wifi_internal_reg_rxcb(ESP_IF_WIFI_STA, NULL));
-        ESP_ERROR_CHECK(esp_wifi_connect());
+        ESP_LOGI(TAG, "~~~~~~~~~~~");
+
+        xEventGroupSetBits(event_group, EXAMPLE_WIFI_STA_GOT_IP_BIT);
+
+        uint8_t *ptr = (uint8_t *)&ip_info->ip;
+        snprintf(ipAddress, sizeof(ipAddress), "IP:   %d.%d.%d.%d", *(ptr + 0), *(ptr + 1), *(ptr + 2), *(ptr + 3));
+        //wifi_is_connected = true;
+        gpio_set_level(CONFIG_RTK_X5_WIFI_GPIO_PIN, true);
     }
 }
 
-static void ip_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)
-{ 
-    if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
-        ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
-        ESP_LOGI(TAG, "WiFi STA got IP Address:" IPSTR, IP2STR(&event->ip_info.ip));
-        uint8_t *ptr = (uint8_t *)&event->ip_info.ip;
-        snprintf(ipAddress, sizeof(ipAddress), "IP:   %d.%d.%d.%d", *(ptr + 0), *(ptr + 1), *(ptr + 2), *(ptr + 3));
-        wifi_is_connected = true;
-        gpio_set_level(CONFIG_RTK_X5_WIFI_GPIO_PIN, true);
+/** Event handler for IP_EVENT_ETH_GOT_IP */
+static void got_ip_event_handler(void *arg, esp_event_base_t event_base,
+                                 int32_t event_id, void *event_data)
+{
+    ip_event_got_ip_t *event = (ip_event_got_ip_t *) event_data;
+    const esp_netif_ip_info_t *ip_info = &event->ip_info;
+    esp_netif_t *netif = event->esp_netif;
+    esp_netif_dns_info_t dns_info;
 
-        // Start forwarding WiFi and Ethernet data
-        ESP_ERROR_CHECK(esp_wifi_internal_reg_rxcb(ESP_IF_WIFI_STA, &pkt_wifi2eth));
+    ESP_LOGI(TAG, "Ethernet Got IP Address");
+    ESP_LOGI(TAG, "Event: base=%s, id=%ld", event_base, event_id);
+    ESP_LOGI(TAG, "~~~~~~~~~~~");
+    ESP_LOGI(TAG, "ETHIP:" IPSTR, IP2STR(&ip_info->ip));
+    ESP_LOGI(TAG, "ETHMASK:" IPSTR, IP2STR(&ip_info->netmask));
+    ESP_LOGI(TAG, "ETHGW:" IPSTR, IP2STR(&ip_info->gw));
+
+    // Print DNS information
+    if (esp_netif_get_dns_info(netif, ESP_NETIF_DNS_MAIN, &dns_info) == ESP_OK) {
+        ESP_LOGI(TAG, "DHCP_DNS_MAIN:" IPSTR, IP2STR(&dns_info.ip.u_addr.ip4));
     }
+    if (esp_netif_get_dns_info(netif, ESP_NETIF_DNS_BACKUP, &dns_info) == ESP_OK) {
+        ESP_LOGI(TAG, "DHCP_DNS_BACKUP:" IPSTR, IP2STR(&dns_info.ip.u_addr.ip4));
+    }
+
+    ESP_LOGI(TAG, "~~~~~~~~~~~");
+}
+
+static wifi_auth_mode_t example_wifi_sta_authmode_threshold(void)
+{
+#if CONFIG_EXAMPLE_ESP_WIFI_STA_AUTHMODE_THRESHOLD_OPEN
+    return WIFI_AUTH_OPEN;
+#elif CONFIG_EXAMPLE_ESP_WIFI_STA_AUTHMODE_THRESHOLD_WEP
+    return WIFI_AUTH_WEP;
+#elif CONFIG_EXAMPLE_ESP_WIFI_STA_AUTHMODE_THRESHOLD_WPA_PSK
+    return WIFI_AUTH_WPA_PSK;
+#elif CONFIG_EXAMPLE_ESP_WIFI_STA_AUTHMODE_THRESHOLD_WPA2_PSK
+    return WIFI_AUTH_WPA2_PSK;
+#elif CONFIG_EXAMPLE_ESP_WIFI_STA_AUTHMODE_THRESHOLD_WPA_WPA2_PSK
+    return WIFI_AUTH_WPA_WPA2_PSK;
+#elif CONFIG_EXAMPLE_ESP_WIFI_STA_AUTHMODE_THRESHOLD_WPA3_PSK
+    return WIFI_AUTH_WPA3_PSK;
+#else
+    return WIFI_AUTH_WPA2_PSK;
+#endif
+}
+
+/** Initialize WiFi STA */
+static void wifi_init_sta(void)
+{
+    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, wifi_event_handler, NULL));
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+    ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
+    wifi_config_t wifi_config = {
+        .sta = {
+            .ssid = "",
+            .password = "",
+            .threshold.authmode = example_wifi_sta_authmode_threshold(),
+        },
+    };
+    strlcpy((char*)wifi_config.sta.ssid, ssid, sizeof(wifi_config.sta.ssid));
+    strlcpy((char*)wifi_config.sta.password, password, sizeof(wifi_config.sta.password));
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
+    ESP_ERROR_CHECK(esp_wifi_start());
+
+    ESP_LOGI(TAG, "Wi-Fi STA initialized. SSID: %s", ssid);
 }
 
 /* Tasks */
@@ -737,36 +734,16 @@ static void x5_uart_task(void *args)
                                 }
                                 if (actualCrc == crc)
                                 {
-    #if CONFIG_RTK_X5_VERBOSE_LOG
+#if CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG
                                     ESP_LOGI(TAG, "Valid SBF Message: ID %d", (id & 0x1FFF));
-    #endif
+#endif
                                     if ((id & 0x1FFF) == 4058)
                                     {
-                                        if (!eth_mac_is_set)
-                                        {
-                                            // MACAddress (6 bytes) is in bytes 14-19
-                                            if ((*(ptr1 + 14) == 0) && (*(ptr1 + 15) == 0) && (*(ptr1 + 16) == 0)
-                                                && (*(ptr1 + 17) == 0) && (*(ptr1 + 18) == 0) && (*(ptr1 + 19) == 0))
-                                            {
-                                                ESP_LOGI(TAG, "IPStatus MACAddress is all zeros");
-                                            }
-                                            else
-                                            {
-                                                eth_mac[0] = *(ptr1 + 14);
-                                                eth_mac[1] = *(ptr1 + 15);
-                                                eth_mac[2] = *(ptr1 + 16);
-                                                eth_mac[3] = *(ptr1 + 17);
-                                                eth_mac[4] = *(ptr1 + 18);
-                                                eth_mac[5] = *(ptr1 + 19);
-                                                eth_mac_is_set = true;
-                                                ESP_LOGI(TAG, "Extracted MACAddress from IPStatus: %02X:%02X:%02X:%02X:%02X:%02X", 
-                                                         eth_mac[0], eth_mac[1], eth_mac[2], eth_mac[3], eth_mac[4], eth_mac[5]);
-                                            }
-                                        }
-
+                                        // MACAddress (6 bytes) is in bytes 14-19
                                         // IPAddress (4 bytes) is in bytes 32-35
                                         snprintf(ipAddress, sizeof(ipAddress), "IP:   %d.%d.%d.%d", *(ptr1 + 32), *(ptr1 + 33), *(ptr1 + 34), *(ptr1 + 35));
-                                        ESP_LOGI(TAG, "IPStatus IPAddress: %d.%d.%d.%d Gateway: %d.%d.%d.%d Subnet Mask: %s", 
+                                        ESP_LOGI(TAG, "IPStatus MAC: %02X:%02X:%02X:%02X:%02X:%02X IPAddress: %d.%d.%d.%d Gateway: %d.%d.%d.%d Subnet Mask: %s", 
+                                                 *(ptr1 + 14), *(ptr1 + 15), *(ptr1 + 16), *(ptr1 + 17), *(ptr1 + 18), *(ptr1 + 19),
                                                  *(ptr1 + 32), *(ptr1 + 33), *(ptr1 + 34), *(ptr1 + 35),
                                                  *(ptr1 + 48), *(ptr1 + 49), *(ptr1 + 50), *(ptr1 + 51),
                                                  cidr2mask(*(ptr1 + 52)));
@@ -983,7 +960,7 @@ static void x5_uart_task(void *args)
                                         }
                                         if (neg == 1)
                                             geoid *= -1.0;
-#if CONFIG_RTK_X5_DISPLAY_ALT_WITH_GEOID_SEPARATION
+#if CONFIG_EXAMPLE_RTK_X5_DISPLAY_ALT_WITH_GEOID_SEPARATION
                                         alt += geoid;
 #endif
                                         char theAlt[15];
@@ -1192,46 +1169,113 @@ void initialize_ethernet(void)
     ESP_LOGI(TAG, "Initializing Ethernet");
     print_oled("Initializing Ethernet");
 
+    uint8_t eth_port_cnt = 0;
+    esp_eth_handle_t *eth_handles = NULL;
+    ESP_ERROR_CHECK(ethernet_init_all(&eth_handles, &eth_port_cnt));
 
-    eth_mac_config_t mac_config = ETH_MAC_DEFAULT_CONFIG();
-    eth_phy_config_t phy_config = ETH_PHY_DEFAULT_CONFIG();
-    phy_config.phy_addr = CONFIG_RTK_X5_ETHERNET_PHY_ADDR;
-    phy_config.reset_gpio_num = CONFIG_RTK_X5_ETHERNET_ERST_GPIO;
+    if (eth_port_cnt == 0) {
+        ESP_LOGE(TAG, "No Ethernet interface initialized");
+        return;
+    }
+    if (eth_port_cnt > 1) {
+        ESP_LOGW(TAG, "%u Ethernet interfaces initialized; this example only uses the first one", eth_port_cnt);
+    }
 
-    eth_esp32_emac_config_t esp32_emac_config = ETH_ESP32_EMAC_DEFAULT_CONFIG();
-    esp32_emac_config.smi_mdc_gpio_num = CONFIG_RTK_X5_ETHERNET_MDC_GPIO;
-    esp32_emac_config.smi_mdio_gpio_num = CONFIG_RTK_X5_ETHERNET_MDIO_GPIO;
-    
-    s_mac = esp_eth_mac_new_esp32(&esp32_emac_config, &mac_config);
+    // Static IP configuration for Ethernet gateway
+    static esp_netif_ip_info_t s_eth_gw_ip_info;
+    memset(&s_eth_gw_ip_info, 0, sizeof(esp_netif_ip_info_t));
 
-    s_phy = esp_eth_phy_new_ksz80xx(&phy_config);
+    if (esp_netif_str_to_ip4(CONFIG_EXAMPLE_ETH_GATEWAY_IP_ADDR, &s_eth_gw_ip_info.ip) != ESP_OK) {
+        ESP_LOGE(TAG, "Invalid IP address: %s", CONFIG_EXAMPLE_ETH_GATEWAY_IP_ADDR);
+        return;
+    }
+    if (esp_netif_str_to_ip4(CONFIG_EXAMPLE_ETH_GATEWAY_NETMASK, &s_eth_gw_ip_info.netmask) != ESP_OK) {
+        ESP_LOGE(TAG, "Invalid netmask: %s", CONFIG_EXAMPLE_ETH_GATEWAY_NETMASK);
+        return;
+    }
+    if (esp_netif_str_to_ip4(CONFIG_EXAMPLE_ETH_GATEWAY_GW, &s_eth_gw_ip_info.gw) != ESP_OK) {
+        ESP_LOGE(TAG, "Invalid gateway: %s", CONFIG_EXAMPLE_ETH_GATEWAY_GW);
+        return;
+    }
 
-    esp_eth_config_t config = ETH_DEFAULT_CONFIG(s_mac, s_phy);
+    static esp_netif_inherent_config_t inherent_config = {
+        .flags = ESP_NETIF_DHCP_SERVER,
+        ESP_COMPILER_DESIGNATED_INIT_AGGREGATE_TYPE_EMPTY(mac)
+        .ip_info = &s_eth_gw_ip_info,
+        .get_ip_event = 0,
+        .lost_ip_event = 0,
+        .if_key = "ETH_GW",
+        .if_desc = "eth_gw",
+        .route_prio = 50,
+        .bridge_info = NULL
+    };
 
-    ESP_ERROR_CHECK(esp_eth_driver_install(&config, &s_eth_handle));
+    esp_netif_config_t cfg = ESP_NETIF_DEFAULT_ETH();
+    cfg.base = &inherent_config;
 
-    ESP_ERROR_CHECK(esp_eth_update_input_path(s_eth_handle, &pkt_eth2wifi, NULL));
+    if (eth_netif == NULL)
+        eth_netif = esp_netif_new(&cfg);
+    ESP_ERROR_CHECK(eth_netif != NULL ? ESP_OK : ESP_FAIL);
 
-    // Enable promiscuous mode so we can read every packet
-    bool eth_promiscuous = true;
-    ESP_ERROR_CHECK(esp_eth_ioctl(s_eth_handle, ETH_CMD_S_PROMISCUOUS, &eth_promiscuous));
+    /* Configure DHCP server options */
+    // Set lease time
+    uint32_t lease_time = CONFIG_EXAMPLE_ETH_GATEWAY_DHCP_LEASE_TIME;
+    esp_err_t err = esp_netif_dhcps_option(eth_netif, ESP_NETIF_OP_SET, IP_ADDRESS_LEASE_TIME, &lease_time, sizeof(lease_time));
+    if (err != ESP_OK) {
+        ESP_LOGW(TAG, "Failed to set DHCP lease time: %s", esp_err_to_name(err));
+    }
 
-    // Disable auto-negotiate so we can limit the speed
-    bool auto_negotiate = false;
-    ESP_ERROR_CHECK(esp_eth_ioctl(s_eth_handle, ETH_CMD_S_AUTONEGO, &auto_negotiate));
+    // Configure IP address pool
+    dhcps_lease_t dhcp_lease;
+    memset(&dhcp_lease, 0, sizeof(dhcps_lease_t));
+    dhcp_lease.enable = true;
+    if (esp_netif_str_to_ip4(CONFIG_EXAMPLE_ETH_GATEWAY_DHCP_START_ADDR, (esp_ip4_addr_t *)&dhcp_lease.start_ip) != ESP_OK) {
+        ESP_LOGW(TAG, "Invalid DHCP start address: %s, using default pool", CONFIG_EXAMPLE_ETH_GATEWAY_DHCP_START_ADDR);
+    } else if (esp_netif_str_to_ip4(CONFIG_EXAMPLE_ETH_GATEWAY_DHCP_END_ADDR, (esp_ip4_addr_t *)&dhcp_lease.end_ip) != ESP_OK) {
+        ESP_LOGW(TAG, "Invalid DHCP end address: %s, using default pool", CONFIG_EXAMPLE_ETH_GATEWAY_DHCP_END_ADDR);
+    } else {
+        err = esp_netif_dhcps_option(eth_netif, ESP_NETIF_OP_SET, REQUESTED_IP_ADDRESS, &dhcp_lease, sizeof(dhcps_lease_t));
+        if (err != ESP_OK) {
+            ESP_LOGW(TAG, "Failed to set DHCP IP pool: %s", esp_err_to_name(err));
+        }
+    }
 
-    // Limit speed to 10M
-    eth_speed_t ethSpeed = ETH_SPEED_10M;
-    ESP_ERROR_CHECK(esp_eth_ioctl(s_eth_handle, ETH_CMD_S_SPEED, &ethSpeed));
+    // Configure DNS servers if enabled
+#if CONFIG_EXAMPLE_ETH_GATEWAY_DHCP_ENABLE_DNS
+    dhcps_offer_t dhcps_dns_value = OFFER_DNS;
+    err = esp_netif_dhcps_option(eth_netif, ESP_NETIF_OP_SET, ESP_NETIF_DOMAIN_NAME_SERVER, &dhcps_dns_value, sizeof(dhcps_dns_value));
+    if (err != ESP_OK) {
+        ESP_LOGW(TAG, "Failed to enable DNS in DHCP offers: %s", esp_err_to_name(err));
+    } else {
+        // Set DNS server addresses (will be updated from WiFi STA DNS if available)
+        esp_netif_dns_info_t dns_info = {};
+        dns_info.ip.type = ESP_IPADDR_TYPE_V4;
 
-    /*
-    It is recommended to fully initialize the Ethernet driver and network interface before registering
-    the user’s Ethernet/IP event handlers, i.e., register the event handlers as the last thing prior to
-    starting the Ethernet driver. Such an approach ensures that Ethernet/IP events get executed first by
-    the Ethernet driver or network interface so the system is in the expected state when executing the
-    user’s handlers.
-    */
-    ESP_ERROR_CHECK(esp_event_handler_register(ETH_EVENT, ESP_EVENT_ANY_ID, &eth_event_handler, NULL));
+        if (esp_netif_str_to_ip4(CONFIG_EXAMPLE_ETH_GATEWAY_DHCP_DNS_MAIN, &dns_info.ip.u_addr.ip4) == ESP_OK) {
+            err = esp_netif_set_dns_info(eth_netif, ESP_NETIF_DNS_MAIN, &dns_info);
+            if (err != ESP_OK) {
+                ESP_LOGW(TAG, "Failed to set primary DNS: %s", esp_err_to_name(err));
+            }
+        }
+
+        if (esp_netif_str_to_ip4(CONFIG_EXAMPLE_ETH_GATEWAY_DHCP_DNS_BACKUP, &dns_info.ip.u_addr.ip4) == ESP_OK) {
+            err = esp_netif_set_dns_info(eth_netif, ESP_NETIF_DNS_BACKUP, &dns_info);
+            if (err != ESP_OK) {
+                ESP_LOGW(TAG, "Failed to set backup DNS: %s", esp_err_to_name(err));
+            }
+        }
+    }
+#endif // CONFIG_EXAMPLE_ETH_GATEWAY_DHCP_ENABLE_DNS
+
+    ESP_ERROR_CHECK(esp_event_handler_register(ETH_EVENT, ESP_EVENT_ANY_ID, &eth_event_handler, eth_netif));
+    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_ETH_GOT_IP, &got_ip_event_handler, NULL));
+
+    ESP_ERROR_CHECK(esp_netif_attach(eth_netif, esp_eth_new_netif_glue(eth_handles[0])));
+    ESP_ERROR_CHECK(esp_eth_start(eth_handles[0]));
+
+    ESP_LOGI(TAG, "Ethernet gateway ready (static IP: " IPSTR ", netmask: " IPSTR "). DHCP starts when link is up.",
+             IP2STR(&s_eth_gw_ip_info.ip), IP2STR(&s_eth_gw_ip_info.netmask));
+
 
 
     ESP_LOGI(TAG, "Configuring Mosaic Ethernet DHCP");
@@ -1251,9 +1295,6 @@ void initialize_ethernet(void)
         x5_not_ready();
     }
 
-    // Start ESP ethernet
-    esp_eth_start(s_eth_handle);
-
     // Enable Mosaic Ethernet
     if (!send_command_check_response(MOSAIC_CMD_ETHERNET_ON, MOSAIC_CMD_ETHERNET_ON_RESPONSE, 2000, 50, 5))
     {
@@ -1261,121 +1302,111 @@ void initialize_ethernet(void)
         x5_not_ready();
     }
 
-    // Ethernet configured, temporary buffer no longer needed
+    // Ethernet configured
     ESP_LOGI(TAG, "Mosaic Ethernet DHCP configured");
     print_oled("DHCP Configured");
-
-    // Wait for Mosaic to report its MAC address
-    // (This _may_ have already been parsed from SBF IPStatus)
-    if (!eth_mac_is_set) {
-        ESP_LOGI(TAG, "Waiting for Mosaic Ethernet MAC address");
-        print_oled("Waiting for MAC address");
-    }
-    while(!eth_mac_is_set) {
-        vTaskDelay(10);
-    }
-
-    char mac_str[25];
-    snprintf(mac_str, sizeof(mac_str), "MAC: %02X:%02X:%02X:%02X:%02X:%02X",
-        eth_mac[0], eth_mac[1], eth_mac[2], eth_mac[3], eth_mac[4], eth_mac[5]);
-    ESP_LOGI(TAG, "Got Mosaic %s", mac_str);
-    print_oled(mac_str);
-
-    // Mask ESP32 Base MAC address with Mosaic one
-    // ESP32 WiFi STAtion MAC address will spoof / replicate the mosaic address
-    // ESP32 Ethernet MAC address final octet will switch to the mosaic address
-    // final octet + 3
-    ESP_ERROR_CHECK(esp_base_mac_addr_set(eth_mac));
-    ESP_LOGI(TAG, "ESP base MAC address set to mosaic-X5 address");
 }
 
 void initialize_wifi(void)
 {
-    ESP_LOGI(TAG, "Initializing WiFi");
-    print_oled("Initializing WiFi");
-
-    // Initialize TCP/IP network interface (should be called only once in application)
-    ESP_ERROR_CHECK(esp_netif_init());
-
-    // Initialize WiFi including netif with default config
-    esp_netif_create_default_wifi_sta();
-
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-
     ESP_LOGI(TAG, "Starting WiFi STA. Connecting to %s", ssid);
     print_oled("Starting WiFi STA");
     print_oled("Connecting to:");
     print_oled(ssid);
 
-    // Create WiFi config
-    wifi_config_t wifi_config = {
-        .sta = {
-            .ssid = "",
-            .password = "",
-        },
-    };
-    strlcpy((char*)wifi_config.sta.ssid, ssid, sizeof(wifi_config.sta.ssid));
-    strlcpy((char*)wifi_config.sta.password, password, sizeof(wifi_config.sta.password));
+    // Initialize WiFi STA
+    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, wifi_event_handler, NULL));
+    esp_netif_t *sta_netif = esp_netif_create_default_wifi_sta();
+    ESP_ERROR_CHECK(sta_netif != NULL ? ESP_OK : ESP_FAIL);
+    wifi_init_sta();
 
-    // Start WiFi station
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
-    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
+    // Wait for WiFi STA to get IP address
+    xEventGroupWaitBits(event_group, EXAMPLE_WIFI_STA_GOT_IP_BIT, pdTRUE, pdTRUE, portMAX_DELAY);
 
-    // Register event handler for WiFi and IP events
-    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, NULL));
-    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &ip_event_handler, NULL));
-
-    ESP_ERROR_CHECK(esp_wifi_start());
-}
-
-esp_err_t initialize_flow_control(void)
-{
-    flow_control_queue = xQueueCreate(CONFIG_RTK_X5_FLOW_CONTROL_QUEUE_LENGTH, sizeof(flow_control_msg_t));
-    if (!flow_control_queue) {
-        ESP_LOGE(TAG, "Create flow control queue failed");
-        return ESP_FAIL;
+    // Update Ethernet gateway DNS with Wi-Fi STA DNS if enabled
+#if CONFIG_EXAMPLE_ETH_GATEWAY_DHCP_ENABLE_DNS
+    ESP_ERROR_CHECK(eth_netif != NULL ? ESP_OK : ESP_FAIL);
+    esp_netif_dns_info_t sta_dns_info;
+    if (esp_netif_get_dns_info(sta_netif, ESP_NETIF_DNS_MAIN, &sta_dns_info) == ESP_OK) {
+        esp_netif_dns_info_t eth_dns_info = {};
+        eth_dns_info.ip.type = ESP_IPADDR_TYPE_V4;
+        eth_dns_info.ip.u_addr.ip4 = sta_dns_info.ip.u_addr.ip4;
+        esp_err_t err = esp_netif_set_dns_info(eth_netif, ESP_NETIF_DNS_MAIN, &eth_dns_info);
+        if (err == ESP_OK) {
+            ESP_LOGI(TAG, "Updated Ethernet gateway DNS with Wi-Fi STA DNS: " IPSTR, IP2STR(&sta_dns_info.ip.u_addr.ip4));
+            print_oled("Ethernet DNS updated");
+        }
     }
+#endif // CONFIG_EXAMPLE_ETH_GATEWAY_DHCP_ENABLE_DNS
 
-    BaseType_t ret = xTaskCreatePinnedToCore(eth2wifi_flow_control_task, "flow_ctl", 8192, NULL, (tskIDLE_PRIORITY + 3), NULL, 1);
-    if (ret != pdTRUE) {
-        ESP_LOGE(TAG, "Create flow control task failed");
-        return ESP_FAIL;
-    }
-
-    return ESP_OK;
+#if CONFIG_LWIP_IPV4_NAPT
+    // Setup NAPT (Network Address Port Translation) if enabled
+    ESP_ERROR_CHECK(esp_netif_napt_enable(eth_netif));
+    ESP_LOGI(TAG, "NAPT enabled on Ethernet gateway");
+    print_oled("NAPT enabled");
+#endif
 }
 
 void initialize_i2c(void)
 {
     ESP_LOGI(TAG, "Initialize I2C bus");
 
-    i2c_config_t i2c_conf = {
-        .mode = I2C_MODE_MASTER,
-        .sda_io_num = RTK_X5_PIN_NUM_SDA,
+    i2c_master_bus_config_t i2c_mst_config = {
+        .clk_source = I2C_CLK_SRC_DEFAULT,
+        .i2c_port = I2C_NUM_0,
         .scl_io_num = RTK_X5_PIN_NUM_SCL,
-        .sda_pullup_en = GPIO_PULLUP_ENABLE,
-        .scl_pullup_en = GPIO_PULLUP_ENABLE,
-        .master.clk_speed = RTK_X5_LCD_PIXEL_CLOCK_HZ,
+        .sda_io_num = RTK_X5_PIN_NUM_SDA,
+        .glitch_ignore_cnt = 4,
+        .intr_priority = 0,
+        .trans_queue_depth = 0, // no tx queue, transmit using blocking mode
+        .flags = {
+            .enable_internal_pullup = true,
+            .allow_pd = false,
+        }
     };
-    ESP_ERROR_CHECK(i2c_param_config(I2C_HOST, &i2c_conf));
-    ESP_ERROR_CHECK(i2c_driver_install(I2C_HOST, I2C_MODE_MASTER, 0, 0, 0));
+
+    ESP_ERROR_CHECK(i2c_new_master_bus(&i2c_mst_config, &bus_handle));
 }
 
 void initialize_oled(void)
 {
     ESP_LOGI(TAG, "OLED initialization");
 
-    disp = ssd1306_create(I2C_HOST, RTK_X5_OLED_HW_ADDR);
-    if (!disp)
-    {
-        ESP_LOGE(TAG, "SSD1306 create returned error");
-        return;
-    }
+    esp_lcd_panel_io_i2c_config_t io_config = {
+        .dev_addr = RTK_X5_OLED_HW_ADDR,
+        .scl_speed_hz = RTK_X5_LCD_PIXEL_CLOCK_HZ,
+        .control_phase_bytes = 1, // According to SSD1306 datasheet
+        .dc_bit_offset = 6,       // According to SSD1306 datasheet
+        .lcd_cmd_bits = 8,        // According to SSD1306 datasheet
+        .lcd_param_bits = 8,      // According to SSD1306 datasheet
+        .on_color_trans_done = NULL,
+        .user_ctx = NULL,
+        .flags = {
+            .dc_low_on_data = false, // According to SSD1306 datasheet, DC=0 means command, DC=1 means data
+            .disable_control_phase = false, // Control phase is used
+        },
+        .transaction_timeout_ms = 0, // 0 keeps the legacy infinite wait behavior
+    };
+
+    ESP_ERROR_CHECK(esp_lcd_new_panel_io_i2c(bus_handle, &io_config, &io_handle));
+
+    esp_lcd_panel_dev_config_t panel_config = {
+        .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_BGR, // SSD1306 is monochrome, so RGB order doesn't matter
+        .data_endian = LCD_RGB_DATA_ENDIAN_LITTLE,
+        .bits_per_pixel = 1, // SSD1306 is monochrome, so 1 bit per pixel
+        .reset_gpio_num = GPIO_NUM_NC,
+        .vendor_config = NULL,
+        .flags = {
+            .reset_active_high = false, // SSD1306 reset is active low
+        }
+    };
+    ESP_ERROR_CHECK(esp_lcd_new_panel_ssd1306(io_handle, &panel_config, &panel_handle));
+    ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
+    ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
+    // turn on display
+    ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_handle, true));
 
     oled_ready = true;
-
-    ssd1306_refresh_gram(disp);
 
     clear_oled_text();
     print_oled("RTK mosaic-X5 starting");
@@ -1424,9 +1455,9 @@ void initialize_console(void)
     setvbuf(stdin, NULL, _IONBF, 0);
 
     /* Minicom, screen, idf_monitor send CR when ENTER key is pressed */
-    esp_vfs_dev_uart_port_set_rx_line_endings(CONFIG_ESP_CONSOLE_UART_NUM, ESP_LINE_ENDINGS_CR);
+    uart_vfs_dev_port_set_rx_line_endings(CONFIG_ESP_CONSOLE_UART_NUM, ESP_LINE_ENDINGS_CR);
     /* Move the caret to the beginning of the next line on '\n' */
-    esp_vfs_dev_uart_port_set_tx_line_endings(CONFIG_ESP_CONSOLE_UART_NUM, ESP_LINE_ENDINGS_CRLF);
+    uart_vfs_dev_port_set_tx_line_endings(CONFIG_ESP_CONSOLE_UART_NUM, ESP_LINE_ENDINGS_CRLF);
 
     /* Configure UART. Note that REF_TICK is used so that the baud rate remains
      * correct while APB frequency is changing in light sleep mode.
@@ -1443,13 +1474,13 @@ void initialize_console(void)
     ESP_ERROR_CHECK( uart_param_config(CONFIG_ESP_CONSOLE_UART_NUM, &uart_config) );
 
     /* Tell VFS to use UART driver */
-    esp_vfs_dev_uart_use_driver(CONFIG_ESP_CONSOLE_UART_NUM);
+    uart_vfs_dev_use_driver(CONFIG_ESP_CONSOLE_UART_NUM);
 
     /* Initialize the console */
     esp_console_config_t console_config = {
             .max_cmdline_args = 8,
             .max_cmdline_length = 256,
-            .hint_color = atoi(LOG_COLOR_CYAN)
+            .hint_color = atoi(LOG_COLOR_I)
     };
     ESP_ERROR_CHECK( esp_console_init(&console_config) );
 
@@ -1672,21 +1703,14 @@ void clear_oled_text(void) {
             oled_text[x][y] = ' ';
 }
 
-void ssd1306_draw_58char(ssd1306_handle_t dev, uint8_t chXpos, uint8_t chYpos, uint8_t chChar)
+void ssd1306_draw_58char(uint8_t chXpos, uint8_t chYpos, uint8_t chChar)
 {
-    uint8_t i, j;
-    uint8_t chTemp = 0, chYpos0 = chYpos, chMode = 0;
+    uint8_t i;
+    uint8_t chTemp;
 
     for (i = 0; i < FONT_5X7_WIDTH; i++) {
         chTemp = font5x7_data[(uint16_t)chChar * FONT_5X7_WIDTH + i];
-        for (j = 0; j < FONT_5X7_HEIGHT; j++) {
-            chMode = chTemp & 0x01 ? 1 : 0;
-            ssd1306_fill_point(dev, chXpos, chYpos, chMode);
-            chTemp >>= 1;
-            chYpos++;
-            }
-        chYpos = chYpos0;
-        chXpos++;
+        esp_lcd_panel_draw_bitmap(panel_handle, chXpos, chYpos, chXpos + 1, chYpos + FONT_5X7_HEIGHT, (const void *)&chTemp);
     }
 }
 
@@ -1715,17 +1739,15 @@ void set_oled(char *txt) {
 void update_oled(void) {
     if (oled_ready) {
         // Print the characters
-        ssd1306_clear_screen(disp, 0);
         uint8_t ypos = 0;
         for (uint8_t y = 0; y < oled_y_chars; y++) {
             uint8_t xpos = 0;
             for (uint8_t x = 0; x < oled_x_chars; x++) {
-                ssd1306_draw_58char(disp, xpos, ypos, oled_text[x][y]);
+                ssd1306_draw_58char(xpos, ypos, oled_text[x][y]);
                 xpos += 5;
             }
             ypos += 8;
         }
-        ssd1306_refresh_gram(disp);
     }
     else {
         ESP_LOGE(TAG, "OLED not ready");
@@ -1813,23 +1835,9 @@ void app_main(void)
         ESP_LOGI(TAG, "Firmware is in mode 2: WiFi");
         print_oled("Mode 2: WiFi");
 
-        // Wait for up to 3 seconds for the IPStatus to be received
-        int64_t timeMicros = esp_timer_get_time();
-        while ((!eth_mac_is_set) && (esp_timer_get_time() < (timeMicros + (3000 * 1000))))
-        {
-            vTaskDelay(10);
-        }
-
-        if (!eth_mac_is_set)
-        {
-            ESP_LOGI(TAG, "IPStatus not received or MACAddress was all zeros");
-            ESP_LOGI(TAG, "MAC address will be extracted from an Ethernet packet");
-        }
-
         x5_uart_task_running = false; // Pause the uart task so send_command_check_response can receive the response
 
-        // Initialize flow control and main peripherals
-        ESP_ERROR_CHECK(initialize_flow_control());
+        // Initialize main peripherals
         initialize_ethernet();
         initialize_wifi();
 
