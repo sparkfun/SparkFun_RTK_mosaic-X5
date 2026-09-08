@@ -2,14 +2,7 @@
 
 # Mostly taken from: https://github.com/espressif/esp-idf/blob/master/tools/docker/Dockerfile
 
-# If you want to use a later version of the IDF (e.g. 5.5.3), change:
-# FROM ubuntu:24.04 AS upstream
-# ARG IDF_CLONE_BRANCH_OR_TAG=release/v5.5
-# ARG IDF_CHECKOUT_REF=2c211b2
-# In "Install all the required tools", add:
-# && $IDF_PATH/tools/idf_tools.py --non-interactive install qemu* --targets=${IDF_INSTALL_TARGETS} \
-
-FROM ubuntu:22.04 AS upstream
+FROM ubuntu:24.04 AS upstream
 
 # switch to root
 USER root
@@ -71,10 +64,10 @@ RUN : \
 # Use IDF_CLONE_SHALLOW_DEPTH=X to define the depth if IDF_CLONE_SHALLOW is used (i.e. --depth=X)
 # Use IDF_INSTALL_TARGETS to install tools only for selected chip targets (CSV)
 
-# Use: https://github.com/espressif/esp-idf/releases/tag/v5.1.7
+# Use: https://github.com/espressif/esp-idf/releases/tag/v6.1
 ARG IDF_CLONE_URL=https://github.com/espressif/esp-idf.git
-ARG IDF_CLONE_BRANCH_OR_TAG=release/v5.1
-ARG IDF_CHECKOUT_REF=9be7466
+ARG IDF_CLONE_BRANCH_OR_TAG=release/v6.1
+ARG IDF_CHECKOUT_REF=fff9895
 ARG IDF_CLONE_SHALLOW=
 ARG IDF_CLONE_SHALLOW_DEPTH=1
 ARG IDF_INSTALL_TARGETS=esp32
@@ -111,6 +104,7 @@ RUN echo IDF_CHECKOUT_REF=$IDF_CHECKOUT_REF IDF_CLONE_BRANCH_OR_TAG=$IDF_CLONE_B
 RUN : \
   && update-ca-certificates --fresh \
   && $IDF_PATH/tools/idf_tools.py --non-interactive install required --targets=${IDF_INSTALL_TARGETS} \
+  && $IDF_PATH/tools/idf_tools.py --non-interactive install qemu* --targets=${IDF_INSTALL_TARGETS} \
   && $IDF_PATH/tools/idf_tools.py --non-interactive install cmake \
   && $IDF_PATH/tools/idf_tools.py --non-interactive install-python-env \
   && rm -rf $IDF_TOOLS_PATH/dist \
