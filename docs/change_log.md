@@ -1,3 +1,9 @@
+Changes added at v1.1.0:
+
+* Major update - based on:
+	* https://github.com/espressif/esp-protocols/tree/master/examples/esp_netif/eth_gateway_wifi_sta
+* Tested with ESP-IDF v6.1
+
 Changes added at v1.0.6:
 
 * ESP-IDF:
