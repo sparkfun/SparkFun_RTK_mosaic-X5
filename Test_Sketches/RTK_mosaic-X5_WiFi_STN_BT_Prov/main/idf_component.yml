@@ -1,7 +1,0 @@
-## IDF Component Manager Manifest File
-dependencies:
-  espressif/ssd1306: "^1.0.5"
-  espressif/qrcode: "^0.1.0"
-  ## Required IDF version
-  idf:
-    version: ">=4.4"
