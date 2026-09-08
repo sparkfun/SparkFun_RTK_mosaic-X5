@@ -331,10 +331,6 @@ static volatile bool x5_uart_task_running = true;
 #define CONFIG_RTK_X5_BT_GPIO_PIN (13)
 #define CONFIG_RTK_X5_UART_TX_GPIO_PIN (2)
 #define CONFIG_RTK_X5_UART_RX_GPIO_PIN (4)
-#define CONFIG_RTK_X5_ETHERNET_PHY_ADDR (1)
-#define CONFIG_RTK_X5_ETHERNET_ERST_GPIO (5)
-#define CONFIG_RTK_X5_ETHERNET_MDC_GPIO (23)
-#define CONFIG_RTK_X5_ETHERNET_MDIO_GPIO (18)
 // Unused IO UART pins
 #define CONFIG_RTK_X5_IO_TX_GPIO_PIN (32)
 #define CONFIG_RTK_X5_IO_RTS_GPIO_PIN (33)
@@ -369,7 +365,6 @@ const char MOSAIC_CMD_SOFT_RESET_RESPONSE[] = "ResetReceiver";
 bool send_command_check_response(const char *command, const char *response, int64_t timeoutMillis, int waitMillis, int tries); // Header
 
 /* I2C OLED */
-#define I2C_HOST  0
 #define RTK_X5_LCD_PIXEL_CLOCK_HZ    (400 * 1000)
 #define RTK_X5_PIN_NUM_SDA           15
 #define RTK_X5_PIN_NUM_SCL           14
@@ -1169,6 +1164,11 @@ void initialize_ethernet(void)
     ESP_LOGI(TAG, "Initializing Ethernet");
     print_oled("Initializing Ethernet");
 
+    ESP_ERROR_CHECK(esp_netif_init());
+    //ESP_ERROR_CHECK(esp_event_loop_create_default());
+
+    event_group = xEventGroupCreate();
+
     uint8_t eth_port_cnt = 0;
     esp_eth_handle_t *eth_handles = NULL;
     ESP_ERROR_CHECK(ethernet_init_all(&eth_handles, &eth_port_cnt));
@@ -1349,7 +1349,7 @@ void initialize_wifi(void)
 
 void initialize_i2c(void)
 {
-    ESP_LOGI(TAG, "Initialize I2C bus");
+    ESP_LOGI(TAG, "Initializing I2C bus");
 
     i2c_master_bus_config_t i2c_mst_config = {
         .clk_source = I2C_CLK_SRC_DEFAULT,
@@ -1370,7 +1370,7 @@ void initialize_i2c(void)
 
 void initialize_oled(void)
 {
-    ESP_LOGI(TAG, "OLED initialization");
+    ESP_LOGI(TAG, "Initializing OLED");
 
     esp_lcd_panel_io_i2c_config_t io_config = {
         .dev_addr = RTK_X5_OLED_HW_ADDR,
@@ -1403,12 +1403,14 @@ void initialize_oled(void)
     ESP_ERROR_CHECK(esp_lcd_new_panel_ssd1306(io_handle, &panel_config, &panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
+    ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, true, true));
     // turn on display
     ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_handle, true));
 
     oled_ready = true;
 
     clear_oled_text();
+    update_oled();
     print_oled("RTK mosaic-X5 starting");
     print_oled((char *)VERSION);
 }
@@ -1705,13 +1707,23 @@ void clear_oled_text(void) {
 
 void ssd1306_draw_58char(uint8_t chXpos, uint8_t chYpos, uint8_t chChar)
 {
-    uint8_t i;
-    uint8_t chTemp;
+    esp_lcd_panel_draw_bitmap(panel_handle,
+                              chXpos,
+                              chYpos,
+                              chXpos + FONT_5X7_WIDTH,
+                              chYpos + FONT_5X7_HEIGHT,
+                              (const void *)&font5x7_data[(uint16_t)chChar * FONT_5X7_WIDTH]);
+}
 
-    for (i = 0; i < FONT_5X7_WIDTH; i++) {
-        chTemp = font5x7_data[(uint16_t)chChar * FONT_5X7_WIDTH + i];
-        esp_lcd_panel_draw_bitmap(panel_handle, chXpos, chYpos, chXpos + 1, chYpos + FONT_5X7_HEIGHT, (const void *)&chTemp);
-    }
+void ssd1306_erase_char(uint8_t chXpos, uint8_t chYpos, uint8_t xWidth)
+{
+    const uint8_t empty[FONT_5X7_WIDTH] = { 0,0,0,0,0 };
+    esp_lcd_panel_draw_bitmap(panel_handle,
+                              chXpos,
+                              chYpos,
+                              chXpos + xWidth,
+                              chYpos + FONT_5X7_HEIGHT,
+                              (const void *)&empty[0]);
 }
 
 void print_oled(char *txt) {
@@ -1746,6 +1758,7 @@ void update_oled(void) {
                 ssd1306_draw_58char(xpos, ypos, oled_text[x][y]);
                 xpos += 5;
             }
+            ssd1306_erase_char(xpos, ypos, 3); // Wipe extra pixels at row end
             ypos += 8;
         }
     }
