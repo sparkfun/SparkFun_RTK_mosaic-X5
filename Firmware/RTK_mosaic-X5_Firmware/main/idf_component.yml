@@ -1,6 +1,11 @@
 ## IDF Component Manager Manifest File
 dependencies:
-  espressif/ssd1306: "1.0.5"
-  ## Required IDF version
-  idf:
-    version: ">=4.4"
+  idf: "*"
+  espressif/ethernet_init:
+    matches:
+      - if: idf_version >=6.0
+        version: ^1.0.0
+      - if: idf_version <6.0
+        version: "==0.3.0"
+    rules:
+      - if: "target != linux"
