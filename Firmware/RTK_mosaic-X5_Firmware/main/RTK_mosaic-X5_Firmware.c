@@ -209,7 +209,6 @@ static uint8_t s_sta_mac[6];
 const int CONNECTED_BIT = BIT0;
 const int DISCONNECTED_BIT = BIT1;
 
-//static bool wifi_is_connected = false;
 static char ipAddress[25];
 
 int* mode = NULL;
@@ -516,8 +515,7 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t e
         case WIFI_EVENT_STA_CONNECTED:
             ESP_LOGI(TAG, "Wi-Fi STA connected");
 
-            // IP_EVENT_STA_GOT_IP will enable the LED
-            //gpio_set_level(CONFIG_RTK_X5_WIFI_GPIO_PIN, false);
+            gpio_set_level(CONFIG_RTK_X5_WIFI_GPIO_PIN, false);
 
             esp_wifi_internal_reg_rxcb(WIFI_IF_STA, wifi_recv_callback);
             s_wifi_is_connected = true;
@@ -566,8 +564,6 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t e
 
         uint8_t *ptr = (uint8_t *)&ip_info->ip;
         snprintf(ipAddress, sizeof(ipAddress), "IP:   %d.%d.%d.%d", *(ptr + 0), *(ptr + 1), *(ptr + 2), *(ptr + 3));
-        //wifi_is_connected = true;
-        gpio_set_level(CONFIG_RTK_X5_WIFI_GPIO_PIN, true);
     }
 }
 
@@ -1131,14 +1127,14 @@ void initialize_ethernet(void)
     print_oled("Configure Ethernet DHCP");
 
     // Disable Mosaic Ethernet - iterate to initialize connection
-    if (!send_command_check_response(MOSAIC_CMD_ETHERNET_OFF, MOSAIC_CMD_ETHERNET_OFF_RESPONSE, 2000, 50, 20))
+    if (!send_command_check_response(MOSAIC_CMD_ETHERNET_OFF, MOSAIC_CMD_ETHERNET_OFF_RESPONSE, 2000, 50, 5))
     {
         ESP_LOGE(TAG, "Disable Mosaic Ethernet response failed");
         x5_not_ready();
     }
 
     // Set Mosaic Ethernet DHCP with MTU
-    if (!send_command_check_response(MOSAIC_CMD_IP_DHCP, MOSAIC_CMD_IP_DHCP_RESPONSE, 2000, 50, 5))
+    if (!send_command_check_response(MOSAIC_CMD_IP_DHCP, MOSAIC_CMD_IP_DHCP_RESPONSE, 2000, 50, 20))
     {
         ESP_LOGE(TAG, "Set Mosaic Ethernet DHCP response failed");
         x5_not_ready();
@@ -1161,14 +1157,16 @@ static esp_err_t initialize_wifi(void)
     ESP_LOGI(TAG, "Starting WiFi STA");
     print_oled("Starting WiFi STA");
 
-    // ESP_ERROR_CHECK(esp_netif_init()); Nope?
+    ESP_ERROR_CHECK(esp_netif_init()); // Nope?
 
     esp_read_mac(s_sta_mac, ESP_MAC_WIFI_STA); // Read the ESP32 WiFi MAC
+    ESP_LOGI(TAG, "ESP32 WiFi MAC %02X:%02X:%02X:%02X:%02X:%02X",
+            s_sta_mac[0], s_sta_mac[1], s_sta_mac[2], s_sta_mac[3], s_sta_mac[4], s_sta_mac[5]);
 
     // Init STA
 
     ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, wifi_event_handler, NULL));
-    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, ESP_EVENT_ANY_ID, wifi_event_handler, NULL));
+    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, wifi_event_handler, NULL));
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
     ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));

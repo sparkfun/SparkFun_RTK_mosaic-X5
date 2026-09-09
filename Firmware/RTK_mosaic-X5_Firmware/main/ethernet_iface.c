@@ -52,7 +52,7 @@ void eth_event_handler(void *arg, esp_event_base_t event_base,
     case ETHERNET_EVENT_CONNECTED:
         ESP_LOGI(TAG, "Ethernet Link Up");
         esp_eth_ioctl(eth_handle, ETH_CMD_G_MAC_ADDR, mac_addr);
-        ESP_LOGI(TAG, "Ethernet MAC %02x:%02x:%02x:%02x:%02x:%02x",
+        ESP_LOGI(TAG, "Ethernet MAC %02X:%02X:%02X:%02X:%02X:%02X",
                  mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3], mac_addr[4], mac_addr[5]);
         s_ethernet_is_connected = true;
         break;
@@ -177,7 +177,7 @@ void mac_spoof(mac_spoof_direction_t direction, uint8_t *buffer, uint16_t len, u
                     if (!eth_nic_mac_found && memcmp(dhcp_magic, dhcp_type, sizeof(dhcp_type)) == 0) {
                         eth_nic_mac_found = true;
                         memcpy(eth_nic_mac, src_mac, 6);
-                        ESP_LOGI(TAG, "Ethernet NIC MAC %02x:%02x:%02x:%02x:%02x:%02x",
+                        ESP_LOGI(TAG, "NIC MAC %02X:%02X:%02X:%02X:%02X:%02X",
                                 *(eth_nic_mac + 0), *(eth_nic_mac + 1), *(eth_nic_mac + 2), *(eth_nic_mac + 3), *(eth_nic_mac + 4), *(eth_nic_mac + 5));
                     }
 #if MODIFY_DHCP_MSGS
@@ -212,7 +212,8 @@ void mac_spoof(mac_spoof_direction_t direction, uint8_t *buffer, uint16_t len, u
             } // UDP/IP
 #if !ETH_BRIDGE_PROMISCUOUS || MODIFY_DHCP_MSGS
             // try to find AP HW address (look for DHCP offer packet)
-        } else if ( (!ap_mac_found || (MODIFY_DHCP_MSGS)) && direction == TO_WIRED && eth_type[1] == 0x00) {  // ETH IP4
+        }
+        else if ( (!ap_mac_found || (MODIFY_DHCP_MSGS)) && direction == TO_WIRED && eth_type[1] == 0x00) {  // ETH IP4
             uint8_t *ip_header = eth_type + 2;
             if (len > MIN_DHCP_PACKET_SIZE && (ip_header[0] & 0xF0) == IP_V4 && ip_header[9] == IP_PROTO_UDP) {
                 uint8_t *udp_header = ip_header + IP_HEADER_SIZE;
@@ -233,7 +234,7 @@ void mac_spoof(mac_spoof_direction_t direction, uint8_t *buffer, uint16_t len, u
                     if (!ap_mac_found && memcmp(dhcp_magic, dhcp_type, sizeof(dhcp_type)) == 0) {
                         ap_mac_found = true;
                         memcpy(ap_mac, src_mac, 6);
-                        ESP_LOGI(TAG, "AP MAC %02x:%02x:%02x:%02x:%02x:%02x",
+                        ESP_LOGI(TAG, "AP MAC %02X:%02X:%02X:%02X:%02X:%02X",
                                 *(ap_mac + 0), *(ap_mac + 1), *(ap_mac + 2), *(ap_mac + 3), *(ap_mac + 4), *(ap_mac + 5));
                     }
                 }   // DHCP
@@ -254,22 +255,27 @@ void mac_spoof(mac_spoof_direction_t direction, uint8_t *buffer, uint16_t len, u
 #endif // !ETH_BRIDGE_PROMISCUOUS
             }
         }
+
         // swap HW addresses in ETH frames
 #if !ETH_BRIDGE_PROMISCUOUS
         if (ap_mac_found && direction == FROM_WIRED && memcmp(dest_mac, s_eth_mac, 6) == 0) {
             memcpy(dest_mac, ap_mac, 6);
+            // This leaves the src_mac unchanged
         }
         if (ap_mac_found && direction == TO_WIRED && memcmp(src_mac, ap_mac, 6) == 0) {
             memcpy(src_mac, s_eth_mac, 6);
+            // This leaves the dest_mac unchanged
         }
 #endif // !ETH_BRIDGE_PROMISCUOUS
         if (eth_nic_mac_found && direction == FROM_WIRED && memcmp(src_mac, eth_nic_mac, 6) == 0) {
             memcpy(src_mac, own_mac, 6);
+            // This leaves the dest_mac unchanged
         }
         if (eth_nic_mac_found && direction == TO_WIRED && memcmp(dest_mac, own_mac, 6) == 0) {
             memcpy(dest_mac, eth_nic_mac, 6);
+            // This leaves the src_mac unchanged
         }
-    }   // IP4 section of eth-type (0x08) both ETH-IP4 and ETHARP
+    } // IP4 section of eth-type (0x08) both ETH-IP4 and ETHARP
 }
 
 static esp_err_t wired_recv(esp_eth_handle_t eth_handle, uint8_t *buffer, uint32_t len, void *priv)
@@ -294,12 +300,15 @@ esp_err_t wired_bridge_init(wired_rx_cb_t rx_cb, wired_free_cb_t free_cb)
     }
     s_eth_handle = eth_handles[0];
     free(eth_handles);
+
     ESP_ERROR_CHECK(esp_eth_update_input_path(s_eth_handle, wired_recv, NULL));
 #if ETH_BRIDGE_PROMISCUOUS
     bool eth_promiscuous = true;
     ESP_ERROR_CHECK(esp_eth_ioctl(s_eth_handle, ETH_CMD_S_PROMISCUOUS, &eth_promiscuous));
 #endif
     ESP_ERROR_CHECK(esp_eth_ioctl(s_eth_handle, ETH_CMD_G_MAC_ADDR, &s_eth_mac));
+    ESP_LOGI(TAG, "ESP32 Eth MAC %02X:%02X:%02X:%02X:%02X:%02X",
+            s_eth_mac[0], s_eth_mac[1], s_eth_mac[2], s_eth_mac[3], s_eth_mac[4], s_eth_mac[5]);
     ESP_ERROR_CHECK(esp_event_handler_register(ETH_EVENT, ESP_EVENT_ANY_ID, eth_event_handler, NULL));
     
     // Disable auto-negotiate so we can limit the speed
@@ -310,27 +319,6 @@ esp_err_t wired_bridge_init(wired_rx_cb_t rx_cb, wired_free_cb_t free_cb)
     eth_speed_t ethSpeed = ETH_SPEED_10M;
     ESP_ERROR_CHECK(esp_eth_ioctl(s_eth_handle, ETH_CMD_S_SPEED, &ethSpeed));
     
-    // Config the esp-netif with:
-    //   1) inherent config (behavioural settings of an interface)
-    //   2) driver's config -- no need, will use the default ethernet-netif glue and attach it to this netif
-    //   3) stack config -- will use the default ethernet TCP/IP settings
-    esp_netif_config_t cfg = {
-        .base = &base_cfg,
-        .stack = ESP_NETIF_NETSTACK_DEFAULT_ETH
-    };
-
-    esp_netif_t *netif = esp_netif_new(&cfg);
-    if (netif == NULL) {
-        return ESP_FAIL;
-    }
-
-    // Now we attach the constructed network interface to IDF's default ethernet glue
-    esp_eth_netif_glue_handle_t eth_glue = esp_eth_new_netif_glue(s_eth_handle);
-    ESP_ERROR_CHECK(esp_netif_attach(netif, eth_glue));
-
-    // set the MTU
-    esp_netif_set_mtu(netif, 1500);
-
     ESP_ERROR_CHECK(esp_eth_start(s_eth_handle));
     s_rx_cb = rx_cb;
     s_free_cb = free_cb;
@@ -347,8 +335,18 @@ esp_err_t wired_send(void *buffer, uint16_t len, void *buff_free_arg)
 #endif
     if (s_ethernet_is_connected) {
         if (esp_eth_transmit(s_eth_handle, buffer, len) != ESP_OK) {
-            ESP_LOGE(TAG, "Ethernet send packet failed: len %ld", len);
-            return ESP_FAIL;
+            vTaskDelay(pdMS_TO_TICKS(10));
+            if (esp_eth_transmit(s_eth_handle, buffer, len) != ESP_OK) {
+                vTaskDelay(pdMS_TO_TICKS(10));
+                if (esp_eth_transmit(s_eth_handle, buffer, len) != ESP_OK) {
+                    ESP_LOGE(TAG, "Ethernet send packet failed: len %ld", len);
+                    return ESP_FAIL;
+                }
+                else
+                    ESP_LOGE(TAG, "Ethernet send packet success on 3rd attempt: len %ld", len);
+            }
+            //else
+            //    ESP_LOGE(TAG, "Ethernet send packet success on 2nd attempt: len %ld", len);
         }
         if (s_free_cb) {
             s_free_cb(buff_free_arg, NULL);
@@ -371,54 +369,54 @@ esp_err_t wired_send(void *buffer, uint16_t len, void *buff_free_arg)
  *  (this network's MAC address is the native ESP32's Ethernet interface MAC)
  */
 
-esp_err_t wired_netif_init(void)
-{
-    uint8_t eth_port_cnt = 0;
-    esp_eth_handle_t *eth_handles;
-    ESP_ERROR_CHECK(ethernet_init_all(&eth_handles, &eth_port_cnt));
+// esp_err_t wired_netif_init(void)
+// {
+//     uint8_t eth_port_cnt = 0;
+//     esp_eth_handle_t *eth_handles;
+//     ESP_ERROR_CHECK(ethernet_init_all(&eth_handles, &eth_port_cnt));
 
-    // Check or multiple ethernet interface
-    if (1 < eth_port_cnt) {
-        ESP_LOGW(TAG, "Multiple Ethernet Interface detected: Only the first initialized interface is going to be used.");
-    }
-    s_eth_handle = eth_handles[0];
-    free(eth_handles);
+//     // Check or multiple ethernet interface
+//     if (1 < eth_port_cnt) {
+//         ESP_LOGW(TAG, "Multiple Ethernet Interface detected: Only the first initialized interface is going to be used.");
+//     }
+//     s_eth_handle = eth_handles[0];
+//     free(eth_handles);
 
-    // 1) Derive the base config (very similar to IDF's default WiFi AP with DHCP server)
-    esp_netif_inherent_config_t base_cfg =  {
-            .flags = ESP_NETIF_DHCP_SERVER,                // Run DHCP server
-            .ip_info = &_g_esp_netif_soft_ap_ip,           // Use the same IP ranges as IDF's soft AP
-            .if_key = "wired",                             // Set mame, key, priority
-            .if_desc = "ethernet config device",
-            .route_prio = 10
-    };
+//     // 1) Derive the base config (very similar to IDF's default WiFi AP with DHCP server)
+//     esp_netif_inherent_config_t base_cfg =  {
+//             .flags = ESP_NETIF_DHCP_SERVER,                // Run DHCP server
+//             .ip_info = &_g_esp_netif_soft_ap_ip,           // Use the same IP ranges as IDF's soft AP
+//             .if_key = "wired",                             // Set mame, key, priority
+//             .if_desc = "ethernet config device",
+//             .route_prio = 10
+//     };
 
-    // Config the esp-netif with:
-    //   1) inherent config (behavioural settings of an interface)
-    //   2) driver's config -- no need, will use the default ethernet-netif glue and attach it to this netif
-    //   3) stack config -- will use the default ethernet TCP/IP settings
-    esp_netif_config_t cfg = {
-        .base = &base_cfg,
-        .stack = ESP_NETIF_NETSTACK_DEFAULT_ETH
-    };
+//     // Config the esp-netif with:
+//     //   1) inherent config (behavioural settings of an interface)
+//     //   2) driver's config -- no need, will use the default ethernet-netif glue and attach it to this netif
+//     //   3) stack config -- will use the default ethernet TCP/IP settings
+//     esp_netif_config_t cfg = {
+//         .base = &base_cfg,
+//         .stack = ESP_NETIF_NETSTACK_DEFAULT_ETH
+//     };
 
-    esp_netif_t *netif = esp_netif_new(&cfg);
-    if (netif == NULL) {
-        return ESP_FAIL;
-    }
+//     esp_netif_t *netif = esp_netif_new(&cfg);
+//     if (netif == NULL) {
+//         return ESP_FAIL;
+//     }
 
-    // Now we attach the constructed network interface to IDF's default ethernet glue
-    esp_eth_netif_glue_handle_t eth_glue = esp_eth_new_netif_glue(s_eth_handle);
-    ESP_ERROR_CHECK(esp_netif_attach(netif, eth_glue));
+//     // Now we attach the constructed network interface to IDF's default ethernet glue
+//     esp_eth_netif_glue_handle_t eth_glue = esp_eth_new_netif_glue(s_eth_handle);
+//     ESP_ERROR_CHECK(esp_netif_attach(netif, eth_glue));
 
-    uint8_t mac[6];
-    ESP_ERROR_CHECK(esp_eth_ioctl(s_eth_handle, ETH_CMD_G_MAC_ADDR, &mac));
-    esp_netif_set_mac(netif, mac);
+//     uint8_t mac[6];
+//     ESP_ERROR_CHECK(esp_eth_ioctl(s_eth_handle, ETH_CMD_G_MAC_ADDR, &mac));
+//     esp_netif_set_mac(netif, mac);
 
-    // set the minimum lease time
-    uint32_t  lease_opt = 1;
-    esp_netif_dhcps_option(netif, ESP_NETIF_OP_SET, IP_ADDRESS_LEASE_TIME, &lease_opt, sizeof(lease_opt));
-    ESP_ERROR_CHECK(esp_event_handler_register(ETH_EVENT, ESP_EVENT_ANY_ID, eth_event_handler, netif));
-    ESP_ERROR_CHECK(esp_eth_start(s_eth_handle));
-    return ESP_OK;
-}
+//     // set the minimum lease time
+//     uint32_t  lease_opt = 1;
+//     esp_netif_dhcps_option(netif, ESP_NETIF_OP_SET, IP_ADDRESS_LEASE_TIME, &lease_opt, sizeof(lease_opt));
+//     ESP_ERROR_CHECK(esp_event_handler_register(ETH_EVENT, ESP_EVENT_ANY_ID, eth_event_handler, netif));
+//     ESP_ERROR_CHECK(esp_eth_start(s_eth_handle));
+//     return ESP_OK;
+// }

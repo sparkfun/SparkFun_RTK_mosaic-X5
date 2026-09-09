@@ -21,4 +21,4 @@ esp_err_t wired_bridge_init(wired_rx_cb_t rx_cb, wired_free_cb_t free_cb);
 
 esp_err_t wired_send(void *buffer, uint16_t len, void *buff_free_arg);
 
-esp_err_t wired_netif_init(void);
+//esp_err_t wired_netif_init(void);
