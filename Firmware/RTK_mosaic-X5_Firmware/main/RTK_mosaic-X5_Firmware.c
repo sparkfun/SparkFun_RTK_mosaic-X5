@@ -143,6 +143,7 @@
 #include "sdkconfig.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/semphr.h"
 
 #include "esp_log.h"
 #include "esp_wifi.h"
@@ -248,8 +249,9 @@ char* x5_pass = NULL;
 char* esp_log_level = NULL;
 bool* eth_bridge_promiscuous = NULL;
 bool* modify_dhcp_msgs = NULL;
-bool* verbose_log = NULL;
 bool* alt_geoid_separation = NULL;
+bool* inverted_display = NULL;
+bool* verbose_log = NULL;
 
 const char *cidr2mask(uint8_t cidr) {
     switch (cidr) {
@@ -359,6 +361,7 @@ const char *cidr2mask(uint8_t cidr) {
 }
 
 static volatile bool x5_uart_task_running = true;
+SemaphoreHandle_t oledSemaphore = NULL;
 
 /* These could be in Kconfig, but who will want to change them? */
 #define CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM (1)
@@ -1156,190 +1159,199 @@ if (CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG)
                             {
                                 if  ((*(ptr1 + msgStart + 1) == 'G') && (*(ptr1 + msgStart + 3) == 'G') && (*(ptr1 + msgStart + 4) == 'G') && (*(ptr1 + msgStart + 5) == 'A'))
                                 {
+                                    bool gotSemaphore = false;
                                     do {
-                                        char *remainder = (char *)(ptr1 + msgStart);
-                                        char *token = strtok_r(remainder, ",", &remainder); // $GPGGA
-                                        if (!remainderValid) break;
-                                        char line[oled_x_chars + 1];
-                                        token = strtok_r(remainder, ",", &remainder); // Time
-                                        if (!remainderValid) break;
-                                        char theTime[11];
-                                        snprintf(theTime, sizeof(theTime), "%c%c:%c%c:%c%c.%c", *(token), *(token + 1), *(token + 2), *(token + 3), *(token + 4), *(token + 5), *(token + 7));
-                                        snprintf(line, sizeof(line), "Time: %s", tokenValid ? theTime : "?");
-                                        set_oled(line);
-                                        
-                                        token = strtok_r(remainder, ",", &remainder); // Latitude
-                                        if (!remainderValid) break;
-                                        char theLat[14];
-                                        float secs = 0;
-                                        float multiplier = 0.1;
-                                        int places = 1;
-                                        while ((*(token + 4 + places) != ',') && (places < 8))
+                                        if (oledSemaphore == NULL)
+                                            oledSemaphore = xSemaphoreCreateMutex();
+                                        gotSemaphore = xSemaphoreTake(oledSemaphore, pdMS_TO_TICKS(10));
+                                        if (gotSemaphore)
                                         {
-                                            secs += ((float)(*(token + 4 + places) - '0')) * multiplier;
-                                            multiplier /= 10.0;
-                                            places++;
-                                        }
-                                        secs *= 60.0;
-                                        snprintf(theLat, sizeof(theLat), "%c%c %c%c %02.4f", *(token), *(token + 1), *(token + 2), *(token + 3), secs);
-                                        snprintf(line, sizeof(line), "Lat:   %s %c", tokenValid ? theLat : "?", remainderValid ? *remainder : '?');
-                                        set_oled(line);
-                                        
-                                        token = strtok_r(remainder, ",", &remainder); // N/S
-                                        if (!remainderValid) break;
-                                        token = strtok_r(remainder, ",", &remainder); // Longitude
-                                        if (!remainderValid) break;
-                                        char theLon[15];
-                                        secs = 0;
-                                        multiplier = 0.1;
-                                        places = 1;
-                                        while ((*(token + 5 + places) != ',') && (places < 8))
-                                        {
-                                            secs += ((float)(*(token + 5 + places) - '0')) * multiplier;
-                                            multiplier /= 10.0;
-                                            places++;
-                                        }
-                                        secs *= 60.0;
-                                        snprintf(theLon, sizeof(theLon), "%c%c%c %c%c %02.4f", *(token), *(token + 1), *(token + 2), *(token + 3), *(token + 4), secs);
-                                        snprintf(line, sizeof(line), "Long: %s %c", tokenValid ? theLon : "?", remainderValid ? *remainder : '?');
-                                        set_oled(line);
-                                        
-                                        token = strtok_r(remainder, ",", &remainder); // E/W
-                                        if (!remainderValid) break;
-                                        token = strtok_r(remainder, ",", &remainder); // Fix
-                                        if (!remainderValid) break;
-                                        char fixType[17] = { 0 };
-                                        if (tokenValid) {
-                                            switch (*token) {
-                                                default:
-                                                    snprintf(fixType, sizeof(fixType), "Unknown");
-                                                    break;
-                                                case '0':
-                                                    snprintf(fixType, sizeof(fixType), "Invalid");
-                                                    break;
-                                                case '1':
-                                                    snprintf(fixType, sizeof(fixType), "Autonomous");
-                                                    break;
-                                                case '2':
-                                                    snprintf(fixType, sizeof(fixType), "Differential");
-                                                    break;
-                                                case '3':
-                                                    snprintf(fixType, sizeof(fixType), "PPS");
-                                                    break;
-                                                case '4':
-                                                    snprintf(fixType, sizeof(fixType), "RTK Fixed");
-                                                    break;
-                                                case '5':
-                                                    snprintf(fixType, sizeof(fixType), "RTK Float");
-                                                    break;
-                                                case '6':
-                                                    snprintf(fixType, sizeof(fixType), "Dead Reckoning");
-                                                    break;
-                                                case '7':
-                                                    snprintf(fixType, sizeof(fixType), "Manual");
-                                                    break;
-                                                case '8':
-                                                    snprintf(fixType, sizeof(fixType), "Simulation");
-                                                    break;
-                                                case '9':
-                                                    snprintf(fixType, sizeof(fixType), "WAAS");
-                                                    break;
+                                            char *remainder = (char *)(ptr1 + msgStart);
+                                            char *token = strtok_r(remainder, ",", &remainder); // $GPGGA
+                                            if (!remainderValid) break;
+                                            char line[oled_x_chars + 1];
+                                            token = strtok_r(remainder, ",", &remainder); // Time
+                                            if (!remainderValid) break;
+                                            char theTime[11];
+                                            snprintf(theTime, sizeof(theTime), "%c%c:%c%c:%c%c.%c", *(token), *(token + 1), *(token + 2), *(token + 3), *(token + 4), *(token + 5), *(token + 7));
+                                            snprintf(line, sizeof(line), "Time: %s", tokenValid ? theTime : "?");
+                                            set_oled(line);
+                                            
+                                            token = strtok_r(remainder, ",", &remainder); // Latitude
+                                            if (!remainderValid) break;
+                                            char theLat[14];
+                                            float secs = 0;
+                                            float multiplier = 0.1;
+                                            int places = 1;
+                                            while ((*(token + 4 + places) != ',') && (places < 8))
+                                            {
+                                                secs += ((float)(*(token + 4 + places) - '0')) * multiplier;
+                                                multiplier /= 10.0;
+                                                places++;
                                             }
-                                        }
-                                        snprintf(line, sizeof(line), "Fix:  %s %s", tokenValid ? token : "?", fixType);
-                                        set_oled(line);
-                                        
-                                        token = strtok_r(remainder, ",", &remainder); // Num Sat
-                                        if (!remainderValid) break;
-                                        snprintf(line, sizeof(line), "Sat:  %s", tokenValid ? token : "?");
-                                        set_oled(line);
-                                        
-                                        token = strtok_r(remainder, ",", &remainder); // HDOP
-                                        if (!remainderValid) break;
-                                        snprintf(line, sizeof(line), "HDOP: %s", tokenValid ? token : "?");
-                                        set_oled(line);
-                                        
-                                        token = strtok_r(remainder, ",", &remainder); // Alt (Elev)
-                                        if (!remainderValid) break;
-                                        float alt = 0.0;
-                                        int digits = 0;
-                                        int neg = 0;
-                                        if (*token == '-')
-                                            neg = 1;
-                                        while ((*(token + neg + digits) != '.') && (digits < 7))
-                                        {
-                                            alt *= 10.0;
-                                            alt += ((float)(*(token + neg + digits) - '0'));
-                                            digits++;
-                                        }
-                                        if (digits == 7) break; // Something has gone horribly wrong...
-                                        multiplier = 0.1;
-                                        places = 1;
-                                        while ((*(token + neg + digits + places) != ',') && (places < 8))
-                                        {
-                                            alt += ((float)(*(token + neg + digits + places) - '0')) * multiplier;
-                                            multiplier /= 10.0;
-                                            places++;
-                                        }
-                                        if (neg == 1)
-                                            alt *= -1.0;
-                                        
-                                        token = strtok_r(remainder, ",", &remainder); // M
-                                        if (!remainderValid) break;
-                                        
-                                        token = strtok_r(remainder, ",", &remainder); // Geoid
-                                        if (!remainderValid) break;
-                                        float geoid = 0.0;
-                                        digits = 0;
-                                        neg = 0;
-                                        if (*token == '-')
-                                            neg = 1;
-                                        while ((*(token + neg + digits) != '.') && (digits < 7))
-                                        {
-                                            geoid *= 10.0;
-                                            geoid += ((float)(*(token + neg + digits) - '0'));
-                                            digits++;
-                                        }
-                                        if (digits == 7) break; // Something has gone horribly wrong...
-                                        multiplier = 0.1;
-                                        places = 1;
-                                        while ((*(token + neg + digits + places) != ',') && (places < 8))
-                                        {
-                                            geoid += ((float)(*(token + neg + digits + places) - '0')) * multiplier;
-                                            multiplier /= 10.0;
-                                            places++;
-                                        }
-                                        if (neg == 1)
-                                            geoid *= -1.0;
+                                            secs *= 60.0;
+                                            snprintf(theLat, sizeof(theLat), "%c%c %c%c %02.4f", *(token), *(token + 1), *(token + 2), *(token + 3), secs);
+                                            snprintf(line, sizeof(line), "Lat:   %s %c", tokenValid ? theLat : "?", remainderValid ? *remainder : '?');
+                                            set_oled(line);
+                                            
+                                            token = strtok_r(remainder, ",", &remainder); // N/S
+                                            if (!remainderValid) break;
+                                            token = strtok_r(remainder, ",", &remainder); // Longitude
+                                            if (!remainderValid) break;
+                                            char theLon[15];
+                                            secs = 0;
+                                            multiplier = 0.1;
+                                            places = 1;
+                                            while ((*(token + 5 + places) != ',') && (places < 8))
+                                            {
+                                                secs += ((float)(*(token + 5 + places) - '0')) * multiplier;
+                                                multiplier /= 10.0;
+                                                places++;
+                                            }
+                                            secs *= 60.0;
+                                            snprintf(theLon, sizeof(theLon), "%c%c%c %c%c %02.4f", *(token), *(token + 1), *(token + 2), *(token + 3), *(token + 4), secs);
+                                            snprintf(line, sizeof(line), "Long: %s %c", tokenValid ? theLon : "?", remainderValid ? *remainder : '?');
+                                            set_oled(line);
+                                            
+                                            token = strtok_r(remainder, ",", &remainder); // E/W
+                                            if (!remainderValid) break;
+                                            token = strtok_r(remainder, ",", &remainder); // Fix
+                                            if (!remainderValid) break;
+                                            char fixType[17] = { 0 };
+                                            if (tokenValid) {
+                                                switch (*token) {
+                                                    default:
+                                                        snprintf(fixType, sizeof(fixType), "Unknown");
+                                                        break;
+                                                    case '0':
+                                                        snprintf(fixType, sizeof(fixType), "Invalid");
+                                                        break;
+                                                    case '1':
+                                                        snprintf(fixType, sizeof(fixType), "Autonomous");
+                                                        break;
+                                                    case '2':
+                                                        snprintf(fixType, sizeof(fixType), "Differential");
+                                                        break;
+                                                    case '3':
+                                                        snprintf(fixType, sizeof(fixType), "PPS");
+                                                        break;
+                                                    case '4':
+                                                        snprintf(fixType, sizeof(fixType), "RTK Fixed");
+                                                        break;
+                                                    case '5':
+                                                        snprintf(fixType, sizeof(fixType), "RTK Float");
+                                                        break;
+                                                    case '6':
+                                                        snprintf(fixType, sizeof(fixType), "Dead Reckoning");
+                                                        break;
+                                                    case '7':
+                                                        snprintf(fixType, sizeof(fixType), "Manual");
+                                                        break;
+                                                    case '8':
+                                                        snprintf(fixType, sizeof(fixType), "Simulation");
+                                                        break;
+                                                    case '9':
+                                                        snprintf(fixType, sizeof(fixType), "WAAS");
+                                                        break;
+                                                }
+                                            }
+                                            snprintf(line, sizeof(line), "Fix:  %s %s", tokenValid ? token : "?", fixType);
+                                            set_oled(line);
+                                            
+                                            token = strtok_r(remainder, ",", &remainder); // Num Sat
+                                            if (!remainderValid) break;
+                                            snprintf(line, sizeof(line), "Sat:  %s", tokenValid ? token : "?");
+                                            set_oled(line);
+                                            
+                                            token = strtok_r(remainder, ",", &remainder); // HDOP
+                                            if (!remainderValid) break;
+                                            snprintf(line, sizeof(line), "HDOP: %s", tokenValid ? token : "?");
+                                            set_oled(line);
+                                            
+                                            token = strtok_r(remainder, ",", &remainder); // Alt (Elev)
+                                            if (!remainderValid) break;
+                                            float alt = 0.0;
+                                            int digits = 0;
+                                            int neg = 0;
+                                            if (*token == '-')
+                                                neg = 1;
+                                            while ((*(token + neg + digits) != '.') && (digits < 7))
+                                            {
+                                                alt *= 10.0;
+                                                alt += ((float)(*(token + neg + digits) - '0'));
+                                                digits++;
+                                            }
+                                            if (digits == 7) break; // Something has gone horribly wrong...
+                                            multiplier = 0.1;
+                                            places = 1;
+                                            while ((*(token + neg + digits + places) != ',') && (places < 8))
+                                            {
+                                                alt += ((float)(*(token + neg + digits + places) - '0')) * multiplier;
+                                                multiplier /= 10.0;
+                                                places++;
+                                            }
+                                            if (neg == 1)
+                                                alt *= -1.0;
+                                            
+                                            token = strtok_r(remainder, ",", &remainder); // M
+                                            if (!remainderValid) break;
+                                            
+                                            token = strtok_r(remainder, ",", &remainder); // Geoid
+                                            if (!remainderValid) break;
+                                            float geoid = 0.0;
+                                            digits = 0;
+                                            neg = 0;
+                                            if (*token == '-')
+                                                neg = 1;
+                                            while ((*(token + neg + digits) != '.') && (digits < 7))
+                                            {
+                                                geoid *= 10.0;
+                                                geoid += ((float)(*(token + neg + digits) - '0'));
+                                                digits++;
+                                            }
+                                            if (digits == 7) break; // Something has gone horribly wrong...
+                                            multiplier = 0.1;
+                                            places = 1;
+                                            while ((*(token + neg + digits + places) != ',') && (places < 8))
+                                            {
+                                                geoid += ((float)(*(token + neg + digits + places) - '0')) * multiplier;
+                                                multiplier /= 10.0;
+                                                places++;
+                                            }
+                                            if (neg == 1)
+                                                geoid *= -1.0;
 
-                                        bool CONFIG_EXAMPLE_RTK_X5_DISPLAY_ALT_WITH_GEOID_SEPARATION = false;
-                                        if (alt_geoid_separation)
-                                            CONFIG_EXAMPLE_RTK_X5_DISPLAY_ALT_WITH_GEOID_SEPARATION = *alt_geoid_separation;
-if (CONFIG_EXAMPLE_RTK_X5_DISPLAY_ALT_WITH_GEOID_SEPARATION)
-                                        alt += geoid;
-//#endif
-                                        char theAlt[15];
-                                        snprintf(theAlt, sizeof(theAlt), "%0.3f", alt);
-                                        snprintf(line, sizeof(line), "Alt:  %s %c", tokenValid ? theAlt : "?", remainderValid ? *remainder : '?');
-                                        set_oled(line);
+                                            bool CONFIG_EXAMPLE_RTK_X5_DISPLAY_ALT_WITH_GEOID_SEPARATION = false;
+                                            if (alt_geoid_separation)
+                                                CONFIG_EXAMPLE_RTK_X5_DISPLAY_ALT_WITH_GEOID_SEPARATION = *alt_geoid_separation;
+    if (CONFIG_EXAMPLE_RTK_X5_DISPLAY_ALT_WITH_GEOID_SEPARATION)
+                                            alt += geoid;
+    //#endif
+                                            char theAlt[15];
+                                            snprintf(theAlt, sizeof(theAlt), "%0.3f", alt);
+                                            snprintf(line, sizeof(line), "Alt:  %s %c", tokenValid ? theAlt : "?", remainderValid ? *remainder : '?');
+                                            set_oled(line);
 
-                                        // token = strtok_r(remainder, ",", &remainder); // M
-                                        // if (!remainderValid) break;
-                                        
-                                        // token = strtok_r(remainder, ",", &remainder); // Age
-                                        // if (!remainderValid) break;
-                                        
-                                        // snprintf(line, sizeof(line), "Age:  %s", tokenValid ? token : "?");
-                                        // set_oled(line);
-                                        
-                                        snprintf(line, sizeof(line), "%s", ipAddress); // Copy the IP address
-                                        const size_t ipStart = 6;
-                                        if (!s_ethernet_is_connected)
-                                            snprintf(&line[ipStart], sizeof(line) - ipStart, "Link Down");
-                                        set_oled(line); // Show the stored IP address
+                                            // token = strtok_r(remainder, ",", &remainder); // M
+                                            // if (!remainderValid) break;
+                                            
+                                            // token = strtok_r(remainder, ",", &remainder); // Age
+                                            // if (!remainderValid) break;
+                                            
+                                            // snprintf(line, sizeof(line), "Age:  %s", tokenValid ? token : "?");
+                                            // set_oled(line);
+                                            
+                                            snprintf(line, sizeof(line), "%s", ipAddress); // Copy the IP address
+                                            const size_t ipStart = 6;
+                                            if (!s_ethernet_is_connected)
+                                                snprintf(&line[ipStart], sizeof(line) - ipStart, "Link Down");
+                                            set_oled(line); // Show the stored IP address
 
-                                        update_oled();
+                                            update_oled();
+                                        }
                                     } while (0); // This is just a trick to execute the do loop once - and allow the code to break out early
+                                    if (gotSemaphore)
+                                        xSemaphoreGive(oledSemaphore);
                                 }
                             }
                         }
@@ -1967,7 +1979,7 @@ void clear_oled_text(void) {
             oled_text[x][y] = ' ';
             // Set previous to something else, so the next update_oled();
             // overwrites everything...
-            oled_text_previous[x][y] = 160; // Inverted space
+            oled_text_previous[x][y] = 0;
         }
 }
 
@@ -1981,6 +1993,12 @@ void ssd1306_draw_58char(uint8_t chXpos, uint8_t chYpos, uint8_t chChar)
     uint8_t const *ptr = &font5x7_data[(uint16_t)chChar * FONT_5X7_WIDTH];
     memcpy(&buffer[0], ptr, FONT_5X7_WIDTH);
     if (inverted)
+        for (size_t i = 0; i < FONT_5X7_WIDTH; i++)
+            buffer[i] ^= 0xFF;
+    bool INVERTED_DISPLAY = false;
+    if (inverted_display)
+        INVERTED_DISPLAY = *inverted_display;
+    if (INVERTED_DISPLAY)
         for (size_t i = 0; i < FONT_5X7_WIDTH; i++)
             buffer[i] ^= 0xFF;
 
@@ -2005,8 +2023,14 @@ void ssd1306_erase_char(uint8_t chXpos, uint8_t chYpos, uint8_t xWidth)
 
 // Copy txt to the bottom line of the text buffer and update the OLEDD
 void print_oled(char *txt) {
-    set_oled(txt);
-    update_oled();
+    if (oledSemaphore == NULL)
+        oledSemaphore = xSemaphoreCreateMutex();
+    if (xSemaphoreTake(oledSemaphore, pdMS_TO_TICKS(10)))
+    {
+        set_oled(txt);
+        update_oled();
+        xSemaphoreGive(oledSemaphore);
+    }
 }
 
 // Copy txt to the bottom line of the text buffer
@@ -2108,14 +2132,19 @@ void app_main(void)
         param_set_value_bool(&modify_dhcp_msgs, true); // Default to true
     }
 
-    get_config_param_bool("verbose_log", &verbose_log);
-    if (verbose_log == NULL) {
-        param_set_value_bool(&verbose_log, false); // Default to false
-    }
-
     get_config_param_bool("separation", &alt_geoid_separation);
     if (alt_geoid_separation == NULL) {
         param_set_value_bool(&alt_geoid_separation, false); // Default to false
+    }
+
+    get_config_param_bool("inverted_d", &inverted_display);
+    if (inverted_display == NULL) {
+        param_set_value_bool(&inverted_display, false); // Default to false
+    }
+
+    get_config_param_bool("verbose_log", &verbose_log);
+    if (verbose_log == NULL) {
+        param_set_value_bool(&verbose_log, false); // Default to false
     }
 
     // Initialize console

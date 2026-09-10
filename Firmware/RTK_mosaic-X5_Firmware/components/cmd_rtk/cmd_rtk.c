@@ -192,8 +192,9 @@ static struct {
     struct arg_str* x5_pass;
     struct arg_int* eth_bridge_promiscuous;
     struct arg_int* modify_dhcp_msgs;
-    struct arg_int* verbose_log;
     struct arg_int* alt_geoid_separation;
+    struct arg_int* inverted_display;
+    struct arg_int* verbose_log;
     struct arg_end* end;
 } set_rtk_arg;
 
@@ -295,19 +296,6 @@ int set_rtk(int argc, char **argv)
         }
     }
 
-    if (set_rtk_arg.verbose_log->count > 0) {
-        if ((set_rtk_arg.verbose_log->ival[0] != 0) && (set_rtk_arg.verbose_log->ival[0] != 1)) {
-            printf("verbose_log must be 0 or 1\n");
-        }
-        else {
-            err = nvs_set_u8(nvs, "verbose_log", set_rtk_arg.verbose_log->ival[0]);
-            if (err == ESP_OK) {
-                ESP_LOGI(TAG, "verbose_log stored: %d", set_rtk_arg.verbose_log->ival[0]);
-                param_set_value_bool(&verbose_log, (const char *)set_rtk_arg.verbose_log->ival[0]); // Update the global in RAM
-            }
-        }
-    }
-
     if (set_rtk_arg.alt_geoid_separation->count > 0) {
         if ((set_rtk_arg.alt_geoid_separation->ival[0] != 0) && (set_rtk_arg.alt_geoid_separation->ival[0] != 1)) {
             printf("alt_geoid_separation must be 0 or 1\n");
@@ -317,6 +305,32 @@ int set_rtk(int argc, char **argv)
             if (err == ESP_OK) {
                 ESP_LOGI(TAG, "alt_geoid_separation stored: %d", set_rtk_arg.alt_geoid_separation->ival[0]);
                 param_set_value_bool(&alt_geoid_separation, (const char *)set_rtk_arg.alt_geoid_separation->ival[0]); // Update the global in RAM
+            }
+        }
+    }
+
+    if (set_rtk_arg.inverted_display->count > 0) {
+        if ((set_rtk_arg.inverted_display->ival[0] != 0) && (set_rtk_arg.inverted_display->ival[0] != 1)) {
+            printf("inverted_display must be 0 or 1\n");
+        }
+        else {
+            err = nvs_set_u8(nvs, "inverted_d", set_rtk_arg.inverted_display->ival[0]);
+            if (err == ESP_OK) {
+                ESP_LOGI(TAG, "inverted_display stored: %d", set_rtk_arg.inverted_display->ival[0]);
+                // Don't update the global in RAM. The change will happen at the next restart.
+            }
+        }
+    }
+
+    if (set_rtk_arg.verbose_log->count > 0) {
+        if ((set_rtk_arg.verbose_log->ival[0] != 0) && (set_rtk_arg.verbose_log->ival[0] != 1)) {
+            printf("verbose_log must be 0 or 1\n");
+        }
+        else {
+            err = nvs_set_u8(nvs, "verbose_log", set_rtk_arg.verbose_log->ival[0]);
+            if (err == ESP_OK) {
+                ESP_LOGI(TAG, "verbose_log stored: %d", set_rtk_arg.verbose_log->ival[0]);
+                param_set_value_bool(&verbose_log, (const char *)set_rtk_arg.verbose_log->ival[0]); // Update the global in RAM
             }
         }
     }
@@ -344,6 +358,8 @@ static void register_set_rtk(void)
         "\n\tSet true to include the geoidal separation in the displayed altitude (default is false)");
     set_rtk_arg.verbose_log = arg_int0("v", "verbose_log", NULL, "0 or 1"
         "\n\tSet true to display many additional Info log messages (default is false)");
+    set_rtk_arg.inverted_display = arg_int0("i", "inverted_display", NULL, "0 or 1"
+        "\n\tSet true to invert the OLED display color (default is false)");
     set_rtk_arg.end = arg_end(2);
 
     const esp_console_cmd_t cmd = {
@@ -391,15 +407,24 @@ static int show(int argc, char **argv)
     else
         printf("modify_dhcp_msgs:       <not defined>");
 
-    if (verbose_log != NULL)
-        printf("verbose_log:            %d\n", *verbose_log);
-    else
-        printf("verbose_log:            <not defined>\n");
-
     if (alt_geoid_separation != NULL)
         printf("alt_geoid_separation:   %d\n", *alt_geoid_separation);
     else
         printf("alt_geoid_separation:   <not defined>\n");
+
+    bool *new_inverted_display = NULL;
+    get_config_param_bool("inverted_display", &new_inverted_display);
+    if (new_inverted_display != NULL) // Use the (updated) value from nvs if available
+        printf("inverted_display:       %d\n", *new_inverted_display);
+    else if (inverted_display != NULL)
+        printf("inverted_display:       %d\n", *inverted_display);
+    else
+        printf("inverted_display:       <not defined>\n");
+
+    if (verbose_log != NULL)
+        printf("verbose_log:            %d\n", *verbose_log);
+    else
+        printf("verbose_log:            <not defined>\n");
 
     return 0;
 }

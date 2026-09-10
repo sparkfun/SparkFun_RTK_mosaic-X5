@@ -21,8 +21,9 @@ extern char* x5_pass;
 extern char* esp_log_level;
 extern bool* eth_bridge_promiscuous;
 extern bool* modify_dhcp_msgs;
-extern bool* verbose_log;
 extern bool* alt_geoid_separation;
+extern bool* inverted_display;
+extern bool* verbose_log;
 
 void param_set_value_str(char **param, const char* val);
 void param_set_value_int(int **param, const int val);
