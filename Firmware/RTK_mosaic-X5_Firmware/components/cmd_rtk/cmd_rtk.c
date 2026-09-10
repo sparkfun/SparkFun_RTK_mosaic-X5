@@ -39,6 +39,13 @@ void param_set_value_int(int **param, const int val) {
     **param = val;
 }
 
+void param_set_value_bool(bool **param, const bool val) {
+    if (*param != NULL)
+        free(*param);
+    *param = (bool *)malloc(sizeof(bool));
+    **param = val;
+}
+
 void preprocess_string(char* str)
 {
     if (str == NULL)
@@ -120,6 +127,29 @@ esp_err_t get_config_param_int(char* name, int** param)
     return err;
 }
 
+esp_err_t get_config_param_bool(char* name, bool** param)
+{
+    nvs_handle_t nvs;
+
+    esp_err_t err = nvs_open(PARAM_NAMESPACE, NVS_READONLY, &nvs);
+    if (err == ESP_OK) {
+        uint8_t u8;
+        if ((err = nvs_get_u8(nvs, name, &u8)) == ESP_OK) {
+            if (*param != NULL)
+                free(*param);
+            *param = (bool *)malloc(sizeof(bool));
+            **param = u8;
+            ESP_LOGI(TAG, "get_config_param_bool %s: %d", name, **param);
+        } else {
+            ESP_LOGW(TAG, "get_config_param_bool u8 %s not found in nvs - it may not have been set", name); // nvs may be empty
+        }
+        nvs_close(nvs);
+    } else {
+        ESP_LOGW(TAG, "get_config_param_bool could not open nvs - it may not have been initialized"); // nvs may not have been initialized
+    }
+    return err;
+}
+
 esp_err_t get_config_param_blob(char* name, uint8_t* blob,  size_t blob_len)
 {
     nvs_handle_t nvs;
@@ -160,6 +190,10 @@ static struct {
     struct arg_str* password;
     struct arg_str* x5_user;
     struct arg_str* x5_pass;
+    struct arg_int* eth_bridge_promiscuous;
+    struct arg_int* modify_dhcp_msgs;
+    struct arg_int* verbose_log;
+    struct arg_int* alt_geoid_separation;
     struct arg_end* end;
 } set_rtk_arg;
 
@@ -235,6 +269,58 @@ int set_rtk(int argc, char **argv)
         }
     }
 
+    if (set_rtk_arg.eth_bridge_promiscuous->count > 0) {
+        if ((set_rtk_arg.eth_bridge_promiscuous->ival[0] != 0) && (set_rtk_arg.eth_bridge_promiscuous->ival[0] != 1)) {
+            printf("eth_bridge_promiscuous must be 0 or 1\n");
+        }
+        else {
+            err = nvs_set_u8(nvs, "promiscuous", set_rtk_arg.eth_bridge_promiscuous->ival[0]);
+            if (err == ESP_OK) {
+                ESP_LOGI(TAG, "eth_bridge_promiscuous stored: %d", set_rtk_arg.eth_bridge_promiscuous->ival[0]);
+                // Don't update the global in RAM - it could cause badness... The change will happen at the next restart.
+            }
+        }
+    }
+
+    if (set_rtk_arg.modify_dhcp_msgs->count > 0) {
+        if ((set_rtk_arg.modify_dhcp_msgs->ival[0] != 0) && (set_rtk_arg.modify_dhcp_msgs->ival[0] != 1)) {
+            printf("modify_dhcp_msgs must be 0 or 1\n");
+        }
+        else {
+            err = nvs_set_u8(nvs, "modify_dhcp", set_rtk_arg.modify_dhcp_msgs->ival[0]);
+            if (err == ESP_OK) {
+                ESP_LOGI(TAG, "modify_dhcp_msgs stored: %d", set_rtk_arg.modify_dhcp_msgs->ival[0]);
+                // Don't update the global in RAM - it could cause badness... The change will happen at the next restart.
+            }
+        }
+    }
+
+    if (set_rtk_arg.verbose_log->count > 0) {
+        if ((set_rtk_arg.verbose_log->ival[0] != 0) && (set_rtk_arg.verbose_log->ival[0] != 1)) {
+            printf("verbose_log must be 0 or 1\n");
+        }
+        else {
+            err = nvs_set_u8(nvs, "verbose_log", set_rtk_arg.verbose_log->ival[0]);
+            if (err == ESP_OK) {
+                ESP_LOGI(TAG, "verbose_log stored: %d", set_rtk_arg.verbose_log->ival[0]);
+                param_set_value_bool(&verbose_log, (const char *)set_rtk_arg.verbose_log->ival[0]); // Update the global in RAM
+            }
+        }
+    }
+
+    if (set_rtk_arg.alt_geoid_separation->count > 0) {
+        if ((set_rtk_arg.alt_geoid_separation->ival[0] != 0) && (set_rtk_arg.alt_geoid_separation->ival[0] != 1)) {
+            printf("alt_geoid_separation must be 0 or 1\n");
+        }
+        else {
+            err = nvs_set_u8(nvs, "separation", set_rtk_arg.alt_geoid_separation->ival[0]);
+            if (err == ESP_OK) {
+                ESP_LOGI(TAG, "alt_geoid_separation stored: %d", set_rtk_arg.alt_geoid_separation->ival[0]);
+                param_set_value_bool(&alt_geoid_separation, (const char *)set_rtk_arg.alt_geoid_separation->ival[0]); // Update the global in RAM
+            }
+        }
+    }
+
     nvs_close(nvs);
     return err;
 }
@@ -250,6 +336,14 @@ static void register_set_rtk(void)
         "\n\tTo set a NULL X5 username, use: --x5_user=%00");
     set_rtk_arg.x5_pass = arg_str0("x", "x5_pass", NULL, "X5 Password"
         "\n\tTo set a NULL X5 password, use: --x5_pass=%00");
+    set_rtk_arg.eth_bridge_promiscuous = arg_int0("e", "eth_bridge_promiscuous", NULL, "0 or 1"
+        "\n\tSet true to enable promiscuous mode on Ethernet interface (default)");
+    set_rtk_arg.modify_dhcp_msgs = arg_int0("d", "modify_dhcp_msgs", NULL, "0 or 1"
+        "\n\tSet true to update HW addresses in DHCP messages (default)");
+    set_rtk_arg.alt_geoid_separation = arg_int0("g", "alt_geoid_separation", NULL, "0 or 1"
+        "\n\tSet true to include the geoidal separation in the displayed altitude (default is false)");
+    set_rtk_arg.verbose_log = arg_int0("v", "verbose_log", NULL, "0 or 1"
+        "\n\tSet true to display many additional Info log messages (default is false)");
     set_rtk_arg.end = arg_end(2);
 
     const esp_console_cmd_t cmd = {
@@ -267,16 +361,45 @@ static int show(int argc, char **argv)
     int *new_mode = NULL;
     get_config_param_int("mode", &new_mode);
     if (new_mode != NULL) // Use the (updated) value from nvs if available
-        printf("mode:        %d (%s)\n", *new_mode, *new_mode == 1 ? "Ethernet" : "WiFi");
+        printf("mode:                   %d (%s)\n", *new_mode, *new_mode == 1 ? "Ethernet" : "WiFi");
     else if (mode != NULL)
-        printf("mode:        %d (%s)\n", *mode, *mode == 1 ? "Ethernet" : "WiFi");
+        printf("mode:                   %d (%s)\n", *mode, *mode == 1 ? "Ethernet" : "WiFi");
     else
-        printf("mode:      <not defined>");
-    printf("ssid:        %s\n", ssid != NULL ? ssid : "<not defined>");
-    printf("password:    %s\n", password != NULL ? password : "<not defined>");
-    printf("X5 username: %s\n", x5_user != NULL ? x5_user : "<not defined>");
-    printf("X5 password: %s\n", x5_pass != NULL ? x5_pass : "<not defined>");
-    printf("log_level:   %s\n", esp_log_level != NULL ? esp_log_level : "<not defined>");
+        printf("mode:                 <not defined>");
+    
+    printf("ssid:                   %s\n", ssid != NULL ? ssid : "<not defined>");
+    printf("password:               %s\n", password != NULL ? password : "<not defined>");
+    printf("X5 username:            %s\n", x5_user != NULL ? x5_user : "<not defined>");
+    printf("X5 password:            %s\n", x5_pass != NULL ? x5_pass : "<not defined>");
+    printf("log_level:              %s\n", esp_log_level != NULL ? esp_log_level : "<not defined>");
+    
+    bool *new_eth_bridge_promiscuous = NULL;
+    get_config_param_bool("eth_bridge_promiscuous", &new_eth_bridge_promiscuous);
+    if (new_eth_bridge_promiscuous != NULL) // Use the (updated) value from nvs if available
+        printf("eth_bridge_promiscuous: %d\n", *new_eth_bridge_promiscuous);
+    else if (eth_bridge_promiscuous != NULL)
+        printf("eth_bridge_promiscuous: %d\n", *eth_bridge_promiscuous);
+    else
+        printf("eth_bridge_promiscuous: <not defined>");
+    
+    bool *new_modify_dhcp_msgs = NULL;
+    get_config_param_bool("modify_dhcp_msgs", &new_modify_dhcp_msgs);
+    if (new_modify_dhcp_msgs != NULL) // Use the (updated) value from nvs if available
+        printf("modify_dhcp_msgs:       %d\n", *new_eth_bridge_promiscuous);
+    else if (modify_dhcp_msgs != NULL)
+        printf("modify_dhcp_msgs:       %d\n", *modify_dhcp_msgs);
+    else
+        printf("modify_dhcp_msgs:       <not defined>");
+
+    if (verbose_log != NULL)
+        printf("verbose_log:            %d\n", *verbose_log);
+    else
+        printf("verbose_log:            <not defined>\n");
+
+    if (alt_geoid_separation != NULL)
+        printf("alt_geoid_separation:   %d\n", *alt_geoid_separation);
+    else
+        printf("alt_geoid_separation:   <not defined>\n");
 
     return 0;
 }

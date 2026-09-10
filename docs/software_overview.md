@@ -337,7 +337,6 @@ To upgrade the ESP32 firmware, using a Windows PC:
     * It should appear in Device Manager as a CH340 COM port
 * Run *ESP32_FLASH_ERASE.bat* to completely clear the ESP32 memory
     * The .bat file should find the COM port number for you
-	* If you see the error ```'wmic' is not recognized as an internal or external command, operable program or batch file```, you will need to [install WMIC](https://techcommunity.microsoft.com/blog/windows-itpro-blog/how-to-install-wmic-feature-on-demand-on-windows-11/4189530) or provide the COM port manually:
 
 ```
 ESP32_FLASH_ERASE.bat COM1
@@ -351,7 +350,6 @@ esptool.exe --chip esp32 -p COM1 -b 460800 erase_flash
 
 * Then run *ESP32_FLASHER.bat* to upload the firmware
 	* The .bat file should find the COM port number for you
-	* If you see the error ```'wmic' is not recognized as an internal or external command, operable program or batch file```, you will need to [install WMIC](https://techcommunity.microsoft.com/blog/windows-itpro-blog/how-to-install-wmic-feature-on-demand-on-windows-11/4189530) or provide the COM port manually:
 
 ```
 ESP32_FLASHER.bat COM1

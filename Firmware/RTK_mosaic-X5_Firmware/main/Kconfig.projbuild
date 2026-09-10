@@ -21,12 +21,4 @@ menu "Example Configuration"
             bool "WPA3 PSK"
     endchoice
 
-    config EXAMPLE_RTK_X5_VERBOSE_LOG
-        bool "Enable extra WiFi and Ethernet log messages"
-        default n
-
-    config EXAMPLE_RTK_X5_DISPLAY_ALT_WITH_GEOID_SEPARATION
-        bool "Display altitude including the geoid separation"
-        default n
-
 endmenu
