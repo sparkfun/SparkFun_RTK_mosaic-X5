@@ -17,13 +17,15 @@
    save the settings without them being overwritten.
 
    Mode 2 allows you to connect the RTK mosaic-X5 to your WiFi network. Link the MOSAIC and
-   ESP32 ETHERNET ports using a standard Ethernet patch cable. The ESP32 provides Network Address
-   Port Translation between X5 Ethernet and WiFi. ESP32 is the DHCP server for mosaic-X5 Ethernet.
+   ESP32 ETHERNET ports using a standard Ethernet patch cable. The ESP32 forwards all packets
+   between X5 Ethernet and WiFi.
    The WiFi SSID and password are set using the CONFIG ESP32 USB serial console.
    Once the ESP32 is connected to WiFi, you can view the X5's internal web page at the IP address
    shown on the OLED display.
    In Mode 2 the ESP32 sets the X5 Ethernet interface to DHCP, so that the X5 can request an IP
-   address from the ESP32.
+   address through the ESP32.
+   The X5's IP address is provided by the WiFi router / access point. The ESP32 forwards the
+   DHCP requests and responses, manipulating the source and destination MAC addesses as needed.
 
    The mode can be changed via the CONFIG ESP32 USB serial console. Connect to the CONFIG ESP32
    USB port and open a terminal at 115200 baud to see the console. Type help for help.
@@ -37,7 +39,7 @@
 
    ---
 
-   Updates September 8th 2026 (v1.1.0):
+   Updates September 11th 2026 (v1.1.0):
 
    Major update - based on:
    https://github.com/espressif/esp-idf/tree/master/examples/network/sta2eth
@@ -45,6 +47,23 @@
    https://github.com/espressif/esp-protocols/tree/master/examples/esp_netif/eth_gateway_wifi_sta
 
    Tested with ESP-IDF v6.1
+
+   Adds these new configuration settings:
+    -e, --eth_bridge_promiscuous=<int>  0 or 1
+            Set to 1 to enable promiscuous mode on Ethernet interface (default)
+            WiFi mode only
+            Requires restart
+    -d, --modify_dhcp_msgs=<int>  0 or 1
+            Set to 1 to update HW addresses in DHCP messages (default)
+            WiFi mode only
+            Requires restart
+    -g, --alt_geoid_separation=<int>  0 or 1
+            Set to 1 to include the geoidal separation in the displayed altitude (default is 0)
+    -i, --inverted_display=<int>  0 or 1
+            Set to 1 to invert the OLED display color (default is 0)
+            Requires restart
+    -v, --verbose_log=<int>  0 or 1
+            Set to 1 to display many additional Info log messages (default is 0)   
 
    ---
 
@@ -426,6 +445,8 @@ void clear_oled_text(void); // Header
 void print_oled(char *txt); // Header
 void set_oled(char *txt); // Header
 void update_oled(void); // Header
+void update_oled_full(void); // Header
+void update_oled_selective(bool full); // Header
 void display_IP(void); // Header
 
 static char ipAddress[25 + 1];
@@ -502,9 +523,7 @@ uint16_t ccitt_crc_update(uint16_t crc, const uint8_t data)
 
 static esp_err_t wired_recv_callback(void *buffer, uint16_t len, void *ctx)
 {
-    bool CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG = false;
-    if (verbose_log)
-        CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG = *verbose_log;
+    bool CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG = *verbose_log;
 
     if (s_wifi_is_connected) {
         mac_spoof(FROM_WIRED, buffer, len, s_sta_mac);
@@ -550,9 +569,7 @@ static void wifi_buff_free(void *buffer, void *ctx)
 
 static esp_err_t wifi_recv_callback(void *buffer, uint16_t len, void *eb)
 {
-    bool CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG = false;
-    if (verbose_log)
-        CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG = *verbose_log;
+    bool CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG = *verbose_log;
 
 if (CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG)
     ESP_LOGI(TAG, "wifi_rx len %ld", len);
@@ -632,18 +649,14 @@ void mac_spoof(mac_spoof_direction_t direction, uint8_t *buffer, uint16_t len, u
      *  - this results in better throughput
      *  - might cause ARP conflicts if the PC is also connected to the same AP with another NIC
      */
-    bool ETH_BRIDGE_PROMISCUOUS = true;
-    if (eth_bridge_promiscuous)
-        ETH_BRIDGE_PROMISCUOUS = *eth_bridge_promiscuous;
+    bool ETH_BRIDGE_PROMISCUOUS = *eth_bridge_promiscuous;
 
     /**
      * Set this to 1 to runtime update HW addresses in DHCP messages
      * (this is needed if the client uses 61 option and the DHCP server applies strict rules on assigning addresses)
      * Note: the code won't compile if you have both ETH_BRIDGE_PROMISCUOUS and MODIFY_DHCP_MSGS set to 1
      */
-    bool MODIFY_DHCP_MSGS = true;
-    if (modify_dhcp_msgs)
-        MODIFY_DHCP_MSGS = *modify_dhcp_msgs;
+    bool MODIFY_DHCP_MSGS = *modify_dhcp_msgs;
 
     static uint8_t eth_nic_mac[6] = {};
     static bool eth_nic_mac_found = false;
@@ -771,9 +784,7 @@ if (!ETH_BRIDGE_PROMISCUOUS) {
 
 static esp_err_t wired_recv(esp_eth_handle_t eth_handle, uint8_t *buffer, uint32_t len, void *priv)
 {
-    bool CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG = false;
-    if (verbose_log)
-        CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG = *verbose_log;
+    bool CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG = *verbose_log;
 
 if (CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG)
     ESP_LOGI(TAG, "wired_recv len %ld", len);
@@ -786,9 +797,7 @@ if (CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG)
 esp_err_t wired_bridge_init(wired_rx_cb_t rx_cb, wired_free_cb_t free_cb)
 {
     // Use the same CONFIG names as the original example
-    bool ETH_BRIDGE_PROMISCUOUS = true;
-    if (eth_bridge_promiscuous)
-        ETH_BRIDGE_PROMISCUOUS = *eth_bridge_promiscuous;
+    bool ETH_BRIDGE_PROMISCUOUS = *eth_bridge_promiscuous;
 
     uint8_t eth_port_cnt = 0;
     esp_eth_handle_t *eth_handles;
@@ -827,9 +836,7 @@ if (ETH_BRIDGE_PROMISCUOUS) {
 
 esp_err_t wired_send(void *buffer, uint16_t len, void *buff_free_arg)
 {
-    bool CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG = false;
-    if (verbose_log)
-        CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG = *verbose_log;
+    bool CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG = *verbose_log;
 
 if (CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG) {
     uint8_t *ptr = (uint8_t *)buffer;
@@ -1172,8 +1179,17 @@ if (CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG)
                                             char line[oled_x_chars + 1];
                                             token = strtok_r(remainder, ",", &remainder); // Time
                                             if (!remainderValid) break;
-                                            char theTime[11];
-                                            snprintf(theTime, sizeof(theTime), "%c%c:%c%c:%c%c.%c", *(token), *(token + 1), *(token + 2), *(token + 3), *(token + 4), *(token + 5), *(token + 7));
+                                            char theTime[12];
+                                            if (tokenValid)
+                                            {
+                                                if (*(token + 6) == '.')
+                                                    snprintf(theTime, sizeof(theTime), "%c%c:%c%c:%c%c.%c%c",
+                                                            *(token), *(token + 1), *(token + 2), *(token + 3), *(token + 4), *(token + 5), *(token + 7),
+                                                            (*(token + 8) != ',') ? *(token + 8) : ' ');
+                                                else
+                                                    snprintf(theTime, sizeof(theTime), "%c%c:%c%c:%c%c",
+                                                            *(token), *(token + 1), *(token + 2), *(token + 3), *(token + 4), *(token + 5));
+                                            }
                                             snprintf(line, sizeof(line), "Time: %s", tokenValid ? theTime : "?");
                                             set_oled(line);
                                             
@@ -1183,14 +1199,17 @@ if (CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG)
                                             float secs = 0;
                                             float multiplier = 0.1;
                                             int places = 1;
-                                            while ((*(token + 4 + places) != ',') && (places < 8))
+                                            if (tokenValid)
                                             {
-                                                secs += ((float)(*(token + 4 + places) - '0')) * multiplier;
-                                                multiplier /= 10.0;
-                                                places++;
+                                                while ((*(token + 4 + places) != ',') && (places < 8))
+                                                {
+                                                    secs += ((float)(*(token + 4 + places) - '0')) * multiplier;
+                                                    multiplier /= 10.0;
+                                                    places++;
+                                                }
+                                                secs *= 60.0;
+                                                snprintf(theLat, sizeof(theLat), "%c%c %c%c %02.4f", *(token), *(token + 1), *(token + 2), *(token + 3), secs);
                                             }
-                                            secs *= 60.0;
-                                            snprintf(theLat, sizeof(theLat), "%c%c %c%c %02.4f", *(token), *(token + 1), *(token + 2), *(token + 3), secs);
                                             snprintf(line, sizeof(line), "Lat:   %s %c", tokenValid ? theLat : "?", remainderValid ? *remainder : '?');
                                             set_oled(line);
                                             
@@ -1199,17 +1218,20 @@ if (CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG)
                                             token = strtok_r(remainder, ",", &remainder); // Longitude
                                             if (!remainderValid) break;
                                             char theLon[15];
-                                            secs = 0;
-                                            multiplier = 0.1;
-                                            places = 1;
-                                            while ((*(token + 5 + places) != ',') && (places < 8))
+                                            if (tokenValid)
                                             {
-                                                secs += ((float)(*(token + 5 + places) - '0')) * multiplier;
-                                                multiplier /= 10.0;
-                                                places++;
+                                                secs = 0;
+                                                multiplier = 0.1;
+                                                places = 1;
+                                                while ((*(token + 5 + places) != ',') && (places < 8))
+                                                {
+                                                    secs += ((float)(*(token + 5 + places) - '0')) * multiplier;
+                                                    multiplier /= 10.0;
+                                                    places++;
+                                                }
+                                                secs *= 60.0;
+                                                snprintf(theLon, sizeof(theLon), "%c%c%c %c%c %02.4f", *(token), *(token + 1), *(token + 2), *(token + 3), *(token + 4), secs);
                                             }
-                                            secs *= 60.0;
-                                            snprintf(theLon, sizeof(theLon), "%c%c%c %c%c %02.4f", *(token), *(token + 1), *(token + 2), *(token + 3), *(token + 4), secs);
                                             snprintf(line, sizeof(line), "Long: %s %c", tokenValid ? theLon : "?", remainderValid ? *remainder : '?');
                                             set_oled(line);
                                             
@@ -1321,9 +1343,7 @@ if (CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG)
                                             if (neg == 1)
                                                 geoid *= -1.0;
 
-                                            bool CONFIG_EXAMPLE_RTK_X5_DISPLAY_ALT_WITH_GEOID_SEPARATION = false;
-                                            if (alt_geoid_separation)
-                                                CONFIG_EXAMPLE_RTK_X5_DISPLAY_ALT_WITH_GEOID_SEPARATION = *alt_geoid_separation;
+                                            bool CONFIG_EXAMPLE_RTK_X5_DISPLAY_ALT_WITH_GEOID_SEPARATION = *alt_geoid_separation;
     if (CONFIG_EXAMPLE_RTK_X5_DISPLAY_ALT_WITH_GEOID_SEPARATION)
                                             alt += geoid;
     //#endif
@@ -1341,10 +1361,10 @@ if (CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG)
                                             // snprintf(line, sizeof(line), "Age:  %s", tokenValid ? token : "?");
                                             // set_oled(line);
                                             
-                                            snprintf(line, sizeof(line), "%s", ipAddress); // Copy the IP address
-                                            const size_t ipStart = 6;
-                                            if (!s_ethernet_is_connected)
-                                                snprintf(&line[ipStart], sizeof(line) - ipStart, "Link Down");
+                                            if ((*mode == 2) && !s_ethernet_is_connected)
+                                                snprintf(line, sizeof(line), "IP:   Link Down");
+                                            else
+                                                snprintf(line, sizeof(line), "%s", ipAddress); // Copy the IP address
                                             set_oled(line); // Show the stored IP address
 
                                             update_oled();
@@ -1683,7 +1703,7 @@ void initialize_oled(void)
     oled_ready = true;
 
     clear_oled_text();
-    update_oled();
+    update_oled_full(); // Full update - write everything
     print_oled("RTK mosaic-X5 starting");
     print_oled((char *)VERSION);
 }
@@ -1983,24 +2003,22 @@ void clear_oled_text(void) {
         }
 }
 
-void ssd1306_draw_58char(uint8_t chXpos, uint8_t chYpos, uint8_t chChar)
+void ssd1306_draw_58char(uint8_t chXpos, uint8_t chYpos, char chChar)
 {
     // If MS bit is set, character is to be inverted
     bool inverted = chChar >= 0x80;
     chChar &= 0x7F;
 
     uint8_t buffer[FONT_5X7_WIDTH];
-    uint8_t const *ptr = &font5x7_data[(uint16_t)chChar * FONT_5X7_WIDTH];
+    uint8_t const *ptr = &font5x7_data[(uint16_t)chChar * (uint16_t)FONT_5X7_WIDTH];
     memcpy(&buffer[0], ptr, FONT_5X7_WIDTH);
     if (inverted)
         for (size_t i = 0; i < FONT_5X7_WIDTH; i++)
             buffer[i] ^= 0xFF;
-    bool INVERTED_DISPLAY = false;
-    if (inverted_display)
-        INVERTED_DISPLAY = *inverted_display;
+    bool INVERTED_DISPLAY = *inverted_display;
     if (INVERTED_DISPLAY)
         for (size_t i = 0; i < FONT_5X7_WIDTH; i++)
-            buffer[i] ^= 0xFF;
+            buffer[i] = buffer[i] ^ 0xFF;
 
     esp_lcd_panel_draw_bitmap(panel_handle,
                               chXpos,
@@ -2021,11 +2039,11 @@ void ssd1306_erase_char(uint8_t chXpos, uint8_t chYpos, uint8_t xWidth)
                               (const void *)&empty[0]);
 }
 
-// Copy txt to the bottom line of the text buffer and update the OLEDD
+// Copy txt to the bottom line of the text buffer and update the OLED
 void print_oled(char *txt) {
     if (oledSemaphore == NULL)
         oledSemaphore = xSemaphoreCreateMutex();
-    if (xSemaphoreTake(oledSemaphore, pdMS_TO_TICKS(10)))
+    if (xSemaphoreTake(oledSemaphore, pdMS_TO_TICKS(200)))
     {
         set_oled(txt);
         update_oled();
@@ -2052,6 +2070,12 @@ void set_oled(char *txt) {
 }
 
 void update_oled(void) {
+    update_oled_selective(false);
+}
+void update_oled_full(void) {
+    update_oled_selective(true);
+}
+void update_oled_selective(bool full) {
     if (oled_ready) {
         // Print the characters
         static bool edgeWiped = false;
@@ -2059,7 +2083,7 @@ void update_oled(void) {
         for (uint8_t y = 0; y < oled_y_chars; y++) {
             uint8_t xpos = 0;
             for (uint8_t x = 0; x < oled_x_chars; x++) {
-                if (oled_text[x][y] != oled_text_previous[x][y]) // Only write changes
+                if (full || (oled_text[x][y] != oled_text_previous[x][y])) // Selective update
                 {
                     ssd1306_draw_58char(xpos, ypos, oled_text[x][y]);
                     oled_text_previous[x][y] = oled_text[x][y]; // Update previous
@@ -2084,16 +2108,6 @@ void app_main(void)
     // Initialize NVS partition and file system
     initialize_nvs();
     initialize_filesystem();
-
-    // Initialize auxiliary peripherals
-    initialize_leds();
-    initialize_uart();
-    initialize_i2c();
-    initialize_oled();
-
-    // Initialize event loop
-    s_event_flags = xEventGroupCreate();
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
 
     /* Default settings */
     get_config_param_int("mode", &mode);
@@ -2146,6 +2160,16 @@ void app_main(void)
     if (verbose_log == NULL) {
         param_set_value_bool(&verbose_log, false); // Default to false
     }
+
+    // Initialize auxiliary peripherals
+    initialize_leds();
+    initialize_uart();
+    initialize_i2c();
+    initialize_oled(); // Needs NVS settings (inverted_display)
+
+    // Initialize event loop
+    s_event_flags = xEventGroupCreate();
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
 
     // Initialize console
     initialize_console();

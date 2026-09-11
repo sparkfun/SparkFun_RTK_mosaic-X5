@@ -342,7 +342,8 @@ int set_rtk(int argc, char **argv)
 static void register_set_rtk(void)
 {
     set_rtk_arg.mode = arg_int0("m", "mode", NULL, "\n\tmode: 1 = Ethernet (default)"
-        "\n\t      2 = WiFi");
+        "\n\t      2 = WiFi"
+        "\n\tRequires restart");
     set_rtk_arg.ssid = arg_str0("s", "ssid", NULL, "WiFi SSID");
     set_rtk_arg.password = arg_str0("p", "password", NULL, "WiFi Password"
         "\n\tTo set a NULL password, use: --password=%00");
@@ -351,15 +352,20 @@ static void register_set_rtk(void)
     set_rtk_arg.x5_pass = arg_str0("x", "x5_pass", NULL, "X5 Password"
         "\n\tTo set a NULL X5 password, use: --x5_pass=%00");
     set_rtk_arg.eth_bridge_promiscuous = arg_int0("e", "eth_bridge_promiscuous", NULL, "0 or 1"
-        "\n\tSet true to enable promiscuous mode on Ethernet interface (default)");
+        "\n\tSet to 1 to enable promiscuous mode on Ethernet interface (default)"
+        "\n\tWiFi mode only"
+        "\n\tRequires restart");
     set_rtk_arg.modify_dhcp_msgs = arg_int0("d", "modify_dhcp_msgs", NULL, "0 or 1"
-        "\n\tSet true to update HW addresses in DHCP messages (default)");
+        "\n\tSet to 1 to update HW addresses in DHCP messages (default)"
+        "\n\tWiFi mode only"
+        "\n\tRequires restart");
     set_rtk_arg.alt_geoid_separation = arg_int0("g", "alt_geoid_separation", NULL, "0 or 1"
-        "\n\tSet true to include the geoidal separation in the displayed altitude (default is false)");
-    set_rtk_arg.verbose_log = arg_int0("v", "verbose_log", NULL, "0 or 1"
-        "\n\tSet true to display many additional Info log messages (default is false)");
+        "\n\tSet to 1 to include the geoidal separation in the displayed altitude (default is 0)");
     set_rtk_arg.inverted_display = arg_int0("i", "inverted_display", NULL, "0 or 1"
-        "\n\tSet true to invert the OLED display color (default is false)");
+        "\n\tSet to 1 to invert the OLED display color (default is 0)"
+        "\n\tRequires restart");
+    set_rtk_arg.verbose_log = arg_int0("v", "verbose_log", NULL, "0 or 1"
+        "\n\tSet to 1 to display many additional Info log messages (default is 0)");
     set_rtk_arg.end = arg_end(2);
 
     const esp_console_cmd_t cmd = {
@@ -375,7 +381,7 @@ static void register_set_rtk(void)
 static int show(int argc, char **argv)
 {
     int *new_mode = NULL;
-    get_config_param_int("mode", &new_mode);
+    get_config_param_int("mode", &new_mode); // Requires restart - may be changed in NVM but not RAM
     if (new_mode != NULL) // Use the (updated) value from nvs if available
         printf("mode:                   %d (%s)\n", *new_mode, *new_mode == 1 ? "Ethernet" : "WiFi");
     else if (mode != NULL)
@@ -390,7 +396,7 @@ static int show(int argc, char **argv)
     printf("log_level:              %s\n", esp_log_level != NULL ? esp_log_level : "<not defined>");
     
     bool *new_eth_bridge_promiscuous = NULL;
-    get_config_param_bool("eth_bridge_promiscuous", &new_eth_bridge_promiscuous);
+    get_config_param_bool("promiscuous", &new_eth_bridge_promiscuous); // Requires restart - may be changed in NVM but not RAM
     if (new_eth_bridge_promiscuous != NULL) // Use the (updated) value from nvs if available
         printf("eth_bridge_promiscuous: %d\n", *new_eth_bridge_promiscuous);
     else if (eth_bridge_promiscuous != NULL)
@@ -399,7 +405,7 @@ static int show(int argc, char **argv)
         printf("eth_bridge_promiscuous: <not defined>");
     
     bool *new_modify_dhcp_msgs = NULL;
-    get_config_param_bool("modify_dhcp_msgs", &new_modify_dhcp_msgs);
+    get_config_param_bool("modify_dhcp", &new_modify_dhcp_msgs); // Requires restart - may be changed in NVM but not RAM
     if (new_modify_dhcp_msgs != NULL) // Use the (updated) value from nvs if available
         printf("modify_dhcp_msgs:       %d\n", *new_eth_bridge_promiscuous);
     else if (modify_dhcp_msgs != NULL)
@@ -413,7 +419,7 @@ static int show(int argc, char **argv)
         printf("alt_geoid_separation:   <not defined>\n");
 
     bool *new_inverted_display = NULL;
-    get_config_param_bool("inverted_display", &new_inverted_display);
+    get_config_param_bool("inverted_d", &new_inverted_display); // Requires restart - may be changed in NVM but not RAM
     if (new_inverted_display != NULL) // Use the (updated) value from nvs if available
         printf("inverted_display:       %d\n", *new_inverted_display);
     else if (inverted_display != NULL)
