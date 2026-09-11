@@ -1,10 +1,28 @@
-Changes added at v1.1.0:
+## Changes added at v1.1.0:
 
 * Major update - based on:
+	* https://github.com/espressif/esp-idf/tree/master/examples/network/sta2eth
+	* with help from:
 	* https://github.com/espressif/esp-protocols/tree/master/examples/esp_netif/eth_gateway_wifi_sta
 * Tested with ESP-IDF v6.1
+* Adds these new configuration settings:
+	* -e, --eth_bridge_promiscuous=<int>  0 or 1
+		* Set to 1 to enable promiscuous mode on Ethernet interface (default)
+		* WiFi mode only
+		* Requires restart
+	* -d, --modify_dhcp_msgs=<int>  0 or 1
+		* Set to 1 to update HW addresses in DHCP messages (default)
+		* WiFi mode only
+		* Requires restart
+    * -g, --alt_geoid_separation=<int>  0 or 1
+		* Set to 1 to include the geoidal separation in the displayed altitude (default is 0)
+    * -i, --inverted_display=<int>  0 or 1
+		* Set to 1 to invert the OLED display color (default is 0)
+		* Requires restart
+	* -v, --verbose_log=<int>  0 or 1
+		*Set to 1 to display many additional Info log messages (default is 0)   
 
-Changes added at v1.0.6:
+## Changes added at v1.0.6:
 
 * ESP-IDF:
 	* Bump to ESP-IDF v5.1.7
@@ -24,7 +42,7 @@ Changes added at v1.0.6:
 	* The minimal vTaskDelay has been increased from ```vTaskDelay(0)``` to ```vTaskDelay(1)```
 		* This prevents unwanted Watchdog resets during wait-for-command-response
 
-Changes added at v1.0.5:
+## Changes added at v1.0.5:
 
 * The firmware now supports a username and password for the X5 itself
 	* This is to support mosaic-X5 firmware versions >= 4.15.1 where a username and password are mandatory *on IP interfaces* (webUI, Ethernet-over-USB, CLI over TCP/IP)
@@ -39,7 +57,7 @@ Changes added at v1.0.5:
 		* If the ESP32 needs to know the username and password: in the ESP32 Serial Terminal / console, use option *set -u* to set the X5 username and option *set -x* to set the X5 password
 		* Turn the RTK mosaic-X5 off and back on again
 
-Changes added at v1.0.4:
+## Changes added at v1.0.4:
 
 * The firmware now includes an efficient SBF and NMEA parser
     * Previously the NMEA GPGGA and SBF IPStatus messages were polled, this resulted in the OLED being updated once every ~2 seconds
