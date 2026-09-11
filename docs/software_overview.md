@@ -324,7 +324,7 @@ With the RTK mosaic-X5 operating with the configured WiFi network bridge, users 
 
 The firmware running on the ESP32 is based heavily on the firmware for the [Septentrio mowi](https://github.com/septentrio-gnss/mowi). SparkFun added some bells and whistles, primarily to support the OLED display. The full firmware source code is available in the [GitHub repo](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/tree/main/Firmware/RTK_mosaic-X5_Firmware). It was developed and compiled with the Espressif ESP-IDF version 5.1.7.
 
-The most recent version of the firmware is v1.0.6, released on September 7th 2026. If you purchased your RTK mosaic-X5 before this date, you may enjoy the improvements in v1.0.6. Please see the [change_log](./change_log.md) or [releases](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/releases) for more details.
+The most recent version of the firmware is v1.1.0, released on September 11th 2026. If you purchased your RTK mosaic-X5 before this date, you may enjoy the improvements in v1.1.0. Please see the [change_log](./change_log.md) or [releases](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/releases) for more details.
 
 To upgrade the ESP32 firmware, using a Windows PC:
 
@@ -337,7 +337,6 @@ To upgrade the ESP32 firmware, using a Windows PC:
     * It should appear in Device Manager as a CH340 COM port
 * Run *ESP32_FLASH_ERASE.bat* to completely clear the ESP32 memory
     * The .bat file should find the COM port number for you
-	* If you see the error ```'wmic' is not recognized as an internal or external command, operable program or batch file```, you will need to [install WMIC](https://techcommunity.microsoft.com/blog/windows-itpro-blog/how-to-install-wmic-feature-on-demand-on-windows-11/4189530) or provide the COM port manually:
 
 ```
 ESP32_FLASH_ERASE.bat COM1
@@ -351,7 +350,6 @@ esptool.exe --chip esp32 -p COM1 -b 460800 erase_flash
 
 * Then run *ESP32_FLASHER.bat* to upload the firmware
 	* The .bat file should find the COM port number for you
-	* If you see the error ```'wmic' is not recognized as an internal or external command, operable program or batch file```, you will need to [install WMIC](https://techcommunity.microsoft.com/blog/windows-itpro-blog/how-to-install-wmic-feature-on-demand-on-windows-11/4189530) or provide the COM port manually:
 
 ```
 ESP32_FLASHER.bat COM1

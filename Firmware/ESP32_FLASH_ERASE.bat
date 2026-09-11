@@ -7,10 +7,8 @@ goto erase
 
 :findPort
 
-for /f "tokens=2 delims=(" %%a in ('wmic path win32_pnpentity get caption /format:list ^| find "COM" ^| find "CH340"') do (
-    for /f "tokens=1 delims=)" %%b in ("%%a") do (
-        set COMPORT=%%b
-    )
+for /f "delims=" %%A in ('powershell -Command "Get-CimInstance Win32_PnPEntity | Where-Object { $_.Name -match '\(COM[0-9]+\)' } | Where-Object { $_.Name -match 'CH340' } | ForEach-Object { if ($_ -match '\(COM[0-9]+\)') { $matches[0].Trim('()') } }"') do (
+    set COMPORT=%%A
 )
 
 :erase

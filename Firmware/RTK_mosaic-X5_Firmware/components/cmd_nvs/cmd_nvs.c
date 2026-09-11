@@ -155,7 +155,7 @@ static esp_err_t store_blob(nvs_handle_t nvs, const char *key, const char *str_v
 static void print_blob(const char *blob, size_t len)
 {
     for (int i = 0; i < len; i++) {
-        printf("%02x", blob[i]);
+        printf("%02X", blob[i]);
     }
     printf("\n");
 }

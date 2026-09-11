@@ -17,13 +17,15 @@
    save the settings without them being overwritten.
 
    Mode 2 allows you to connect the RTK mosaic-X5 to your WiFi network. Link the MOSAIC and
-   ESP32 ETHERNET ports using a standard Ethernet patch cable. The ESP32 acts as a WiFi Bridge,
-   forwarding all traffic from X5 Ethernet to WiFi and vice versa.
+   ESP32 ETHERNET ports using a standard Ethernet patch cable. The ESP32 forwards all packets
+   between X5 Ethernet and WiFi.
    The WiFi SSID and password are set using the CONFIG ESP32 USB serial console.
    Once the ESP32 is connected to WiFi, you can view the X5's internal web page at the IP address
    shown on the OLED display.
    In Mode 2 the ESP32 sets the X5 Ethernet interface to DHCP, so that the X5 can request an IP
-   address from the WiFi router transparently through the ESP32.
+   address through the ESP32.
+   The X5's IP address is provided by the WiFi router / access point. The ESP32 forwards the
+   DHCP requests and responses, manipulating the source and destination MAC addesses as needed.
 
    The mode can be changed via the CONFIG ESP32 USB serial console. Connect to the CONFIG ESP32
    USB port and open a terminal at 115200 baud to see the console. Type help for help.
@@ -34,6 +36,34 @@
    show
    set --mode=2 --ssid=SSID --password=PASSWORD
    restart
+
+   ---
+
+   Updates September 11th 2026 (v1.1.0):
+
+   Major update - based on:
+   https://github.com/espressif/esp-idf/tree/master/examples/network/sta2eth
+   with help from:
+   https://github.com/espressif/esp-protocols/tree/master/examples/esp_netif/eth_gateway_wifi_sta
+
+   Tested with ESP-IDF v6.1
+
+   Adds these new configuration settings:
+    -e, --eth_bridge_promiscuous=<int>  0 or 1
+            Set to 1 to enable promiscuous mode on Ethernet interface (default)
+            WiFi mode only
+            Requires restart
+    -d, --modify_dhcp_msgs=<int>  0 or 1
+            Set to 1 to update HW addresses in DHCP messages (default)
+            WiFi mode only
+            Requires restart
+    -g, --alt_geoid_separation=<int>  0 or 1
+            Set to 1 to include the geoidal separation in the displayed altitude (default is 0)
+    -i, --inverted_display=<int>  0 or 1
+            Set to 1 to invert the OLED display color (default is 0)
+            Requires restart
+    -v, --verbose_log=<int>  0 or 1
+            Set to 1 to display many additional Info log messages (default is 0)   
 
    ---
 
@@ -109,11 +139,6 @@
 
    ---
 
-   Written for and tested on ESP IDF v5.1.7
-
-   Needs:
-   idf.py add-dependency "espressif/ssd1306^1.0.5"
-
    Based on:
 
    mowi_wifi_client (WiFi to Ethernet packet forwarding with BLE based Provisioning)
@@ -134,45 +159,51 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <sdkconfig.h>
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
-#include <freertos/event_groups.h>
-#include <freertos/queue.h>
+#include "sdkconfig.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/semphr.h"
 
-#include <esp_log.h>
-#include <esp_wifi.h>
-#include <esp_eth.h>
-#include <esp_eth_driver.h>
-#include <esp_mac.h>
-#include <esp_event.h>
-#include <esp_netif.h>
-#include <nvs_flash.h>
+#include "esp_log.h"
+#include "esp_wifi.h"
+#include "esp_wifi_types.h"
+#include "esp_eth.h"
+#include "esp_mac.h"
+#include "esp_event.h"
+#include "esp_netif.h"
+#include "nvs_flash.h"
 
-#include <esp_private/wifi.h>
-#include <driver/gpio.h>
-#include <driver/uart.h>
-#include <hal/uart_hal.h>
+#include "dhcpserver/dhcpserver.h"
+#include "dhcpserver/dhcpserver_options.h"
+#include "ethernet_init.h"
 
-#include "ssd1306.h"
-#include "ssd1306_fonts.h"
+#include "esp_private/wifi.h"
+#include "driver/gpio.h"
+#include "driver/uart.h"
+#include "hal/uart_hal.h"
+
+#include "esp_lcd_panel_io.h"
+#include "esp_lcd_panel_vendor.h"
+#include "esp_lcd_panel_ops.h"
+
 #include "fnt_5x8.h"
 
-#include <esp_timer.h>
-#include <driver/i2c.h>
+#include "esp_timer.h"
+#include "driver/i2c_master.h"
 
-#include <esp_console.h>
-#include <esp_vfs_dev.h>
-#include <linenoise/linenoise.h>
-#include <argtable3/argtable3.h>
-#include <esp_vfs_fat.h>
-#include <nvs.h>
-#include <nvs_flash.h>
+#include "esp_console.h"
+#include "esp_vfs_dev.h"
+#include "linenoise/linenoise.h"
+#include "argtable3/argtable3.h"
+#include "esp_vfs_fat.h"
+#include "nvs.h"
+
 #include "cmd_nvs.h"
 #include "cmd_rtk.h"
 
-#include <lwip/inet.h>
-#include <lwip/ip4_addr.h>
+#include "cc.h"
+#include "esp_eth_netif_glue.h"
+
 
 /* The firmware version is updated by the Dockerfile */
 static const char *VERSION = "Firmware v0.0.0";
@@ -180,15 +211,54 @@ static const char *TAG = "RTK_mosaic-X5_Firmware";
 #define PROMPT_STR "RTK_X5"
 static const char* prompt;
 
-static esp_eth_handle_t s_eth_handle = NULL;
-static esp_eth_mac_t *s_mac = NULL;
-static esp_eth_phy_t *s_phy = NULL;
-static QueueHandle_t flow_control_queue = NULL;
+// Code from sta2eth wired_iface.h
+typedef esp_err_t (*wired_rx_cb_t)(void *buffer, uint16_t len, void *ctx);
+typedef void (*wired_free_cb_t)(void *buffer, void *ctx);
+typedef enum {
+    FROM_WIRED,
+    TO_WIRED
+} mac_spoof_direction_t;
+void mac_spoof(mac_spoof_direction_t direction, uint8_t *buffer, uint16_t len, uint8_t own_mac[6]); // Header
+esp_err_t wired_bridge_init(wired_rx_cb_t rx_cb, wired_free_cb_t free_cb); // Header
+esp_err_t wired_send(void *buffer, uint16_t len, void *buff_free_arg); // Header
+#define IP_V4 0x40
+#define IP_PROTO_UDP 0x11
+#define DHCP_PORT_IN 0x43
+#define DHCP_PORT_OUT 0x44
+#define DHCP_MACIG_COOKIE_OFFSET (8 + 236)
+#define DHCP_HW_ADDRESS_OFFSET (36)
+/**
+ * The minimum size of a DHCP packet is 236 bytes.
+ * This includes the DHCP header and the minimum-sized DHCP message, which is a DHCPDISCOVER or
+ * DHCPREQUEST message with no options.
+ * The value 285 bytes includes the Ethernet frame overhead:
+ * - Ethernet header: 14 bytes (6 dest MAC + 6 src MAC + 2 type)
+ * - IP header: 20 bytes
+ * - UDP header: 8 bytes
+ * - DHCP message: 236 bytes
+ * - Total: 14 + 20 + 8 + 236 = 278 bytes minimum, rounded up to 285 for safety margin
+ */
+#define MIN_DHCP_PACKET_SIZE (285)
+#define IP_HEADER_SIZE (20)
+#define DHCP_DISCOVER 1
+#define DHCP_OFFER 2
+#define DHCP_COOKIE_WITH_PKT_TYPE(type) {0x63, 0x82, 0x53, 0x63, 0x35, 1, type};
 
-static uint8_t eth_mac[6];
-static volatile bool eth_mac_is_set = false;
-static bool wifi_is_connected = false;
-static char ipAddress[25];
+static EventGroupHandle_t s_event_flags;
+static bool s_wifi_is_connected = false;
+static uint8_t s_sta_mac[6];
+
+const int CONNECTED_BIT = BIT0;
+const int DISCONNECTED_BIT = BIT1;
+
+// Code from sta2eth ethernet_iface.c
+static esp_eth_handle_t s_eth_handle = NULL;
+static uint8_t s_eth_mac[6];
+static wired_rx_cb_t s_rx_cb = NULL;
+static wired_free_cb_t s_free_cb = NULL;
+static bool s_ethernet_is_connected = false;
+void eth_event_handler(void *arg, esp_event_base_t event_base,
+                       int32_t event_id, void *event_data); // Header
 
 int* mode = NULL;
 char* ssid = NULL;
@@ -196,6 +266,11 @@ char* password = NULL;
 char* x5_user = NULL;
 char* x5_pass = NULL;
 char* esp_log_level = NULL;
+bool* eth_bridge_promiscuous = NULL;
+bool* modify_dhcp_msgs = NULL;
+bool* alt_geoid_separation = NULL;
+bool* inverted_display = NULL;
+bool* verbose_log = NULL;
 
 const char *cidr2mask(uint8_t cidr) {
     switch (cidr) {
@@ -305,11 +380,7 @@ const char *cidr2mask(uint8_t cidr) {
 }
 
 static volatile bool x5_uart_task_running = true;
-
-typedef struct {
-    void *packet;
-    uint16_t length;
-} flow_control_msg_t;
+SemaphoreHandle_t oledSemaphore = NULL;
 
 /* These could be in Kconfig, but who will want to change them? */
 #define CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM (1)
@@ -318,10 +389,6 @@ typedef struct {
 #define CONFIG_RTK_X5_BT_GPIO_PIN (13)
 #define CONFIG_RTK_X5_UART_TX_GPIO_PIN (2)
 #define CONFIG_RTK_X5_UART_RX_GPIO_PIN (4)
-#define CONFIG_RTK_X5_ETHERNET_PHY_ADDR (1)
-#define CONFIG_RTK_X5_ETHERNET_ERST_GPIO (5)
-#define CONFIG_RTK_X5_ETHERNET_MDC_GPIO (23)
-#define CONFIG_RTK_X5_ETHERNET_MDIO_GPIO (18)
 // Unused IO UART pins
 #define CONFIG_RTK_X5_IO_TX_GPIO_PIN (32)
 #define CONFIG_RTK_X5_IO_RTS_GPIO_PIN (33)
@@ -353,51 +420,36 @@ const char MOSAIC_CMD_EXE_IPSTATUS_ONCE[] = "esoc,COM4,IPStatus\n\r"; // Execute
 const char MOSAIC_CMD_SOFT_RESET[] = "erst,Soft,none\n\r"; // Execute soft reset
 const char MOSAIC_CMD_SOFT_RESET_RESPONSE[] = "ResetReceiver";
 
+bool send_command_check_response(const char *command, const char *response, int64_t timeoutMillis, int waitMillis, int tries); // Header
+
 /* I2C OLED */
-#define I2C_HOST  0
 #define RTK_X5_LCD_PIXEL_CLOCK_HZ    (400 * 1000)
 #define RTK_X5_PIN_NUM_SDA           15
 #define RTK_X5_PIN_NUM_SCL           14
 #define RTK_X5_PIN_NUM_RST           -1
 #define RTK_X5_OLED_HW_ADDR          0x3D
 
+i2c_master_bus_handle_t bus_handle = NULL;
+esp_lcd_panel_io_handle_t io_handle = NULL;
+esp_lcd_panel_handle_t panel_handle = NULL;
+
 void print_text(char *txt); // Header
-static ssd1306_handle_t disp;
 
 const uint8_t oled_x_chars = 25; // 128 / 5
 const uint8_t oled_y_chars = 8;  // 64 / 8
 static char oled_text[25][8];
+static char oled_text_previous[25][8];
 static bool oled_ready = false;
 void x5_not_ready(void); // Header
 void clear_oled_text(void); // Header
 void print_oled(char *txt); // Header
 void set_oled(char *txt); // Header
 void update_oled(void); // Header
+void update_oled_full(void); // Header
+void update_oled_selective(bool full); // Header
 void display_IP(void); // Header
-bool send_command_check_response(const char *command, const char *response, int64_t timeoutMillis, int waitMillis, int tries); // Header
 
-/* Extra SSD1306 commands - if needed */
-#define RTK_SSD1306_CMD_SET_MEMORY_ADDR_MODE  0x20
-#define RTK_SSD1306_CMD_SET_COLUMN_RANGE      0x21
-#define RTK_SSD1306_CMD_SET_PAGE_RANGE        0x22
-#define RTK_SSD1306_CMD_SET_START_LINE        0x40
-#define RTK_SSD1306_CMD_SET_CONTRAST_BANK0    0x81
-#define RTK_SSD1306_CMD_SET_CHARGE_PUMP       0x8D
-#define RTK_SSD1306_CMD_MIRROR_X_OFF          0xA0
-#define RTK_SSD1306_CMD_MIRROR_X_ON           0xA1
-#define RTK_SSD1306_CMD_DISPLAY_ALL_ON_RESUME 0xA4
-#define RTK_SSD1306_CMD_INVERT_OFF            0xA6
-#define RTK_SSD1306_CMD_INVERT_ON             0xA7
-#define RTK_SSD1306_CMD_MULTIPLEX_RATIO       0xA8
-#define RTK_SSD1306_CMD_DISP_OFF              0xAE
-#define RTK_SSD1306_CMD_DISP_ON               0xAF
-#define RTK_SSD1306_CMD_MIRROR_Y_OFF          0xC0
-#define RTK_SSD1306_CMD_MIRROR_Y_ON           0xC8
-#define RTK_SSD1306_CMD_DISPLAY_OFFSET        0xD3
-#define RTK_SSD1306_CMD_CLOCK_DIVIDER         0xD5
-#define RTK_SSD1306_CMD_PRE_CHARGE            0xD9
-#define RTK_SSD1306_CMD_COM_PINS              0xDA
-#define RTK_SSD1306_CMD_SET_VCOMH_DESELECT    0xDB
+static char ipAddress[25 + 1];
 
 /* Console history - in NVS */
 #define MOUNT_PATH "/data"
@@ -467,135 +519,389 @@ uint16_t ccitt_crc_update(uint16_t crc, const uint8_t data)
 #define tokenValid ((*token != ',') && (*token != '*') && (*token != 0))
 #define remainderValid ((*remainder != ',') && (*remainder != '*') && (*remainder != 0))
 
-/* PACKETS / DATA FORWARDING */
+/* WiFi -- Wired packet path */
 
-// Forward packets from Wi-Fi to Ethernet
-static esp_err_t pkt_wifi2eth(void *buffer, uint16_t len, void *eb)
+static esp_err_t wired_recv_callback(void *buffer, uint16_t len, void *ctx)
 {
-    if (esp_eth_transmit(s_eth_handle, buffer, len) != ESP_OK) {
-        ESP_LOGE(TAG, "Ethernet send packet failed");
-    }
-#if CONFIG_RTK_X5_VERBOSE_LOG
-    else {
-        uint8_t *ptr = (uint8_t *)buffer;
-        ESP_LOGI(TAG, "Sent Ethernet packet L:%d D:%02X:%02X:%02X:%02X:%02X:%02X S:%02X:%02X:%02X:%02X:%02X:%02X IPS:%d.%d.%d.%d IPD:%d.%d.%d.%d",
-            len, ptr[0], ptr[1], ptr[2], ptr[3], ptr[4], ptr[5], ptr[6], ptr[7], ptr[8], ptr[9], ptr[10], ptr[11],
-            ptr[26], ptr[27], ptr[28], ptr[29], ptr[30], ptr[31], ptr[32], ptr[33]);
-    }
-#endif
+    bool CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG = *verbose_log;
 
-    esp_wifi_internal_free_rx_buffer(eb);
+    if (s_wifi_is_connected) {
+        mac_spoof(FROM_WIRED, buffer, len, s_sta_mac);
+if (CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG) {
+        uint8_t *ptr = (uint8_t *)buffer;
+        ESP_LOGI(TAG, "wifi_tx L:%ld D:%02X:%02X:%02X:%02X:%02X:%02X S:%02X:%02X:%02X:%02X:%02X:%02X IPS:%d.%d.%d.%d IPD:%d.%d.%d.%d",
+                        len, ptr[0], ptr[1], ptr[2], ptr[3], ptr[4], ptr[5], ptr[6], ptr[7], ptr[8], ptr[9], ptr[10], ptr[11],
+                        ptr[26], ptr[27], ptr[28], ptr[29], ptr[30], ptr[31], ptr[32], ptr[33]);
+} //#endif
+        if (esp_wifi_internal_tx(WIFI_IF_STA, buffer, len) != ESP_OK) {
+            // Retry up to five times
+            vTaskDelay(pdMS_TO_TICKS(10));
+            if (esp_wifi_internal_tx(WIFI_IF_STA, buffer, len) != ESP_OK) {
+                vTaskDelay(pdMS_TO_TICKS(10));
+                if (esp_wifi_internal_tx(WIFI_IF_STA, buffer, len) != ESP_OK) {
+                    vTaskDelay(pdMS_TO_TICKS(10));
+                    if (esp_wifi_internal_tx(WIFI_IF_STA, buffer, len) != ESP_OK) {
+                        vTaskDelay(pdMS_TO_TICKS(10));
+                        if (esp_wifi_internal_tx(WIFI_IF_STA, buffer, len) != ESP_OK) {
+                            ESP_LOGE(TAG, "WiFi send packet failed: len %ld", len);
+                            return ESP_FAIL;
+                        }
+                        else
+                            ESP_LOGW(TAG, "WiFi send packet success on 5th attempt: len %ld", len);
+                    }
+                    else
+                        ESP_LOGW(TAG, "WiFi send packet success on 4th attempt: len %ld", len);
+                }
+                //else
+                //    ESP_LOGW(TAG, "WiFi send packet success on 3rd attempt: len %ld", len);
+            }
+            //else
+            //    ESP_LOGW(TAG, "WiFi send packet success on 2nd attempt: len %ld", len);
+        }
+    }
     return ESP_OK;
 }
 
-// Forward packets from Ethernet to Wi-Fi
-// Note that, Ethernet works faster than Wi-Fi on ESP32,
-// so we need to add an extra queue to balance their speed difference.
-static esp_err_t pkt_eth2wifi(esp_eth_handle_t eth_handle, uint8_t *buffer, uint32_t len, void *priv)
+static void wifi_buff_free(void *buffer, void *ctx)
 {
-    esp_err_t ret = ESP_OK;
-    flow_control_msg_t msg = {
-        .packet = buffer,
-        .length = len
-    };
+    esp_wifi_internal_free_rx_buffer(buffer);
+}
 
-    if (xQueueSend(flow_control_queue, &msg, pdMS_TO_TICKS(CONFIG_RTK_X5_FLOW_CONTROL_QUEUE_TIMEOUT_MS)) != pdTRUE) {
-        ESP_LOGE(TAG, "Send flow control message failed or timeout");
-        free(buffer);
-        ret = ESP_FAIL;
+static esp_err_t wifi_recv_callback(void *buffer, uint16_t len, void *eb)
+{
+    bool CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG = *verbose_log;
+
+if (CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG)
+    ESP_LOGI(TAG, "wifi_rx len %ld", len);
+//#endif
+    mac_spoof(TO_WIRED, buffer, len, s_sta_mac);
+    if (wired_send(buffer, len, eb) != ESP_OK) {
+        esp_wifi_internal_free_rx_buffer(eb);
+        //ESP_LOGD(TAG, "Failed to send packet to Ethernet!");
     }
-// #if CONFIG_RTK_X5_VERBOSE_LOG
-//     else {
-//         ESP_LOGI(TAG, "Queued WiFi packet of length %d", (int)len);
-//     }
-// #endif
+    return ESP_OK;
+}
+
+/**
+ *  In this scenario of WiFi station to Ethernet bridge mode, we have this configuration
+ *
+ *   (ISP) router        ESP32               PC
+ *      [ AP ] <->   [ sta -- eth ] <->  [ eth-NIC ]
+ *
+ *  From the PC's NIC perspective the L2 forwarding should be transparent and resemble this configuration:
+ *
+ *   (ISP) router                           PC
+ *      [ AP ]       <---------->       [ virtual wifi-NIC ]
+ *
+ *  In order for the ESP32 to act as L2 bridge it needs to accept all frames on the interface
+ *  - For Ethernet we just enable `PROMISCUOUS` mode
+ *  - For Wifi we could also enable the promiscuous mode, but in that case we'd receive encoded frames
+ *    from 802.11 and we'd have to decode it and process (using wpa-supplicant).
+ *    The easier option (in this scenario of only one client -- eth-NIC) we could simply "pretend"
+ *    that we have the HW mac address of eth-NIC and receive only ethernet frames for "us" from esp_wifi API
+ *  (we could use the same technique for Ethernet and yield better throughput, see ETH_BRIDGE_PROMISCUOUS flag)
+ *
+ *  This API updates Ethernet frames to swap mac addresses of ESP32 interfaces with those of eth-NIC and AP.
+ *  For that we'd have to parse initial DHCP packets (manually) to record the HW addresses of the AP and eth-NIC
+ *  (note, that it is possible to simply spoof the MAC addresses, but that's not recommended technique)
+ */
+
+//#if MODIFY_DHCP_MSGS
+static void update_udp_checksum(uint16_t *udp_header, uint16_t* ip_header)
+{
+    uint32_t sum = 0;
+    uint16_t *ptr = udp_header;
+    ptr[3] = 0; // clear the current checksum
+    int payload_len = htons(ip_header[1]) - IP_HEADER_SIZE;
+    // add UDP payload
+    for (int i = 0; i < payload_len/2; i++) {
+        sum += htons(*ptr++);
+    }
+    // add the padding if the packet length is odd
+    if (payload_len & 1) {
+        sum += (*((uint8_t *)ptr) << 8);
+    }
+    // add some IP header data
+    ptr = ip_header + 6;
+    for (int i = 0; i < 4; i++) {       // IP addresses
+        sum += htons(*ptr++);
+    }
+    sum += IP_PROTO_UDP + payload_len;  // protocol + size
+    do {
+        sum = (sum & 0xFFFF) + (sum >> 16);
+    } while (sum & 0xFFFF0000);         //  process the carry
+    ptr = udp_header;
+    ptr[3] = htons(~sum);   // update the UDP header with the new checksum
+}
+//#endif // MODIFY_DHCP_MSGS
+
+void mac_spoof(mac_spoof_direction_t direction, uint8_t *buffer, uint16_t len, uint8_t own_mac[6])
+{
+    if (!s_ethernet_is_connected) {
+        return;
+    }
+
+    // Use the same CONFIG names as the original example
+
+    /**
+     *  Disable promiscuous mode on Ethernet interface by setting this macro to 0
+     *  if disabled, we'd have to rewrite MAC addressed in frames with the actual Eth interface MAC address
+     *  - this results in better throughput
+     *  - might cause ARP conflicts if the PC is also connected to the same AP with another NIC
+     */
+    bool ETH_BRIDGE_PROMISCUOUS = *eth_bridge_promiscuous;
+
+    /**
+     * Set this to 1 to runtime update HW addresses in DHCP messages
+     * (this is needed if the client uses 61 option and the DHCP server applies strict rules on assigning addresses)
+     * Note: the code won't compile if you have both ETH_BRIDGE_PROMISCUOUS and MODIFY_DHCP_MSGS set to 1
+     */
+    bool MODIFY_DHCP_MSGS = *modify_dhcp_msgs;
+
+    static uint8_t eth_nic_mac[6] = {};
+    static bool eth_nic_mac_found = false;
+//#if !ETH_BRIDGE_PROMISCUOUS || MODIFY_DHCP_MSGS
+    static uint8_t ap_mac[6] = {};
+    static bool ap_mac_found = false;
+//#endif
+    uint8_t *dest_mac = buffer;
+    uint8_t *src_mac = buffer + 6;
+    uint8_t *eth_type = buffer + 12;
+    if (eth_type[0] == 0x08) {      // support only IPv4
+        // try to find NIC HW address (look for DHCP discovery packet)
+        if ( (!eth_nic_mac_found || (MODIFY_DHCP_MSGS)) && direction == FROM_WIRED && eth_type[1] == 0x00) {  // ETH IP4
+            uint8_t *ip_header = eth_type + 2;
+            if (len > MIN_DHCP_PACKET_SIZE && (ip_header[0] & 0xF0) == IP_V4 && ip_header[9] == IP_PROTO_UDP) {
+                uint8_t *udp_header = ip_header + IP_HEADER_SIZE;
+                const uint8_t dhcp_ports[] = {0, DHCP_PORT_OUT, 0, DHCP_PORT_IN};
+                if (memcmp(udp_header, dhcp_ports, sizeof(dhcp_ports)) == 0) {
+                    uint8_t *dhcp_magic = udp_header + DHCP_MACIG_COOKIE_OFFSET;
+                    const uint8_t dhcp_type[] = DHCP_COOKIE_WITH_PKT_TYPE(DHCP_DISCOVER);
+                    if (!eth_nic_mac_found && memcmp(dhcp_magic, dhcp_type, sizeof(dhcp_type)) == 0) {
+                        eth_nic_mac_found = true;
+                        memcpy(eth_nic_mac, src_mac, 6);
+                        ESP_LOGI(TAG, "NIC MAC %02X:%02X:%02X:%02X:%02X:%02X",
+                                *(eth_nic_mac + 0), *(eth_nic_mac + 1), *(eth_nic_mac + 2), *(eth_nic_mac + 3), *(eth_nic_mac + 4), *(eth_nic_mac + 5));
+                    }
+if (MODIFY_DHCP_MSGS) {
+                    if (eth_nic_mac_found) {
+                        bool update_checksum = false;
+                        // Replace the BOOTP HW address
+                        uint8_t *dhcp_client_hw_addr = udp_header + DHCP_HW_ADDRESS_OFFSET;
+                        if (memcmp(dhcp_client_hw_addr, eth_nic_mac, 6) == 0) {
+                            memcpy(dhcp_client_hw_addr, own_mac, 6);
+                            update_checksum = true;
+                        }
+                        // Replace the HW address in opt-61
+                        uint8_t *dhcp_opts = dhcp_magic + 4;
+                        while (*dhcp_opts != 0xFF) {
+                            if (dhcp_opts[0] == 61 && dhcp_opts[1] == 7 /* size (type=1 + mac=6) */ && dhcp_opts[2] == 1 /* HW address type*/ &&
+                                memcmp(dhcp_opts + 3, eth_nic_mac, 6) == 0) {
+                                update_checksum = true;
+                                memcpy(dhcp_opts + 3, own_mac, 6);
+                                break;
+                            }
+                            dhcp_opts += dhcp_opts[1]+ 2;
+                            if (dhcp_opts - buffer >= len) {
+                                break;
+                            }
+                        }
+                        if (update_checksum) {
+                            update_udp_checksum((uint16_t *) udp_header, (uint16_t *) ip_header);
+                        }
+                    }
+} //#endif // MODIFY_DHCP_MSGS
+                }   // DHCP
+            } // UDP/IP
+            // try to find AP HW address (look for DHCP offer packet)
+        }
+if (!ETH_BRIDGE_PROMISCUOUS || MODIFY_DHCP_MSGS) {
+        if ( (!ap_mac_found || (MODIFY_DHCP_MSGS)) && direction == TO_WIRED && eth_type[1] == 0x00) {  // ETH IP4
+            uint8_t *ip_header = eth_type + 2;
+            if (len > MIN_DHCP_PACKET_SIZE && (ip_header[0] & 0xF0) == IP_V4 && ip_header[9] == IP_PROTO_UDP) {
+                uint8_t *udp_header = ip_header + IP_HEADER_SIZE;
+                const uint8_t dhcp_ports[] = {0, DHCP_PORT_IN, 0, DHCP_PORT_OUT};
+                if (memcmp(udp_header, dhcp_ports, sizeof(dhcp_ports)) == 0) {
+                    uint8_t *dhcp_magic = udp_header + DHCP_MACIG_COOKIE_OFFSET;
+if (MODIFY_DHCP_MSGS) {
+                    if (eth_nic_mac_found) {
+                        uint8_t *dhcp_client_hw_addr = udp_header + DHCP_HW_ADDRESS_OFFSET;
+                        // Replace BOOTP HW address
+                        if (memcmp(dhcp_client_hw_addr, own_mac, 6) == 0) {
+                            memcpy(dhcp_client_hw_addr, eth_nic_mac, 6);
+                            update_udp_checksum((uint16_t*)udp_header, (uint16_t*)ip_header);
+                        }
+                    }
+} //#endif // MODIFY_DHCP_MSGS
+                    const uint8_t dhcp_type[] = DHCP_COOKIE_WITH_PKT_TYPE(DHCP_OFFER);
+                    if (!ap_mac_found && memcmp(dhcp_magic, dhcp_type, sizeof(dhcp_type)) == 0) {
+                        ap_mac_found = true;
+                        memcpy(ap_mac, src_mac, 6);
+                        ESP_LOGI(TAG, "AP MAC %02X:%02X:%02X:%02X:%02X:%02X",
+                                *(ap_mac + 0), *(ap_mac + 1), *(ap_mac + 2), *(ap_mac + 3), *(ap_mac + 4), *(ap_mac + 5));
+                    }
+                }   // DHCP
+            } // UDP/IP
+        }
+} //#endif // !ETH_BRIDGE_PROMISCUOUS || MODIFY_DHCP_MSGS
+
+        // swap addresses in ARP probes
+        if (eth_type[1] == 0x06) { // ARP
+            uint8_t *arp = eth_type + 2 + 8; // points to sender's HW address
+            if (eth_nic_mac_found && direction == FROM_WIRED && memcmp(arp, eth_nic_mac, 6) == 0) {
+                /* updates senders HW address to our wireless */
+                memcpy(arp, own_mac, 6);
+            }
+if (!ETH_BRIDGE_PROMISCUOUS) {
+            if (ap_mac_found && direction == TO_WIRED && memcmp(arp, ap_mac, 6) == 0) {
+                /* updates senders HW address to our wired */
+                memcpy(arp, s_eth_mac, 6);
+            }
+} //#endif // !ETH_BRIDGE_PROMISCUOUS
+        }
+
+        // swap HW addresses in ETH frames
+if (!ETH_BRIDGE_PROMISCUOUS) {
+        if (ap_mac_found && direction == FROM_WIRED && memcmp(dest_mac, s_eth_mac, 6) == 0) {
+            memcpy(dest_mac, ap_mac, 6);
+            // This leaves the src_mac unchanged
+        }
+        if (ap_mac_found && direction == TO_WIRED && memcmp(src_mac, ap_mac, 6) == 0) {
+            memcpy(src_mac, s_eth_mac, 6);
+            // This leaves the dest_mac unchanged
+        }
+} //#endif // !ETH_BRIDGE_PROMISCUOUS
+        if (eth_nic_mac_found && direction == FROM_WIRED && memcmp(src_mac, eth_nic_mac, 6) == 0) {
+            memcpy(src_mac, own_mac, 6);
+            // This leaves the dest_mac unchanged
+        }
+        if (eth_nic_mac_found && direction == TO_WIRED && memcmp(dest_mac, own_mac, 6) == 0) {
+            memcpy(dest_mac, eth_nic_mac, 6);
+            // This leaves the src_mac unchanged
+        }
+    } // IP4 section of eth-type (0x08) both ETH-IP4 and ETHARP
+}
+
+static esp_err_t wired_recv(esp_eth_handle_t eth_handle, uint8_t *buffer, uint32_t len, void *priv)
+{
+    bool CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG = *verbose_log;
+
+if (CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG)
+    ESP_LOGI(TAG, "wired_recv len %ld", len);
+//#endif
+    esp_err_t ret = s_rx_cb(buffer, len, buffer);
+    free(buffer);
     return ret;
 }
 
-// This task will fetch the packet from the queue, and then send out through Wi-Fi.
-// Wi-Fi handles packets slower than Ethernet, we might add some delay between each transmitting.
-static void eth2wifi_flow_control_task(void *args)
+esp_err_t wired_bridge_init(wired_rx_cb_t rx_cb, wired_free_cb_t free_cb)
 {
-    flow_control_msg_t msg;
-    int res = 0;
-    uint32_t timeout = 0;
-    while (true) {
-        if (xQueueReceive(flow_control_queue, &msg, pdMS_TO_TICKS(CONFIG_RTK_X5_FLOW_CONTROL_QUEUE_TIMEOUT_MS)) == pdTRUE) {
-            timeout = 0;
-            if (msg.length) {
-                do {
-                    if(!eth_mac_is_set) {
-                        uint8_t *macPtr = (uint8_t*)msg.packet + 6;
-                        if ((*(macPtr + 0) == 0) && (*(macPtr + 1) == 0) && (*(macPtr + 2) == 0)
-                             && (*(macPtr + 3) == 0) && (*(macPtr + 4) == 0) && (*(macPtr + 5) == 0))
-                        {
-                            ESP_LOGI(TAG, "Ethernet packet MAC address is all zeros");
-                        }
-                        else
-                        {
-                            memcpy(eth_mac, macPtr, sizeof(eth_mac));
-                            eth_mac_is_set = true;
-                            ESP_LOGI(TAG, "Extracted MAC address from packet: %02X:%02X:%02X:%02X:%02X:%02X", 
-                                eth_mac[0], eth_mac[1], eth_mac[2], eth_mac[3], eth_mac[4], eth_mac[5]);
-                        }
-                    }
+    // Use the same CONFIG names as the original example
+    bool ETH_BRIDGE_PROMISCUOUS = *eth_bridge_promiscuous;
 
-                    vTaskDelay(pdMS_TO_TICKS(timeout));
-                    timeout += 2;
-                    if(wifi_is_connected) {
-                        res = esp_wifi_internal_tx(ESP_IF_WIFI_STA, msg.packet, msg.length);
-                    }
-                } while (res && timeout < CONFIG_RTK_X5_FLOW_CONTROL_WIFI_SEND_TIMEOUT_MS);
-                if (res != ESP_OK) {
-                    ESP_LOGE(TAG, "WiFi send packet failed: %d", res);
-                }
-#if CONFIG_RTK_X5_VERBOSE_LOG
-                else {
-                    uint8_t *ptr = (uint8_t *)msg.packet;
-                    ESP_LOGI(TAG, "Sent WiFi packet L:%d D:%02X:%02X:%02X:%02X:%02X:%02X S:%02X:%02X:%02X:%02X:%02X:%02X IPS:%d.%d.%d.%d IPD:%d.%d.%d.%d",
-                        msg.length, ptr[0], ptr[1], ptr[2], ptr[3], ptr[4], ptr[5], ptr[6], ptr[7], ptr[8], ptr[9], ptr[10], ptr[11],
-                        ptr[26], ptr[27], ptr[28], ptr[29], ptr[30], ptr[31], ptr[32], ptr[33]);
-                }
-#endif
-            }
-            free(msg.packet);
-        }
+    uint8_t eth_port_cnt = 0;
+    esp_eth_handle_t *eth_handles;
+    ESP_ERROR_CHECK(ethernet_init_all(&eth_handles, &eth_port_cnt));
+
+    // Check for multiple Ethernet interfaces
+    if (1 < eth_port_cnt) {
+        ESP_LOGW(TAG, "Multiple Ethernet Interface detected: Only the first initialized interface is going to be used.");
     }
-    vTaskDelete(NULL);
+    s_eth_handle = eth_handles[0];
+    free(eth_handles);
+
+    ESP_ERROR_CHECK(esp_eth_update_input_path(s_eth_handle, wired_recv, NULL));
+if (ETH_BRIDGE_PROMISCUOUS) {
+    bool eth_promiscuous = true;
+    ESP_ERROR_CHECK(esp_eth_ioctl(s_eth_handle, ETH_CMD_S_PROMISCUOUS, &eth_promiscuous));
+} //#endif
+    ESP_ERROR_CHECK(esp_eth_ioctl(s_eth_handle, ETH_CMD_G_MAC_ADDR, &s_eth_mac));
+    ESP_LOGI(TAG, "ESP32 Eth MAC %02X:%02X:%02X:%02X:%02X:%02X",
+            s_eth_mac[0], s_eth_mac[1], s_eth_mac[2], s_eth_mac[3], s_eth_mac[4], s_eth_mac[5]);
+    ESP_ERROR_CHECK(esp_event_handler_register(ETH_EVENT, ESP_EVENT_ANY_ID, eth_event_handler, NULL));
+    
+    // Disable auto-negotiate so we can limit the speed
+    bool auto_negotiate = false;
+    ESP_ERROR_CHECK(esp_eth_ioctl(s_eth_handle, ETH_CMD_S_AUTONEGO, &auto_negotiate));
+
+    // Limit speed to 10M
+    eth_speed_t ethSpeed = ETH_SPEED_10M;
+    ESP_ERROR_CHECK(esp_eth_ioctl(s_eth_handle, ETH_CMD_S_SPEED, &ethSpeed));
+    
+    ESP_ERROR_CHECK(esp_eth_start(s_eth_handle));
+    s_rx_cb = rx_cb;
+    s_free_cb = free_cb;
+    return ESP_OK;
 }
 
+esp_err_t wired_send(void *buffer, uint16_t len, void *buff_free_arg)
+{
+    bool CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG = *verbose_log;
+
+if (CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG) {
+    uint8_t *ptr = (uint8_t *)buffer;
+    ESP_LOGI(TAG, "wired_tx L:%ld D:%02X:%02X:%02X:%02X:%02X:%02X S:%02X:%02X:%02X:%02X:%02X:%02X IPS:%d.%d.%d.%d IPD:%d.%d.%d.%d",
+                    len, ptr[0], ptr[1], ptr[2], ptr[3], ptr[4], ptr[5], ptr[6], ptr[7], ptr[8], ptr[9], ptr[10], ptr[11],
+                    ptr[26], ptr[27], ptr[28], ptr[29], ptr[30], ptr[31], ptr[32], ptr[33]);
+} //#endif
+    if (s_ethernet_is_connected) {
+        if (esp_eth_transmit(s_eth_handle, buffer, len) != ESP_OK) {
+            // Retry up to three times
+            vTaskDelay(pdMS_TO_TICKS(10));
+            if (esp_eth_transmit(s_eth_handle, buffer, len) != ESP_OK) {
+                vTaskDelay(pdMS_TO_TICKS(10));
+                if (esp_eth_transmit(s_eth_handle, buffer, len) != ESP_OK) {
+                    ESP_LOGE(TAG, "Ethernet send packet failed: len %ld", len);
+                    return ESP_FAIL;
+                }
+                else
+                    ESP_LOGW(TAG, "Ethernet send packet success on 3rd attempt: len %ld", len);
+            }
+            //else
+            //    ESP_LOGW(TAG, "Ethernet send packet success on 2nd attempt: len %ld", len);
+        }
+        if (s_free_cb) {
+            s_free_cb(buff_free_arg, NULL);
+        }
+        return ESP_OK;
+    }
+    return ESP_ERR_INVALID_STATE;
+}
 
 /* EVENT HANDLERS */
 
-// Event handler for Ethernet
-static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+// Event handler for Ethernet events
+void eth_event_handler(void *arg, esp_event_base_t event_base,
+                       int32_t event_id, void *event_data)
 {
+    uint8_t mac_addr[6] = {0};
+    /* we can get the ethernet driver handle from event data */
+    esp_eth_handle_t eth_handle = *(esp_eth_handle_t *)event_data;
+    esp_netif_t *netif = (esp_netif_t*)arg;
+
     switch (event_id) {
     case ETHERNET_EVENT_CONNECTED:
         ESP_LOGI(TAG, "Ethernet Link Up");
-        uint8_t got_eth_mac[6];
-        ESP_ERROR_CHECK(esp_eth_ioctl(s_eth_handle, ETH_CMD_G_MAC_ADDR, &got_eth_mac));
-        ESP_LOGI(TAG, "Ethernet MAC address is currently: %02X:%02X:%02X:%02X:%02X:%02X", 
-            got_eth_mac[0], got_eth_mac[1], got_eth_mac[2], got_eth_mac[3], got_eth_mac[4], got_eth_mac[5]);
+        esp_eth_ioctl(eth_handle, ETH_CMD_G_MAC_ADDR, mac_addr);
+        ESP_LOGI(TAG, "Ethernet MAC %02X:%02X:%02X:%02X:%02X:%02X",
+                 mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3], mac_addr[4], mac_addr[5]);
+        s_ethernet_is_connected = true;
         break;
-
     case ETHERNET_EVENT_DISCONNECTED:
-        ESP_LOGE(TAG, "Ethernet Link Down. Restarting...");
-        print_oled("Ethernet Link Down");
-        print_oled("Restarting...");
-        vTaskDelay(pdMS_TO_TICKS(2000));
-        esp_restart();
+        s_ethernet_is_connected = false;
+        ESP_LOGE(TAG, "Ethernet Link Down");
+        //ESP_LOGE(TAG, "Restarting...");
+        //vTaskDelay(pdMS_TO_TICKS(2000));
+        //esp_restart();
         break;
-
     case ETHERNET_EVENT_START:
         ESP_LOGI(TAG, "Ethernet Started");
         break;
-
     case ETHERNET_EVENT_STOP:
         ESP_LOGI(TAG, "Ethernet Stopped");
         break;
-
     default:
+        ESP_LOGW(TAG, "Unhandled Ethernet event: id=%ld", event_id);
         break;
     }
 }
@@ -603,39 +909,87 @@ static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t ev
 // Event handler for Wi-Fi
 static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)
 { 
-    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
-        ESP_LOGI(TAG, "WiFi started. Connecting...");
-        ESP_ERROR_CHECK(esp_wifi_connect());
+    if (event_base == WIFI_EVENT) {
+        ESP_LOGI(TAG, "Wi-Fi Event: base=%s, id=%ld", event_base, event_id);
+        switch (event_id) {
+        case WIFI_EVENT_STA_START:
+            ESP_LOGI(TAG, "Wi-Fi STA started");
+            break;
+        case WIFI_EVENT_STA_STOP:
+            ESP_LOGI(TAG, "Wi-Fi STA stopped");
+            break;
+        case WIFI_EVENT_STA_CONNECTED:
+            ESP_LOGI(TAG, "Wi-Fi STA connected");
+
+            gpio_set_level(CONFIG_RTK_X5_WIFI_GPIO_PIN, false);
+
+            esp_wifi_internal_reg_rxcb(WIFI_IF_STA, wifi_recv_callback);
+            s_wifi_is_connected = true;
+            xEventGroupClearBits(s_event_flags, DISCONNECTED_BIT);
+            xEventGroupSetBits(s_event_flags, CONNECTED_BIT);
+            break;
+        case WIFI_EVENT_STA_DISCONNECTED:
+            ESP_LOGI(TAG, "Wi-Fi STA disconnected");
+
+            gpio_set_level(CONFIG_RTK_X5_WIFI_GPIO_PIN, false);
+
+            s_wifi_is_connected = false;
+            esp_wifi_internal_reg_rxcb(WIFI_IF_STA, NULL);
+            esp_wifi_connect();
+
+            xEventGroupClearBits(s_event_flags, CONNECTED_BIT);
+            xEventGroupSetBits(s_event_flags, DISCONNECTED_BIT);
+            break;
+        default:
+            ESP_LOGW(TAG, "Unhandled Wi-Fi event: id=%ld", event_id);
+            break;
+        }
     }
+    else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
+        ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
+        const esp_netif_ip_info_t *ip_info = &event->ip_info;
+        esp_netif_t *netif = event->esp_netif;
+        esp_netif_dns_info_t dns_info;
 
-    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_CONNECTED) {
-        ESP_LOGI(TAG, "WiFi connected. Waiting for IP...");
-    }
+        ESP_LOGI(TAG, "Wi-Fi STA Got IP Address");
+        ESP_LOGI(TAG, "Event: base=%s, id=%ld", event_base, event_id);
+        ESP_LOGI(TAG, "~~~~~~~~~~~");
+        ESP_LOGI(TAG, "STAIP:" IPSTR, IP2STR(&ip_info->ip));
+        ESP_LOGI(TAG, "STAMASK:" IPSTR, IP2STR(&ip_info->netmask));
+        ESP_LOGI(TAG, "STAGW:" IPSTR, IP2STR(&ip_info->gw));
 
-    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
-        ESP_LOGI(TAG, "WiFi disconnected");
-        wifi_is_connected = false;
-        gpio_set_level(CONFIG_RTK_X5_WIFI_GPIO_PIN, false);
+        // Print DHCP DNS information
+        if (esp_netif_get_dns_info(netif, ESP_NETIF_DNS_MAIN, &dns_info) == ESP_OK) {
+            ESP_LOGI(TAG, "DHCP_DNS_MAIN:" IPSTR, IP2STR(&dns_info.ip.u_addr.ip4));
+        }
+        if (esp_netif_get_dns_info(netif, ESP_NETIF_DNS_BACKUP, &dns_info) == ESP_OK) {
+            ESP_LOGI(TAG, "DHCP_DNS_BACKUP:" IPSTR, IP2STR(&dns_info.ip.u_addr.ip4));
+        }
 
-        // Stop forwarding WiFi and Ethernet data
-        ESP_ERROR_CHECK(esp_wifi_internal_reg_rxcb(ESP_IF_WIFI_STA, NULL));
-        ESP_ERROR_CHECK(esp_wifi_connect());
+        ESP_LOGI(TAG, "~~~~~~~~~~~");
+
+        uint8_t *ptr = (uint8_t *)&ip_info->ip;
+        snprintf(ipAddress, sizeof(ipAddress), "IP:   %d.%d.%d.%d", *(ptr + 0), *(ptr + 1), *(ptr + 2), *(ptr + 3));
     }
 }
 
-static void ip_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)
-{ 
-    if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
-        ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
-        ESP_LOGI(TAG, "WiFi STA got IP Address:" IPSTR, IP2STR(&event->ip_info.ip));
-        uint8_t *ptr = (uint8_t *)&event->ip_info.ip;
-        snprintf(ipAddress, sizeof(ipAddress), "IP:   %d.%d.%d.%d", *(ptr + 0), *(ptr + 1), *(ptr + 2), *(ptr + 3));
-        wifi_is_connected = true;
-        gpio_set_level(CONFIG_RTK_X5_WIFI_GPIO_PIN, true);
-
-        // Start forwarding WiFi and Ethernet data
-        ESP_ERROR_CHECK(esp_wifi_internal_reg_rxcb(ESP_IF_WIFI_STA, &pkt_wifi2eth));
-    }
+static wifi_auth_mode_t example_wifi_sta_authmode_threshold(void)
+{
+#if CONFIG_EXAMPLE_ESP_WIFI_STA_AUTHMODE_THRESHOLD_OPEN
+    return WIFI_AUTH_OPEN;
+#elif CONFIG_EXAMPLE_ESP_WIFI_STA_AUTHMODE_THRESHOLD_WEP
+    return WIFI_AUTH_WEP;
+#elif CONFIG_EXAMPLE_ESP_WIFI_STA_AUTHMODE_THRESHOLD_WPA_PSK
+    return WIFI_AUTH_WPA_PSK;
+#elif CONFIG_EXAMPLE_ESP_WIFI_STA_AUTHMODE_THRESHOLD_WPA2_PSK
+    return WIFI_AUTH_WPA2_PSK;
+#elif CONFIG_EXAMPLE_ESP_WIFI_STA_AUTHMODE_THRESHOLD_WPA_WPA2_PSK
+    return WIFI_AUTH_WPA_WPA2_PSK;
+#elif CONFIG_EXAMPLE_ESP_WIFI_STA_AUTHMODE_THRESHOLD_WPA3_PSK
+    return WIFI_AUTH_WPA3_PSK;
+#else
+    return WIFI_AUTH_WPA2_PSK;
+#endif
 }
 
 /* Tasks */
@@ -699,6 +1053,10 @@ static void x5_uart_task(void *args)
     while (true) {
         if (x5_uart_task_running)
         {
+            bool CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG = false;
+            if (verbose_log)
+                CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG = *verbose_log;
+
             int length = uart_read_bytes(CONFIG_RTK_X5_MOSAIC_UART_PORT_NUM, uart_buf, buf_size, 10/portTICK_PERIOD_MS);
             if (length > 0)
             {
@@ -737,36 +1095,16 @@ static void x5_uart_task(void *args)
                                 }
                                 if (actualCrc == crc)
                                 {
-    #if CONFIG_RTK_X5_VERBOSE_LOG
+if (CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG)
                                     ESP_LOGI(TAG, "Valid SBF Message: ID %d", (id & 0x1FFF));
-    #endif
+//#endif
                                     if ((id & 0x1FFF) == 4058)
                                     {
-                                        if (!eth_mac_is_set)
-                                        {
-                                            // MACAddress (6 bytes) is in bytes 14-19
-                                            if ((*(ptr1 + 14) == 0) && (*(ptr1 + 15) == 0) && (*(ptr1 + 16) == 0)
-                                                && (*(ptr1 + 17) == 0) && (*(ptr1 + 18) == 0) && (*(ptr1 + 19) == 0))
-                                            {
-                                                ESP_LOGI(TAG, "IPStatus MACAddress is all zeros");
-                                            }
-                                            else
-                                            {
-                                                eth_mac[0] = *(ptr1 + 14);
-                                                eth_mac[1] = *(ptr1 + 15);
-                                                eth_mac[2] = *(ptr1 + 16);
-                                                eth_mac[3] = *(ptr1 + 17);
-                                                eth_mac[4] = *(ptr1 + 18);
-                                                eth_mac[5] = *(ptr1 + 19);
-                                                eth_mac_is_set = true;
-                                                ESP_LOGI(TAG, "Extracted MACAddress from IPStatus: %02X:%02X:%02X:%02X:%02X:%02X", 
-                                                         eth_mac[0], eth_mac[1], eth_mac[2], eth_mac[3], eth_mac[4], eth_mac[5]);
-                                            }
-                                        }
-
+                                        // MACAddress (6 bytes) is in bytes 14-19
                                         // IPAddress (4 bytes) is in bytes 32-35
                                         snprintf(ipAddress, sizeof(ipAddress), "IP:   %d.%d.%d.%d", *(ptr1 + 32), *(ptr1 + 33), *(ptr1 + 34), *(ptr1 + 35));
-                                        ESP_LOGI(TAG, "IPStatus IPAddress: %d.%d.%d.%d Gateway: %d.%d.%d.%d Subnet Mask: %s", 
+                                        ESP_LOGI(TAG, "IPStatus MAC: %02X:%02X:%02X:%02X:%02X:%02X IPAddress: %d.%d.%d.%d Gateway: %d.%d.%d.%d Subnet Mask: %s", 
+                                                 *(ptr1 + 14), *(ptr1 + 15), *(ptr1 + 16), *(ptr1 + 17), *(ptr1 + 18), *(ptr1 + 19),
                                                  *(ptr1 + 32), *(ptr1 + 33), *(ptr1 + 34), *(ptr1 + 35),
                                                  *(ptr1 + 48), *(ptr1 + 49), *(ptr1 + 50), *(ptr1 + 51),
                                                  cidr2mask(*(ptr1 + 52)));
@@ -828,181 +1166,212 @@ static void x5_uart_task(void *args)
                             {
                                 if  ((*(ptr1 + msgStart + 1) == 'G') && (*(ptr1 + msgStart + 3) == 'G') && (*(ptr1 + msgStart + 4) == 'G') && (*(ptr1 + msgStart + 5) == 'A'))
                                 {
+                                    bool gotSemaphore = false;
                                     do {
-                                        char *remainder = (char *)(ptr1 + msgStart);
-                                        char *token = strtok_r(remainder, ",", &remainder); // $GPGGA
-                                        if (!remainderValid) break;
-                                        char line[25];
-                                        token = strtok_r(remainder, ",", &remainder); // Time
-                                        if (!remainderValid) break;
-                                        char theTime[11];
-                                        snprintf(theTime, sizeof(theTime), "%c%c:%c%c:%c%c.%c", *(token), *(token + 1), *(token + 2), *(token + 3), *(token + 4), *(token + 5), *(token + 7));
-                                        snprintf(line, sizeof(line), "Time: %s", tokenValid ? theTime : "?");
-                                        set_oled(line);
-                                        
-                                        token = strtok_r(remainder, ",", &remainder); // Latitude
-                                        if (!remainderValid) break;
-                                        char theLat[14];
-                                        float secs = 0;
-                                        float multiplier = 0.1;
-                                        int places = 1;
-                                        while ((*(token + 4 + places) != ',') && (places < 8))
+                                        if (oledSemaphore == NULL)
+                                            oledSemaphore = xSemaphoreCreateMutex();
+                                        gotSemaphore = xSemaphoreTake(oledSemaphore, pdMS_TO_TICKS(10));
+                                        if (gotSemaphore)
                                         {
-                                            secs += ((float)(*(token + 4 + places) - '0')) * multiplier;
-                                            multiplier /= 10.0;
-                                            places++;
-                                        }
-                                        secs *= 60.0;
-                                        snprintf(theLat, sizeof(theLat), "%c%c %c%c %02.4f", *(token), *(token + 1), *(token + 2), *(token + 3), secs);
-                                        snprintf(line, sizeof(line), "Lat:   %s %c", tokenValid ? theLat : "?", remainderValid ? *remainder : '?');
-                                        set_oled(line);
-                                        
-                                        token = strtok_r(remainder, ",", &remainder); // N/S
-                                        if (!remainderValid) break;
-                                        token = strtok_r(remainder, ",", &remainder); // Longitude
-                                        if (!remainderValid) break;
-                                        char theLon[15];
-                                        secs = 0;
-                                        multiplier = 0.1;
-                                        places = 1;
-                                        while ((*(token + 5 + places) != ',') && (places < 8))
-                                        {
-                                            secs += ((float)(*(token + 5 + places) - '0')) * multiplier;
-                                            multiplier /= 10.0;
-                                            places++;
-                                        }
-                                        secs *= 60.0;
-                                        snprintf(theLon, sizeof(theLon), "%c%c%c %c%c %02.4f", *(token), *(token + 1), *(token + 2), *(token + 3), *(token + 4), secs);
-                                        snprintf(line, sizeof(line), "Long: %s %c", tokenValid ? theLon : "?", remainderValid ? *remainder : '?');
-                                        set_oled(line);
-                                        
-                                        token = strtok_r(remainder, ",", &remainder); // E/W
-                                        if (!remainderValid) break;
-                                        token = strtok_r(remainder, ",", &remainder); // Fix
-                                        if (!remainderValid) break;
-                                        char fixType[17] = { 0 };
-                                        if (tokenValid) {
-                                            switch (*token) {
-                                                default:
-                                                    snprintf(fixType, sizeof(fixType), "Unknown");
-                                                    break;
-                                                case '0':
-                                                    snprintf(fixType, sizeof(fixType), "Invalid");
-                                                    break;
-                                                case '1':
-                                                    snprintf(fixType, sizeof(fixType), "Autonomous");
-                                                    break;
-                                                case '2':
-                                                    snprintf(fixType, sizeof(fixType), "Differential");
-                                                    break;
-                                                case '3':
-                                                    snprintf(fixType, sizeof(fixType), "PPS");
-                                                    break;
-                                                case '4':
-                                                    snprintf(fixType, sizeof(fixType), "RTK Fixed");
-                                                    break;
-                                                case '5':
-                                                    snprintf(fixType, sizeof(fixType), "RTK Float");
-                                                    break;
-                                                case '6':
-                                                    snprintf(fixType, sizeof(fixType), "Dead Reckoning");
-                                                    break;
-                                                case '7':
-                                                    snprintf(fixType, sizeof(fixType), "Manual");
-                                                    break;
-                                                case '8':
-                                                    snprintf(fixType, sizeof(fixType), "Simulation");
-                                                    break;
-                                                case '9':
-                                                    snprintf(fixType, sizeof(fixType), "WAAS");
-                                                    break;
+                                            char *remainder = (char *)(ptr1 + msgStart);
+                                            char *token = strtok_r(remainder, ",", &remainder); // $GPGGA
+                                            if (!remainderValid) break;
+                                            char line[oled_x_chars + 1];
+                                            token = strtok_r(remainder, ",", &remainder); // Time
+                                            if (!remainderValid) break;
+                                            char theTime[12];
+                                            if (tokenValid)
+                                            {
+                                                if (*(token + 6) == '.')
+                                                    snprintf(theTime, sizeof(theTime), "%c%c:%c%c:%c%c.%c%c",
+                                                            *(token), *(token + 1), *(token + 2), *(token + 3), *(token + 4), *(token + 5), *(token + 7),
+                                                            (*(token + 8) != ',') ? *(token + 8) : ' ');
+                                                else
+                                                    snprintf(theTime, sizeof(theTime), "%c%c:%c%c:%c%c",
+                                                            *(token), *(token + 1), *(token + 2), *(token + 3), *(token + 4), *(token + 5));
                                             }
-                                        }
-                                        snprintf(line, sizeof(line), "Fix:  %s %s", tokenValid ? token : "?", fixType);
-                                        set_oled(line);
-                                        
-                                        token = strtok_r(remainder, ",", &remainder); // Num Sat
-                                        if (!remainderValid) break;
-                                        snprintf(line, sizeof(line), "Sat:  %s", tokenValid ? token : "?");
-                                        set_oled(line);
-                                        
-                                        token = strtok_r(remainder, ",", &remainder); // HDOP
-                                        if (!remainderValid) break;
-                                        snprintf(line, sizeof(line), "HDOP: %s", tokenValid ? token : "?");
-                                        set_oled(line);
-                                        
-                                        token = strtok_r(remainder, ",", &remainder); // Alt (Elev)
-                                        if (!remainderValid) break;
-                                        float alt = 0.0;
-                                        int digits = 0;
-                                        int neg = 0;
-                                        if (*token == '-')
-                                            neg = 1;
-                                        while ((*(token + neg + digits) != '.') && (digits < 7))
-                                        {
-                                            alt *= 10.0;
-                                            alt += ((float)(*(token + neg + digits) - '0'));
-                                            digits++;
-                                        }
-                                        if (digits == 7) break; // Something has gone horribly wrong...
-                                        multiplier = 0.1;
-                                        places = 1;
-                                        while ((*(token + neg + digits + places) != ',') && (places < 8))
-                                        {
-                                            alt += ((float)(*(token + neg + digits + places) - '0')) * multiplier;
-                                            multiplier /= 10.0;
-                                            places++;
-                                        }
-                                        if (neg == 1)
-                                            alt *= -1.0;
-                                        
-                                        token = strtok_r(remainder, ",", &remainder); // M
-                                        if (!remainderValid) break;
-                                        
-                                        token = strtok_r(remainder, ",", &remainder); // Geoid
-                                        if (!remainderValid) break;
-                                        float geoid = 0.0;
-                                        digits = 0;
-                                        neg = 0;
-                                        if (*token == '-')
-                                            neg = 1;
-                                        while ((*(token + neg + digits) != '.') && (digits < 7))
-                                        {
-                                            geoid *= 10.0;
-                                            geoid += ((float)(*(token + neg + digits) - '0'));
-                                            digits++;
-                                        }
-                                        if (digits == 7) break; // Something has gone horribly wrong...
-                                        multiplier = 0.1;
-                                        places = 1;
-                                        while ((*(token + neg + digits + places) != ',') && (places < 8))
-                                        {
-                                            geoid += ((float)(*(token + neg + digits + places) - '0')) * multiplier;
-                                            multiplier /= 10.0;
-                                            places++;
-                                        }
-                                        if (neg == 1)
-                                            geoid *= -1.0;
-#if CONFIG_RTK_X5_DISPLAY_ALT_WITH_GEOID_SEPARATION
-                                        alt += geoid;
-#endif
-                                        char theAlt[15];
-                                        snprintf(theAlt, sizeof(theAlt), "%0.3f", alt);
-                                        snprintf(line, sizeof(line), "Alt:  %s %c", tokenValid ? theAlt : "?", remainderValid ? *remainder : '?');
-                                        set_oled(line);
+                                            snprintf(line, sizeof(line), "Time: %s", tokenValid ? theTime : "?");
+                                            set_oled(line);
+                                            
+                                            token = strtok_r(remainder, ",", &remainder); // Latitude
+                                            if (!remainderValid) break;
+                                            char theLat[14];
+                                            float secs = 0;
+                                            float multiplier = 0.1;
+                                            int places = 1;
+                                            if (tokenValid)
+                                            {
+                                                while ((*(token + 4 + places) != ',') && (places < 8))
+                                                {
+                                                    secs += ((float)(*(token + 4 + places) - '0')) * multiplier;
+                                                    multiplier /= 10.0;
+                                                    places++;
+                                                }
+                                                secs *= 60.0;
+                                                snprintf(theLat, sizeof(theLat), "%c%c %c%c %02.4f", *(token), *(token + 1), *(token + 2), *(token + 3), secs);
+                                            }
+                                            snprintf(line, sizeof(line), "Lat:   %s %c", tokenValid ? theLat : "?", remainderValid ? *remainder : '?');
+                                            set_oled(line);
+                                            
+                                            token = strtok_r(remainder, ",", &remainder); // N/S
+                                            if (!remainderValid) break;
+                                            token = strtok_r(remainder, ",", &remainder); // Longitude
+                                            if (!remainderValid) break;
+                                            char theLon[15];
+                                            if (tokenValid)
+                                            {
+                                                secs = 0;
+                                                multiplier = 0.1;
+                                                places = 1;
+                                                while ((*(token + 5 + places) != ',') && (places < 8))
+                                                {
+                                                    secs += ((float)(*(token + 5 + places) - '0')) * multiplier;
+                                                    multiplier /= 10.0;
+                                                    places++;
+                                                }
+                                                secs *= 60.0;
+                                                snprintf(theLon, sizeof(theLon), "%c%c%c %c%c %02.4f", *(token), *(token + 1), *(token + 2), *(token + 3), *(token + 4), secs);
+                                            }
+                                            snprintf(line, sizeof(line), "Long: %s %c", tokenValid ? theLon : "?", remainderValid ? *remainder : '?');
+                                            set_oled(line);
+                                            
+                                            token = strtok_r(remainder, ",", &remainder); // E/W
+                                            if (!remainderValid) break;
+                                            token = strtok_r(remainder, ",", &remainder); // Fix
+                                            if (!remainderValid) break;
+                                            char fixType[17] = { 0 };
+                                            if (tokenValid) {
+                                                switch (*token) {
+                                                    default:
+                                                        snprintf(fixType, sizeof(fixType), "Unknown");
+                                                        break;
+                                                    case '0':
+                                                        snprintf(fixType, sizeof(fixType), "Invalid");
+                                                        break;
+                                                    case '1':
+                                                        snprintf(fixType, sizeof(fixType), "Autonomous");
+                                                        break;
+                                                    case '2':
+                                                        snprintf(fixType, sizeof(fixType), "Differential");
+                                                        break;
+                                                    case '3':
+                                                        snprintf(fixType, sizeof(fixType), "PPS");
+                                                        break;
+                                                    case '4':
+                                                        snprintf(fixType, sizeof(fixType), "RTK Fixed");
+                                                        break;
+                                                    case '5':
+                                                        snprintf(fixType, sizeof(fixType), "RTK Float");
+                                                        break;
+                                                    case '6':
+                                                        snprintf(fixType, sizeof(fixType), "Dead Reckoning");
+                                                        break;
+                                                    case '7':
+                                                        snprintf(fixType, sizeof(fixType), "Manual");
+                                                        break;
+                                                    case '8':
+                                                        snprintf(fixType, sizeof(fixType), "Simulation");
+                                                        break;
+                                                    case '9':
+                                                        snprintf(fixType, sizeof(fixType), "WAAS");
+                                                        break;
+                                                }
+                                            }
+                                            snprintf(line, sizeof(line), "Fix:  %s %s", tokenValid ? token : "?", fixType);
+                                            set_oled(line);
+                                            
+                                            token = strtok_r(remainder, ",", &remainder); // Num Sat
+                                            if (!remainderValid) break;
+                                            snprintf(line, sizeof(line), "Sat:  %s", tokenValid ? token : "?");
+                                            set_oled(line);
+                                            
+                                            token = strtok_r(remainder, ",", &remainder); // HDOP
+                                            if (!remainderValid) break;
+                                            snprintf(line, sizeof(line), "HDOP: %s", tokenValid ? token : "?");
+                                            set_oled(line);
+                                            
+                                            token = strtok_r(remainder, ",", &remainder); // Alt (Elev)
+                                            if (!remainderValid) break;
+                                            float alt = 0.0;
+                                            int digits = 0;
+                                            int neg = 0;
+                                            if (*token == '-')
+                                                neg = 1;
+                                            while ((*(token + neg + digits) != '.') && (digits < 7))
+                                            {
+                                                alt *= 10.0;
+                                                alt += ((float)(*(token + neg + digits) - '0'));
+                                                digits++;
+                                            }
+                                            if (digits == 7) break; // Something has gone horribly wrong...
+                                            multiplier = 0.1;
+                                            places = 1;
+                                            while ((*(token + neg + digits + places) != ',') && (places < 8))
+                                            {
+                                                alt += ((float)(*(token + neg + digits + places) - '0')) * multiplier;
+                                                multiplier /= 10.0;
+                                                places++;
+                                            }
+                                            if (neg == 1)
+                                                alt *= -1.0;
+                                            
+                                            token = strtok_r(remainder, ",", &remainder); // M
+                                            if (!remainderValid) break;
+                                            
+                                            token = strtok_r(remainder, ",", &remainder); // Geoid
+                                            if (!remainderValid) break;
+                                            float geoid = 0.0;
+                                            digits = 0;
+                                            neg = 0;
+                                            if (*token == '-')
+                                                neg = 1;
+                                            while ((*(token + neg + digits) != '.') && (digits < 7))
+                                            {
+                                                geoid *= 10.0;
+                                                geoid += ((float)(*(token + neg + digits) - '0'));
+                                                digits++;
+                                            }
+                                            if (digits == 7) break; // Something has gone horribly wrong...
+                                            multiplier = 0.1;
+                                            places = 1;
+                                            while ((*(token + neg + digits + places) != ',') && (places < 8))
+                                            {
+                                                geoid += ((float)(*(token + neg + digits + places) - '0')) * multiplier;
+                                                multiplier /= 10.0;
+                                                places++;
+                                            }
+                                            if (neg == 1)
+                                                geoid *= -1.0;
 
-                                        // token = strtok_r(remainder, ",", &remainder); // M
-                                        // if (!remainderValid) break;
-                                        
-                                        // token = strtok_r(remainder, ",", &remainder); // Age
-                                        // if (!remainderValid) break;
-                                        
-                                        // snprintf(line, sizeof(line), "Age:  %s", tokenValid ? token : "?");
-                                        // set_oled(line);
-                                        
-                                        set_oled(ipAddress); // Show the stored IP address
-                                        update_oled();
+                                            bool CONFIG_EXAMPLE_RTK_X5_DISPLAY_ALT_WITH_GEOID_SEPARATION = *alt_geoid_separation;
+    if (CONFIG_EXAMPLE_RTK_X5_DISPLAY_ALT_WITH_GEOID_SEPARATION)
+                                            alt += geoid;
+    //#endif
+                                            char theAlt[15];
+                                            snprintf(theAlt, sizeof(theAlt), "%0.3f", alt);
+                                            snprintf(line, sizeof(line), "Alt:  %s %c", tokenValid ? theAlt : "?", remainderValid ? *remainder : '?');
+                                            set_oled(line);
+
+                                            // token = strtok_r(remainder, ",", &remainder); // M
+                                            // if (!remainderValid) break;
+                                            
+                                            // token = strtok_r(remainder, ",", &remainder); // Age
+                                            // if (!remainderValid) break;
+                                            
+                                            // snprintf(line, sizeof(line), "Age:  %s", tokenValid ? token : "?");
+                                            // set_oled(line);
+                                            
+                                            if ((*mode == 2) && !s_ethernet_is_connected)
+                                                snprintf(line, sizeof(line), "IP:   Link Down");
+                                            else
+                                                snprintf(line, sizeof(line), "%s", ipAddress); // Copy the IP address
+                                            set_oled(line); // Show the stored IP address
+
+                                            update_oled();
+                                        }
                                     } while (0); // This is just a trick to execute the do loop once - and allow the code to break out early
+                                    if (gotSemaphore)
+                                        xSemaphoreGive(oledSemaphore);
                                 }
                             }
                         }
@@ -1031,7 +1400,6 @@ static void production_test_task(void *args)
     }
     vTaskDelete(NULL);
 }
-
 
 /* INITIALIZATION */
 
@@ -1192,67 +1560,26 @@ void initialize_ethernet(void)
     ESP_LOGI(TAG, "Initializing Ethernet");
     print_oled("Initializing Ethernet");
 
-
-    eth_mac_config_t mac_config = ETH_MAC_DEFAULT_CONFIG();
-    eth_phy_config_t phy_config = ETH_PHY_DEFAULT_CONFIG();
-    phy_config.phy_addr = CONFIG_RTK_X5_ETHERNET_PHY_ADDR;
-    phy_config.reset_gpio_num = CONFIG_RTK_X5_ETHERNET_ERST_GPIO;
-
-    eth_esp32_emac_config_t esp32_emac_config = ETH_ESP32_EMAC_DEFAULT_CONFIG();
-    esp32_emac_config.smi_mdc_gpio_num = CONFIG_RTK_X5_ETHERNET_MDC_GPIO;
-    esp32_emac_config.smi_mdio_gpio_num = CONFIG_RTK_X5_ETHERNET_MDIO_GPIO;
-    
-    s_mac = esp_eth_mac_new_esp32(&esp32_emac_config, &mac_config);
-
-    s_phy = esp_eth_phy_new_ksz80xx(&phy_config);
-
-    esp_eth_config_t config = ETH_DEFAULT_CONFIG(s_mac, s_phy);
-
-    ESP_ERROR_CHECK(esp_eth_driver_install(&config, &s_eth_handle));
-
-    ESP_ERROR_CHECK(esp_eth_update_input_path(s_eth_handle, &pkt_eth2wifi, NULL));
-
-    // Enable promiscuous mode so we can read every packet
-    bool eth_promiscuous = true;
-    ESP_ERROR_CHECK(esp_eth_ioctl(s_eth_handle, ETH_CMD_S_PROMISCUOUS, &eth_promiscuous));
-
-    // Disable auto-negotiate so we can limit the speed
-    bool auto_negotiate = false;
-    ESP_ERROR_CHECK(esp_eth_ioctl(s_eth_handle, ETH_CMD_S_AUTONEGO, &auto_negotiate));
-
-    // Limit speed to 10M
-    eth_speed_t ethSpeed = ETH_SPEED_10M;
-    ESP_ERROR_CHECK(esp_eth_ioctl(s_eth_handle, ETH_CMD_S_SPEED, &ethSpeed));
-
-    /*
-    It is recommended to fully initialize the Ethernet driver and network interface before registering
-    the user’s Ethernet/IP event handlers, i.e., register the event handlers as the last thing prior to
-    starting the Ethernet driver. Such an approach ensures that Ethernet/IP events get executed first by
-    the Ethernet driver or network interface so the system is in the expected state when executing the
-    user’s handlers.
-    */
-    ESP_ERROR_CHECK(esp_event_handler_register(ETH_EVENT, ESP_EVENT_ANY_ID, &eth_event_handler, NULL));
+    // start the wired interface in the bridge mode
+    wired_bridge_init(wired_recv_callback, wifi_buff_free);
 
 
     ESP_LOGI(TAG, "Configuring Mosaic Ethernet DHCP");
     print_oled("Configure Ethernet DHCP");
 
     // Disable Mosaic Ethernet - iterate to initialize connection
-    // if (!send_command_check_response(MOSAIC_CMD_ETHERNET_OFF, MOSAIC_CMD_ETHERNET_OFF_RESPONSE, 2000, 50, 5))
-    // {
-    //     ESP_LOGE(TAG, "Disable Mosaic Ethernet response failed");
-    //     x5_not_ready();
-    // }
+    if (!send_command_check_response(MOSAIC_CMD_ETHERNET_OFF, MOSAIC_CMD_ETHERNET_OFF_RESPONSE, 2000, 50, 5))
+    {
+        ESP_LOGE(TAG, "Disable Mosaic Ethernet response failed");
+        x5_not_ready();
+    }
 
     // Set Mosaic Ethernet DHCP with MTU
-    if (!send_command_check_response(MOSAIC_CMD_IP_DHCP, MOSAIC_CMD_IP_DHCP_RESPONSE, 2000, 50, 5))
+    if (!send_command_check_response(MOSAIC_CMD_IP_DHCP, MOSAIC_CMD_IP_DHCP_RESPONSE, 2000, 50, 20))
     {
         ESP_LOGE(TAG, "Set Mosaic Ethernet DHCP response failed");
         x5_not_ready();
     }
-
-    // Start ESP ethernet
-    esp_eth_start(s_eth_handle);
 
     // Enable Mosaic Ethernet
     if (!send_command_check_response(MOSAIC_CMD_ETHERNET_ON, MOSAIC_CMD_ETHERNET_ON_RESPONSE, 2000, 50, 5))
@@ -1261,123 +1588,122 @@ void initialize_ethernet(void)
         x5_not_ready();
     }
 
-    // Ethernet configured, temporary buffer no longer needed
+    // Ethernet configured
     ESP_LOGI(TAG, "Mosaic Ethernet DHCP configured");
     print_oled("DHCP Configured");
-
-    // Wait for Mosaic to report its MAC address
-    // (This _may_ have already been parsed from SBF IPStatus)
-    if (!eth_mac_is_set) {
-        ESP_LOGI(TAG, "Waiting for Mosaic Ethernet MAC address");
-        print_oled("Waiting for MAC address");
-    }
-    while(!eth_mac_is_set) {
-        vTaskDelay(10);
-    }
-
-    char mac_str[25];
-    snprintf(mac_str, sizeof(mac_str), "MAC: %02X:%02X:%02X:%02X:%02X:%02X",
-        eth_mac[0], eth_mac[1], eth_mac[2], eth_mac[3], eth_mac[4], eth_mac[5]);
-    ESP_LOGI(TAG, "Got Mosaic %s", mac_str);
-    print_oled(mac_str);
-
-    // Mask ESP32 Base MAC address with Mosaic one
-    // ESP32 WiFi STAtion MAC address will spoof / replicate the mosaic address
-    // ESP32 Ethernet MAC address final octet will switch to the mosaic address
-    // final octet + 3
-    ESP_ERROR_CHECK(esp_base_mac_addr_set(eth_mac));
-    ESP_LOGI(TAG, "ESP base MAC address set to mosaic-X5 address");
 }
 
-void initialize_wifi(void)
+static esp_err_t initialize_wifi(void)
 {
-    ESP_LOGI(TAG, "Initializing WiFi");
-    print_oled("Initializing WiFi");
+    ESP_LOGI(TAG, "Starting WiFi STA");
+    print_oled("Starting WiFi STA");
 
-    // Initialize TCP/IP network interface (should be called only once in application)
-    ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_netif_init()); // Nope?
 
-    // Initialize WiFi including netif with default config
-    esp_netif_create_default_wifi_sta();
+    esp_read_mac(s_sta_mac, ESP_MAC_WIFI_STA); // Read the ESP32 WiFi MAC
+    ESP_LOGI(TAG, "ESP32 WiFi MAC %02X:%02X:%02X:%02X:%02X:%02X",
+            s_sta_mac[0], s_sta_mac[1], s_sta_mac[2], s_sta_mac[3], s_sta_mac[4], s_sta_mac[5]);
 
+    // Init STA
+
+    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, wifi_event_handler, NULL));
+    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, wifi_event_handler, NULL));
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-
-    ESP_LOGI(TAG, "Starting WiFi STA. Connecting to %s", ssid);
-    print_oled("Starting WiFi STA");
-    print_oled("Connecting to:");
-    print_oled(ssid);
-
-    // Create WiFi config
+    ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
     wifi_config_t wifi_config = {
         .sta = {
             .ssid = "",
             .password = "",
+            .threshold.authmode = example_wifi_sta_authmode_threshold(),
         },
     };
     strlcpy((char*)wifi_config.sta.ssid, ssid, sizeof(wifi_config.sta.ssid));
     strlcpy((char*)wifi_config.sta.password, password, sizeof(wifi_config.sta.password));
-
-    // Start WiFi station
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
-    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
-
-    // Register event handler for WiFi and IP events
-    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, NULL));
-    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &ip_event_handler, NULL));
-
+    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
     ESP_ERROR_CHECK(esp_wifi_start());
-}
 
-esp_err_t initialize_flow_control(void)
-{
-    flow_control_queue = xQueueCreate(CONFIG_RTK_X5_FLOW_CONTROL_QUEUE_LENGTH, sizeof(flow_control_msg_t));
-    if (!flow_control_queue) {
-        ESP_LOGE(TAG, "Create flow control queue failed");
-        return ESP_FAIL;
+    ESP_LOGI(TAG, "Wi-Fi STA initialized. Connecting to SSID: %s", ssid);
+    print_oled("Connecting to:");
+    print_oled(ssid);
+
+    esp_wifi_connect();
+
+    EventBits_t status = xEventGroupWaitBits(s_event_flags, CONNECTED_BIT, 0, 1, 15000 / portTICK_PERIOD_MS);
+    if (status & CONNECTED_BIT) {
+        ESP_LOGI(TAG, "WiFi station connected successfully");
+        print_oled("WiFi connected");
+        return ESP_OK;
     }
-
-    BaseType_t ret = xTaskCreatePinnedToCore(eth2wifi_flow_control_task, "flow_ctl", 8192, NULL, (tskIDLE_PRIORITY + 3), NULL, 1);
-    if (ret != pdTRUE) {
-        ESP_LOGE(TAG, "Create flow control task failed");
-        return ESP_FAIL;
-    }
-
-    return ESP_OK;
+    ESP_LOGE(TAG, "WiFi station connected failed");
+    return ESP_ERR_TIMEOUT;
 }
 
 void initialize_i2c(void)
 {
-    ESP_LOGI(TAG, "Initialize I2C bus");
+    ESP_LOGI(TAG, "Initializing I2C bus");
 
-    i2c_config_t i2c_conf = {
-        .mode = I2C_MODE_MASTER,
-        .sda_io_num = RTK_X5_PIN_NUM_SDA,
+    i2c_master_bus_config_t i2c_mst_config = {
+        .clk_source = I2C_CLK_SRC_DEFAULT,
+        .i2c_port = I2C_NUM_0,
         .scl_io_num = RTK_X5_PIN_NUM_SCL,
-        .sda_pullup_en = GPIO_PULLUP_ENABLE,
-        .scl_pullup_en = GPIO_PULLUP_ENABLE,
-        .master.clk_speed = RTK_X5_LCD_PIXEL_CLOCK_HZ,
+        .sda_io_num = RTK_X5_PIN_NUM_SDA,
+        .glitch_ignore_cnt = 4,
+        .intr_priority = 0,
+        .trans_queue_depth = 0, // no tx queue, transmit using blocking mode
+        .flags = {
+            .enable_internal_pullup = true,
+            .allow_pd = false,
+        }
     };
-    ESP_ERROR_CHECK(i2c_param_config(I2C_HOST, &i2c_conf));
-    ESP_ERROR_CHECK(i2c_driver_install(I2C_HOST, I2C_MODE_MASTER, 0, 0, 0));
+
+    ESP_ERROR_CHECK(i2c_new_master_bus(&i2c_mst_config, &bus_handle));
 }
 
 void initialize_oled(void)
 {
-    ESP_LOGI(TAG, "OLED initialization");
+    ESP_LOGI(TAG, "Initializing OLED");
 
-    disp = ssd1306_create(I2C_HOST, RTK_X5_OLED_HW_ADDR);
-    if (!disp)
-    {
-        ESP_LOGE(TAG, "SSD1306 create returned error");
-        return;
-    }
+    esp_lcd_panel_io_i2c_config_t io_config = {
+        .dev_addr = RTK_X5_OLED_HW_ADDR,
+        .scl_speed_hz = RTK_X5_LCD_PIXEL_CLOCK_HZ,
+        .control_phase_bytes = 1, // According to SSD1306 datasheet
+        .dc_bit_offset = 6,       // According to SSD1306 datasheet
+        .lcd_cmd_bits = 8,        // According to SSD1306 datasheet
+        .lcd_param_bits = 8,      // According to SSD1306 datasheet
+        .on_color_trans_done = NULL,
+        .user_ctx = NULL,
+        .flags = {
+            .dc_low_on_data = false, // According to SSD1306 datasheet, DC=0 means command, DC=1 means data
+            .disable_control_phase = false, // Control phase is used
+        },
+        .transaction_timeout_ms = 0, // 0 keeps the legacy infinite wait behavior
+    };
+
+    ESP_ERROR_CHECK(esp_lcd_new_panel_io_i2c(bus_handle, &io_config, &io_handle));
+
+    esp_lcd_panel_dev_config_t panel_config = {
+        .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_BGR, // SSD1306 is monochrome, so RGB order doesn't matter
+        .data_endian = LCD_RGB_DATA_ENDIAN_LITTLE,
+        .bits_per_pixel = 1, // SSD1306 is monochrome, so 1 bit per pixel
+        .reset_gpio_num = GPIO_NUM_NC,
+        .vendor_config = NULL,
+        .flags = {
+            .reset_active_high = false, // SSD1306 reset is active low
+        }
+    };
+    ESP_ERROR_CHECK(esp_lcd_new_panel_ssd1306(io_handle, &panel_config, &panel_handle));
+    ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
+    ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
+    ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, true, true));
+    // turn on display
+    ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_handle, true));
 
     oled_ready = true;
 
-    ssd1306_refresh_gram(disp);
-
     clear_oled_text();
+    update_oled_full(); // Full update - write everything
     print_oled("RTK mosaic-X5 starting");
     print_oled((char *)VERSION);
 }
@@ -1424,9 +1750,9 @@ void initialize_console(void)
     setvbuf(stdin, NULL, _IONBF, 0);
 
     /* Minicom, screen, idf_monitor send CR when ENTER key is pressed */
-    esp_vfs_dev_uart_port_set_rx_line_endings(CONFIG_ESP_CONSOLE_UART_NUM, ESP_LINE_ENDINGS_CR);
+    uart_vfs_dev_port_set_rx_line_endings(CONFIG_ESP_CONSOLE_UART_NUM, ESP_LINE_ENDINGS_CR);
     /* Move the caret to the beginning of the next line on '\n' */
-    esp_vfs_dev_uart_port_set_tx_line_endings(CONFIG_ESP_CONSOLE_UART_NUM, ESP_LINE_ENDINGS_CRLF);
+    uart_vfs_dev_port_set_tx_line_endings(CONFIG_ESP_CONSOLE_UART_NUM, ESP_LINE_ENDINGS_CRLF);
 
     /* Configure UART. Note that REF_TICK is used so that the baud rate remains
      * correct while APB frequency is changing in light sleep mode.
@@ -1443,13 +1769,13 @@ void initialize_console(void)
     ESP_ERROR_CHECK( uart_param_config(CONFIG_ESP_CONSOLE_UART_NUM, &uart_config) );
 
     /* Tell VFS to use UART driver */
-    esp_vfs_dev_uart_use_driver(CONFIG_ESP_CONSOLE_UART_NUM);
+    uart_vfs_dev_use_driver(CONFIG_ESP_CONSOLE_UART_NUM);
 
     /* Initialize the console */
     esp_console_config_t console_config = {
             .max_cmdline_args = 8,
             .max_cmdline_length = 256,
-            .hint_color = atoi(LOG_COLOR_CYAN)
+            .hint_color = 39
     };
     ESP_ERROR_CHECK( esp_console_init(&console_config) );
 
@@ -1669,32 +1995,63 @@ void production_test(void)
 void clear_oled_text(void) {
     for (uint8_t y = 0; y < oled_y_chars; y++)
         for (uint8_t x = 0; x < oled_x_chars; x++)
+        {
             oled_text[x][y] = ' ';
+            // Set previous to something else, so the next update_oled();
+            // overwrites everything...
+            oled_text_previous[x][y] = 0;
+        }
 }
 
-void ssd1306_draw_58char(ssd1306_handle_t dev, uint8_t chXpos, uint8_t chYpos, uint8_t chChar)
+void ssd1306_draw_58char(uint8_t chXpos, uint8_t chYpos, char chChar)
 {
-    uint8_t i, j;
-    uint8_t chTemp = 0, chYpos0 = chYpos, chMode = 0;
+    // If MS bit is set, character is to be inverted
+    bool inverted = chChar >= 0x80;
+    chChar &= 0x7F;
 
-    for (i = 0; i < FONT_5X7_WIDTH; i++) {
-        chTemp = font5x7_data[(uint16_t)chChar * FONT_5X7_WIDTH + i];
-        for (j = 0; j < FONT_5X7_HEIGHT; j++) {
-            chMode = chTemp & 0x01 ? 1 : 0;
-            ssd1306_fill_point(dev, chXpos, chYpos, chMode);
-            chTemp >>= 1;
-            chYpos++;
-            }
-        chYpos = chYpos0;
-        chXpos++;
+    uint8_t buffer[FONT_5X7_WIDTH];
+    uint8_t const *ptr = &font5x7_data[(uint16_t)chChar * (uint16_t)FONT_5X7_WIDTH];
+    memcpy(&buffer[0], ptr, FONT_5X7_WIDTH);
+    if (inverted)
+        for (size_t i = 0; i < FONT_5X7_WIDTH; i++)
+            buffer[i] ^= 0xFF;
+    bool INVERTED_DISPLAY = *inverted_display;
+    if (INVERTED_DISPLAY)
+        for (size_t i = 0; i < FONT_5X7_WIDTH; i++)
+            buffer[i] = buffer[i] ^ 0xFF;
+
+    esp_lcd_panel_draw_bitmap(panel_handle,
+                              chXpos,
+                              chYpos,
+                              chXpos + FONT_5X7_WIDTH,
+                              chYpos + FONT_5X7_HEIGHT,
+                              (const void *)&buffer[0]);
+}
+
+void ssd1306_erase_char(uint8_t chXpos, uint8_t chYpos, uint8_t xWidth)
+{
+    const uint8_t empty[FONT_5X7_WIDTH] = { 0,0,0,0,0 };
+    esp_lcd_panel_draw_bitmap(panel_handle,
+                              chXpos,
+                              chYpos,
+                              chXpos + xWidth,
+                              chYpos + FONT_5X7_HEIGHT,
+                              (const void *)&empty[0]);
+}
+
+// Copy txt to the bottom line of the text buffer and update the OLED
+void print_oled(char *txt) {
+    if (oledSemaphore == NULL)
+        oledSemaphore = xSemaphoreCreateMutex();
+    if (xSemaphoreTake(oledSemaphore, pdMS_TO_TICKS(200)))
+    {
+        set_oled(txt);
+        update_oled();
+        xSemaphoreGive(oledSemaphore);
     }
 }
 
-void print_oled(char *txt) {
-    set_oled(txt);
-    update_oled();
-}
-
+// Copy txt to the bottom line of the text buffer
 void set_oled(char *txt) {
     // Scroll text up by one line
     for (uint8_t y = 0; y < (oled_y_chars - 1); y++)
@@ -1713,19 +2070,31 @@ void set_oled(char *txt) {
 }
 
 void update_oled(void) {
+    update_oled_selective(false);
+}
+void update_oled_full(void) {
+    update_oled_selective(true);
+}
+void update_oled_selective(bool full) {
     if (oled_ready) {
         // Print the characters
-        ssd1306_clear_screen(disp, 0);
+        static bool edgeWiped = false;
         uint8_t ypos = 0;
         for (uint8_t y = 0; y < oled_y_chars; y++) {
             uint8_t xpos = 0;
             for (uint8_t x = 0; x < oled_x_chars; x++) {
-                ssd1306_draw_58char(disp, xpos, ypos, oled_text[x][y]);
+                if (full || (oled_text[x][y] != oled_text_previous[x][y])) // Selective update
+                {
+                    ssd1306_draw_58char(xpos, ypos, oled_text[x][y]);
+                    oled_text_previous[x][y] = oled_text[x][y]; // Update previous
+                }
                 xpos += 5;
             }
+            if (!edgeWiped)
+                ssd1306_erase_char(xpos, ypos, 3); // Wipe extra pixels at row end
             ypos += 8;
         }
-        ssd1306_refresh_gram(disp);
+        edgeWiped = true; // Wipe the edge once
     }
     else {
         ESP_LOGE(TAG, "OLED not ready");
@@ -1739,15 +2108,6 @@ void app_main(void)
     // Initialize NVS partition and file system
     initialize_nvs();
     initialize_filesystem();
-
-    // Initialize auxiliary peripherals
-    initialize_leds();
-    initialize_uart();
-    initialize_i2c();
-    initialize_oled();
-
-    // Initialize event loop
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
 
     /* Default settings */
     get_config_param_int("mode", &mode);
@@ -1776,7 +2136,40 @@ void app_main(void)
         param_set_value_str(&esp_log_level, "warn");
     }
     set_log_level_by_str((const char *)esp_log_level);
+    
+    get_config_param_bool("promiscuous", &eth_bridge_promiscuous);
+    if (eth_bridge_promiscuous == NULL) {
+        param_set_value_bool(&eth_bridge_promiscuous, true); // Default to true
+    }
+    get_config_param_bool("modify_dhcp", &modify_dhcp_msgs);
+    if (modify_dhcp_msgs == NULL) {
+        param_set_value_bool(&modify_dhcp_msgs, true); // Default to true
+    }
 
+    get_config_param_bool("separation", &alt_geoid_separation);
+    if (alt_geoid_separation == NULL) {
+        param_set_value_bool(&alt_geoid_separation, false); // Default to false
+    }
+
+    get_config_param_bool("inverted_d", &inverted_display);
+    if (inverted_display == NULL) {
+        param_set_value_bool(&inverted_display, false); // Default to false
+    }
+
+    get_config_param_bool("verbose_log", &verbose_log);
+    if (verbose_log == NULL) {
+        param_set_value_bool(&verbose_log, false); // Default to false
+    }
+
+    // Initialize auxiliary peripherals
+    initialize_leds();
+    initialize_uart();
+    initialize_i2c();
+    initialize_oled(); // Needs NVS settings (inverted_display)
+
+    // Initialize event loop
+    s_event_flags = xEventGroupCreate();
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
 
     // Initialize console
     initialize_console();
@@ -1813,25 +2206,19 @@ void app_main(void)
         ESP_LOGI(TAG, "Firmware is in mode 2: WiFi");
         print_oled("Mode 2: WiFi");
 
-        // Wait for up to 3 seconds for the IPStatus to be received
-        int64_t timeMicros = esp_timer_get_time();
-        while ((!eth_mac_is_set) && (esp_timer_get_time() < (timeMicros + (3000 * 1000))))
-        {
-            vTaskDelay(10);
-        }
-
-        if (!eth_mac_is_set)
-        {
-            ESP_LOGI(TAG, "IPStatus not received or MACAddress was all zeros");
-            ESP_LOGI(TAG, "MAC address will be extracted from an Ethernet packet");
-        }
-
         x5_uart_task_running = false; // Pause the uart task so send_command_check_response can receive the response
 
-        // Initialize flow control and main peripherals
-        ESP_ERROR_CHECK(initialize_flow_control());
-        initialize_ethernet();
-        initialize_wifi();
+        // Initialize main peripherals
+        if (initialize_wifi() == ESP_OK) // Start WiFi first!
+            initialize_ethernet();
+        else
+        {
+            ESP_LOGE(TAG, "WiFi not ready. Please check SSID and Password");
+            print_oled("WiFi not ready");
+            print_oled("Check SSID");
+            print_oled("and Password");
+            vTaskDelay(pdMS_TO_TICKS(5000));
+        }
 
         x5_uart_task_running = true; // Unpause the uart task
     }

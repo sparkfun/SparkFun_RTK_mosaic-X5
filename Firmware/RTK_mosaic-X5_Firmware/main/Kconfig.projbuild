@@ -1,23 +1,24 @@
-menu "RTK mosaic-X5 WiFi STN config"
+menu "Example Configuration"
 
-    config RTK_X5_FLOW_CONTROL_QUEUE_TIMEOUT_MS 
-        int "Flow Control Queue Timeout [ms]"
-        default 100
+    choice EXAMPLE_ESP_WIFI_STA_AUTHMODE_THRESHOLD
+        prompt "WiFi STA scan authentication threshold"
+        default EXAMPLE_ESP_WIFI_STA_AUTHMODE_THRESHOLD_WPA2_PSK
+        help
+            Minimum authentication mode accepted when scanning and connecting as a station.
+            Lower this to connect to older networks (WEP/WPA).
 
-    config RTK_X5_FLOW_CONTROL_QUEUE_LENGTH
-        int "Flow Control Queue Length"
-        default 40
-
-    config RTK_X5_FLOW_CONTROL_WIFI_SEND_TIMEOUT_MS
-        int "Flow Control WiFi Send Timeout [ms]"
-        default 100
-
-    config RTK_X5_VERBOSE_LOG
-        bool "Enable extra WiFi and Ethernet log messages"
-        default n
-
-    config RTK_X5_DISPLAY_ALT_WITH_GEOID_SEPARATION
-        bool "Display altitude including the geoid separation"
-        default n
+        config EXAMPLE_ESP_WIFI_STA_AUTHMODE_THRESHOLD_OPEN
+            bool "Open"
+        config EXAMPLE_ESP_WIFI_STA_AUTHMODE_THRESHOLD_WEP
+            bool "WEP"
+        config EXAMPLE_ESP_WIFI_STA_AUTHMODE_THRESHOLD_WPA_PSK
+            bool "WPA PSK"
+        config EXAMPLE_ESP_WIFI_STA_AUTHMODE_THRESHOLD_WPA2_PSK
+            bool "WPA2 PSK"
+        config EXAMPLE_ESP_WIFI_STA_AUTHMODE_THRESHOLD_WPA_WPA2_PSK
+            bool "WPA/WPA2 PSK"
+        config EXAMPLE_ESP_WIFI_STA_AUTHMODE_THRESHOLD_WPA3_PSK
+            bool "WPA3 PSK"
+    endchoice
 
 endmenu
