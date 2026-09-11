@@ -921,7 +921,7 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t e
         case WIFI_EVENT_STA_CONNECTED:
             ESP_LOGI(TAG, "Wi-Fi STA connected");
 
-            gpio_set_level(CONFIG_RTK_X5_WIFI_GPIO_PIN, false);
+            gpio_set_level(CONFIG_RTK_X5_WIFI_GPIO_PIN, true);
 
             esp_wifi_internal_reg_rxcb(WIFI_IF_STA, wifi_recv_callback);
             s_wifi_is_connected = true;
