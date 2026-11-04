@@ -20,7 +20,7 @@
 		* Set to 1 to invert the OLED display color (default is 0)
 		* Requires restart
 	* -v, --verbose_log=<int>  0 or 1
-		*Set to 1 to display many additional Info log messages (default is 0)   
+		* Set to 1 to display many additional Info log messages (default is 0)   
 
 ## Changes added at v1.0.6:
 
