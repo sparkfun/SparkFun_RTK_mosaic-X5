@@ -45,6 +45,10 @@
     -t, --external_events=<int>  0 or 1
             Set to 1 to display external event counts on the OLED (default is 0)
             Requires restart
+    -f, --ddmmss=<int>  0 or 1
+            Set to 1 to display lat and long in DD MM SS.SSSS format (default)
+            Set to 0 to display lat and long in DD.DDDDDDDD format
+            Requires restart
 
    ---
 
@@ -281,6 +285,7 @@ bool* alt_geoid_separation = NULL;
 bool* inverted_display = NULL;
 bool* verbose_log = NULL;
 bool* external_events = NULL;
+bool* ddmmss = NULL;
 
 const char *cidr2mask(uint8_t cidr) {
     switch (cidr) {
@@ -1217,44 +1222,111 @@ if (CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG)
                                             
                                             token = strtok_r(remainder, ",", &remainder); // Latitude
                                             if (!remainderValid) break;
-                                            char theLat[14];
-                                            float secs = 0;
-                                            float multiplier = 0.1;
-                                            int places = 1;
-                                            if (tokenValid)
+                                            snprintf(line, sizeof(line), "Lat: ?");
+                                            if (*ddmmss)
                                             {
-                                                while ((*(token + 4 + places) != ',') && (places < 8))
+                                                char theLat[14];
+                                                float secs = 0;
+                                                float multiplier = 0.1;
+                                                int places = 1;
+                                                if (tokenValid)
                                                 {
-                                                    secs += ((float)(*(token + 4 + places) - '0')) * multiplier;
-                                                    multiplier /= 10.0;
-                                                    places++;
+                                                    while ((*(token + 4 + places) != ',') && (places < 8))
+                                                    {
+                                                        secs += ((float)(*(token + 4 + places) - '0')) * multiplier;
+                                                        multiplier /= 10.0;
+                                                        places++;
+                                                    }
+                                                    secs *= 60.0;
+                                                    snprintf(theLat, sizeof(theLat), "%c%c %c%c %02.4f", *(token), *(token + 1), *(token + 2), *(token + 3), secs);
                                                 }
-                                                secs *= 60.0;
-                                                snprintf(theLat, sizeof(theLat), "%c%c %c%c %02.4f", *(token), *(token + 1), *(token + 2), *(token + 3), secs);
+                                                snprintf(line, sizeof(line), "Lat:  %s %c", tokenValid ? theLat : "?", remainderValid ? *remainder : '?');
                                             }
-                                            snprintf(line, sizeof(line), "Lat:  %s %c", tokenValid ? theLat : "?", remainderValid ? *remainder : '?');
+                                            else
+                                            {
+                                                char theLat[14];
+                                                double mins = 0.0;
+                                                double multiplier = 0.1;
+                                                int places = 1;
+                                                bool neg = remainderValid && (*remainder == 'S');
+                                                if (tokenValid)
+                                                {
+                                                    mins = (double)(*(token + 0) - '0') * 600.0;
+                                                    mins += (double)(*(token + 1) - '0') * 60.0;
+                                                    mins += (double)(*(token + 2) - '0') * 10.0;
+                                                    mins += (double)(*(token + 3) - '0') * 1.0;
+                                                    if (*(token + 4) == '.')
+                                                    {
+                                                        while ((*(token + 4 + places) != ',') && (places < 8))
+                                                        {
+                                                            mins += ((double)(*(token + 4 + places) - '0')) * multiplier;
+                                                            multiplier /= 10.0;
+                                                            places++;
+                                                        }
+                                                    }
+                                                    mins /= 60.0; // Convert to degs
+                                                    if (neg)
+                                                        mins *= -1.0;
+                                                    snprintf(theLat, sizeof(theLat), "%.8f", mins);
+                                                }
+                                                snprintf(line, sizeof(line), "Lat: %s", tokenValid ? theLat : "?");
+                                            }
                                             set_oled(line);
                                             
                                             token = strtok_r(remainder, ",", &remainder); // N/S
                                             if (!remainderValid) break;
                                             token = strtok_r(remainder, ",", &remainder); // Longitude
                                             if (!remainderValid) break;
-                                            char theLon[15];
-                                            if (tokenValid)
+                                            snprintf(line, sizeof(line), "Long:?");
+                                            if (*ddmmss)
                                             {
-                                                secs = 0;
-                                                multiplier = 0.1;
-                                                places = 1;
-                                                while ((*(token + 5 + places) != ',') && (places < 8))
+                                                char theLon[15];
+                                                float secs = 0;
+                                                float multiplier = 0.1;
+                                                int places = 1;
+                                                if (tokenValid)
                                                 {
-                                                    secs += ((float)(*(token + 5 + places) - '0')) * multiplier;
-                                                    multiplier /= 10.0;
-                                                    places++;
+                                                    while ((*(token + 5 + places) != ',') && (places < 8))
+                                                    {
+                                                        secs += ((float)(*(token + 5 + places) - '0')) * multiplier;
+                                                        multiplier /= 10.0;
+                                                        places++;
+                                                    }
+                                                    secs *= 60.0;
+                                                    snprintf(theLon, sizeof(theLon), "%c%c%c %c%c %02.4f", *(token), *(token + 1), *(token + 2), *(token + 3), *(token + 4), secs);
                                                 }
-                                                secs *= 60.0;
-                                                snprintf(theLon, sizeof(theLon), "%c%c%c %c%c %02.4f", *(token), *(token + 1), *(token + 2), *(token + 3), *(token + 4), secs);
+                                                snprintf(line, sizeof(line), "Long:%s %c", tokenValid ? theLon : "?", remainderValid ? *remainder : '?');
                                             }
-                                            snprintf(line, sizeof(line), "Long:%s %c", tokenValid ? theLon : "?", remainderValid ? *remainder : '?');
+                                            else
+                                            {
+                                                char theLon[14];
+                                                double mins = 0.0;
+                                                double multiplier = 0.1;
+                                                int places = 1;
+                                                bool neg = remainderValid && (*remainder == 'W');
+                                                if (tokenValid)
+                                                {
+                                                    mins = (double)(*(token + 0) - '0') * 6000.0;
+                                                    mins += (double)(*(token + 1) - '0') * 600.0;
+                                                    mins += (double)(*(token + 2) - '0') * 60.0;
+                                                    mins += (double)(*(token + 3) - '0') * 10.0;
+                                                    mins += (double)(*(token + 4) - '0') * 1.0;
+                                                    if (*(token + 5) == '.')
+                                                    {
+                                                        while ((*(token + 5 + places) != ',') && (places < 8))
+                                                        {
+                                                            mins += ((double)(*(token + 5 + places) - '0')) * multiplier;
+                                                            multiplier /= 10.0;
+                                                            places++;
+                                                        }
+                                                    }
+                                                    mins /= 60.0; // Convert to degs
+                                                    if (neg)
+                                                        mins *= -1.0;
+                                                    snprintf(theLon, sizeof(theLon), "%.8f", mins);
+                                                }
+                                                snprintf(line, sizeof(line), "Long:%s", tokenValid ? theLon : "?");
+                                            }
                                             set_oled(line);
                                             
                                             token = strtok_r(remainder, ",", &remainder); // E/W
@@ -1340,8 +1412,8 @@ if (CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG)
                                                 digits++;
                                             }
                                             if (digits == 7) break; // Something has gone horribly wrong...
-                                            multiplier = 0.1;
-                                            places = 1;
+                                            float multiplier = 0.1;
+                                            int places = 1;
                                             while ((*(token + neg + digits + places) != ',') && (places < 8))
                                             {
                                                 alt += ((float)(*(token + neg + digits + places) - '0')) * multiplier;
@@ -1834,6 +1906,11 @@ void initialize_settings(void)
     get_config_param_bool("events", &external_events);
     if (external_events == NULL) {
         param_set_value_bool(&external_events, false); // Default to false
+    }
+
+    get_config_param_bool("ddmmss", &ddmmss);
+    if (ddmmss == NULL) {
+        param_set_value_bool(&ddmmss, true); // Default to true
     }
 }
 

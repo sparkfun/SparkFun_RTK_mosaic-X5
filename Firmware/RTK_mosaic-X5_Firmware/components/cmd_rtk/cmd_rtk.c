@@ -196,6 +196,7 @@ static struct {
     struct arg_int* inverted_display;
     struct arg_int* verbose_log;
     struct arg_int* external_events;
+    struct arg_int* ddmmss;
     struct arg_end* end;
 } set_rtk_arg;
 
@@ -349,6 +350,19 @@ int set_rtk(int argc, char **argv)
         }
     }
 
+    if (set_rtk_arg.ddmmss->count > 0) {
+        if ((set_rtk_arg.ddmmss->ival[0] != 0) && (set_rtk_arg.ddmmss->ival[0] != 1)) {
+            printf("ddmmss must be 0 or 1\n");
+        }
+        else {
+            err = nvs_set_u8(nvs, "ddmmss", set_rtk_arg.ddmmss->ival[0]);
+            if (err == ESP_OK) {
+                ESP_LOGI(TAG, "ddmmss stored: %d", set_rtk_arg.ddmmss->ival[0]);
+                // Don't update the global in RAM - it could cause badness... The change will happen at the next restart.
+            }
+        }
+    }
+
     nvs_close(nvs);
     return err;
 }
@@ -382,6 +396,10 @@ static void register_set_rtk(void)
         "\n\tSet to 1 to display many additional Info log messages (default is 0)");
     set_rtk_arg.external_events = arg_int0("t", "external_events", NULL, "0 or 1"
         "\n\tSet to 1 to display external event counts on the OLED (default is 0)"
+        "\n\tRequires restart");
+    set_rtk_arg.ddmmss = arg_int0("f", "ddmmss", NULL, "0 or 1"
+        "\n\tSet to 1 to display lat and long in DD MM SS.SSSS format (default)"
+        "\n\tSet to 0 to display lat and long in DD.DDDDDDDD format"
         "\n\tRequires restart");
     set_rtk_arg.end = arg_end(2);
 
@@ -457,6 +475,15 @@ static int show(int argc, char **argv)
         printf("external_events:        %d\n", *external_events);
     else
         printf("external_events:        <not defined>\n");
+
+    bool *new_ddmmss = NULL;
+    get_config_param_bool("ddmmss", &new_ddmmss); // Requires restart - may be changed in NVM but not RAM
+    if (new_ddmmss != NULL) // Use the (updated) value from nvs if available
+        printf("ddmmss:                 %d\n", *new_ddmmss);
+    else if (ddmmss != NULL)
+        printf("ddmmss:                 %d\n", *ddmmss);
+    else
+        printf("ddmmss:                 <not defined>\n");
 
     return 0;
 }

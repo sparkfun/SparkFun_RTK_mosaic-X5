@@ -25,6 +25,7 @@ extern bool* alt_geoid_separation;
 extern bool* inverted_display;
 extern bool* verbose_log;
 extern bool* external_events;
+extern bool* ddmmss;
 
 void param_set_value_str(char **param, const char* val);
 void param_set_value_int(int **param, const int val);
