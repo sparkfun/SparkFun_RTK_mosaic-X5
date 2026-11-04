@@ -1,3 +1,10 @@
+## Changes added at v1.1.1:
+
+* Adds these new configuration settings:
+	* -t, --external_events=<int>  0 or 1
+		* Set to 1 to display external event counts on the OLED (default is 0)
+		* Requires restart
+
 ## Changes added at v1.1.0:
 
 * Major update - based on:
