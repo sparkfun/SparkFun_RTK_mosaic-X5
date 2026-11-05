@@ -8,6 +8,8 @@
 		* Set to 1 to display lat and long in DD MM SS.SSSS format (default)
 		* Set to 0 to display lat and long in DD.DDDDDDDD format
 		* Requires restart
+* Adds OLED kerning (1 pixel) to improve display readability
+* Adds OLED x offset (1 pixel) to improve inverted display readability
 
 ## Changes added at v1.1.0:
 

@@ -50,6 +50,9 @@
             Set to 0 to display lat and long in DD.DDDDDDDD format
             Requires restart
 
+    Adds OLED kerning (1 pixel) to improve display readability
+    Adds OLED x offset (1 pixel) to improve inverted display readability
+
    ---
 
    Updates September 11th 2026 (v1.1.0):
