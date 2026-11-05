@@ -451,11 +451,15 @@ esp_lcd_panel_handle_t panel_handle = NULL;
 
 void print_text(char *txt); // Header
 
-const uint8_t oled_x_chars = 21; // 128 / 6
-const uint8_t oled_y_chars = 8;  // 64 / 8
+#define oled_kerning 1 // 5x7 char spacing
+#define oled_x_pixels 128
+#define oled_x_chars (oled_x_pixels / (FONT_5X7_WIDTH + oled_kerning)) // 128 / 6
+#define oled_y_pixels 64
+#define oled_y_chars (oled_y_pixels / FONT_5X7_HEIGHT)  // 64 / 8
 const uint8_t oled_x_offset = 1; // Offset chars by 1 pixel to improve inverted display
-static char oled_text[21][8];
-static char oled_text_previous[21][8];
+const uint8_t oled_x_wipe = oled_x_pixels - ((oled_x_chars * (FONT_5X7_WIDTH + oled_kerning)) + oled_x_offset);
+static char oled_text[oled_x_chars][oled_y_chars];
+static char oled_text_previous[oled_x_chars][oled_y_chars];
 static bool oled_ready = false;
 void x5_not_ready(void); // Header
 void clear_oled_text(void); // Header
@@ -466,7 +470,7 @@ void update_oled_full(void); // Header
 void update_oled_selective(bool full); // Header
 void display_IP(void); // Header
 
-static char ipAddress[21 + 1];
+static char ipAddress[oled_x_chars + 1]; // Full row plus NULL
 
 uint32_t event_count_A = 0; // ExtEvent (SBF 5924) EventA counter
 uint32_t event_count_B = 0; // ExtEvent (SBF 5924) EventB counter
@@ -2189,37 +2193,35 @@ void ssd1306_draw_58char(uint8_t chXpos, uint8_t chYpos, char chChar)
     bool inverted = chChar >= 0x80;
     chChar &= 0x7F;
 
-    uint8_t buffer[FONT_5X7_WIDTH + 1];
+    uint8_t buffer[FONT_5X7_WIDTH + oled_kerning];
+    memset(&buffer[0], 0, FONT_5X7_WIDTH + oled_kerning);
     uint8_t const *ptr = &font5x7_data[(uint16_t)chChar * (uint16_t)FONT_5X7_WIDTH];
     memcpy(&buffer[0], ptr, FONT_5X7_WIDTH);
-    buffer[FONT_5X7_WIDTH] = 0;
-    if (inverted)
-        for (size_t i = 0; i < FONT_5X7_WIDTH + 1; i++)
+    if (inverted) // Invert this character - set by the MS bit
+        for (size_t i = 0; i < (FONT_5X7_WIDTH + oled_kerning); i++)
             buffer[i] ^= 0xFF;
-    bool INVERTED_DISPLAY = *inverted_display;
-    if (INVERTED_DISPLAY)
-        for (size_t i = 0; i < FONT_5X7_WIDTH + 1; i++)
+    if (*inverted_display) // Inverted display - set in nvs
+        for (size_t i = 0; i < (FONT_5X7_WIDTH + oled_kerning); i++)
             buffer[i] = buffer[i] ^ 0xFF;
 
     esp_lcd_panel_draw_bitmap(panel_handle,
                               chXpos,
                               chYpos,
-                              chXpos + FONT_5X7_WIDTH + 1,
+                              chXpos + FONT_5X7_WIDTH + oled_kerning,
                               chYpos + FONT_5X7_HEIGHT,
                               (const void *)&buffer[0]);
 }
 
 void ssd1306_erase_char(uint8_t chXpos, uint8_t chYpos, uint8_t xWidth)
 {
-    const uint8_t empty[FONT_5X7_WIDTH + 1] = { 0,0,0,0,0,0 };
-    const uint8_t empty_inverted[FONT_5X7_WIDTH + 1] = { 0xFF,0xFF,0xFF,0xFF,0xFF,0xFF };
-    bool INVERTED_DISPLAY = *inverted_display;
+    const uint8_t empty[FONT_5X7_WIDTH + oled_kerning] = { 0,0,0,0,0,0 };
+    const uint8_t empty_inverted[FONT_5X7_WIDTH + oled_kerning] = { 0xFF,0xFF,0xFF,0xFF,0xFF,0xFF };
     esp_lcd_panel_draw_bitmap(panel_handle,
                               chXpos,
                               chYpos,
                               chXpos + xWidth,
                               chYpos + FONT_5X7_HEIGHT,
-                              INVERTED_DISPLAY ? (const void *)&empty_inverted[0] : (const void *)&empty[0]);
+                              *inverted_display ? (const void *)&empty_inverted[0] : (const void *)&empty[0]);
 }
 
 // Copy txt to the bottom line of the text buffer and update the OLED
@@ -2273,13 +2275,13 @@ void update_oled_selective(bool full) {
                     ssd1306_draw_58char(xpos, ypos, oled_text[x][y]);
                     oled_text_previous[x][y] = oled_text[x][y]; // Update previous
                 }
-                xpos += FONT_5X7_WIDTH + 1;
+                xpos += FONT_5X7_WIDTH + oled_kerning;
             }
             if (!edgeWiped)
-                ssd1306_erase_char(xpos, ypos, 2); // Wipe extra pixels at row end
+                ssd1306_erase_char(xpos, ypos, oled_x_wipe); // Wipe extra pixels at row end
             ypos += FONT_5X7_HEIGHT;
         }
-        edgeWiped = true; // Wipe the edge once
+        edgeWiped = true; // Wipe the edges once
     }
     else {
         ESP_LOGE(TAG, "OLED not ready");
