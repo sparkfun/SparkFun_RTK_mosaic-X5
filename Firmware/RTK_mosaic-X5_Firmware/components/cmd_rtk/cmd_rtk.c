@@ -95,7 +95,7 @@ esp_err_t get_config_param_str(char* name, char** param)
             err = nvs_get_str(nvs, name, *param, &len);
             ESP_LOGI(TAG, "get_config_param_str %s: %s", name, *param);
         } else {
-            ESP_LOGW(TAG, "get_config_param_str str %s not found in nvs - it may not have been set", name); // nvs may be empty
+            ESP_LOGI(TAG, "get_config_param_str str %s not found in nvs - it may not have been set", name); // nvs may be empty
         }
         nvs_close(nvs);
     } else {
@@ -118,7 +118,7 @@ esp_err_t get_config_param_int(char* name, int** param)
             **param = (int)i32;
             ESP_LOGI(TAG, "get_config_param_int %s: %d", name, **param);
         } else {
-            ESP_LOGW(TAG, "get_config_param_int i32 %s not found in nvs - it may not have been set", name); // nvs may be empty
+            ESP_LOGI(TAG, "get_config_param_int i32 %s not found in nvs - it may not have been set", name); // nvs may be empty
         }
         nvs_close(nvs);
     } else {
@@ -141,7 +141,7 @@ esp_err_t get_config_param_bool(char* name, bool** param)
             **param = u8;
             ESP_LOGI(TAG, "get_config_param_bool %s: %d", name, **param);
         } else {
-            ESP_LOGW(TAG, "get_config_param_bool u8 %s not found in nvs - it may not have been set", name); // nvs may be empty
+            ESP_LOGI(TAG, "get_config_param_bool u8 %s not found in nvs - it may not have been set", name); // nvs may be empty
         }
         nvs_close(nvs);
     } else {
@@ -164,7 +164,7 @@ esp_err_t get_config_param_blob(char* name, uint8_t* blob,  size_t blob_len)
             err = nvs_get_blob(nvs, name, blob, &len);
             ESP_LOGI(TAG, "get_config_param_blob %s: %d", name, len);
         } else {
-            ESP_LOGW(TAG, "get_config_param_blob blob %s not found in nvs - it may not have been set", name); // nvs may be empty
+            ESP_LOGI(TAG, "get_config_param_blob blob %s not found in nvs - it may not have been set", name); // nvs may be empty
             return err;
         }
         nvs_close(nvs);
@@ -195,6 +195,8 @@ static struct {
     struct arg_int* alt_geoid_separation;
     struct arg_int* inverted_display;
     struct arg_int* verbose_log;
+    struct arg_int* external_events;
+    struct arg_int* ddmmss;
     struct arg_end* end;
 } set_rtk_arg;
 
@@ -335,6 +337,32 @@ int set_rtk(int argc, char **argv)
         }
     }
 
+    if (set_rtk_arg.external_events->count > 0) {
+        if ((set_rtk_arg.external_events->ival[0] != 0) && (set_rtk_arg.external_events->ival[0] != 1)) {
+            printf("external_events must be 0 or 1\n");
+        }
+        else {
+            err = nvs_set_u8(nvs, "events", set_rtk_arg.external_events->ival[0]);
+            if (err == ESP_OK) {
+                ESP_LOGI(TAG, "external_events stored: %d", set_rtk_arg.external_events->ival[0]);
+                // Don't update the global in RAM - it could cause badness... The change will happen at the next restart.
+            }
+        }
+    }
+
+    if (set_rtk_arg.ddmmss->count > 0) {
+        if ((set_rtk_arg.ddmmss->ival[0] != 0) && (set_rtk_arg.ddmmss->ival[0] != 1)) {
+            printf("ddmmss must be 0 or 1\n");
+        }
+        else {
+            err = nvs_set_u8(nvs, "ddmmss", set_rtk_arg.ddmmss->ival[0]);
+            if (err == ESP_OK) {
+                ESP_LOGI(TAG, "ddmmss stored: %d", set_rtk_arg.ddmmss->ival[0]);
+                // Don't update the global in RAM - it could cause badness... The change will happen at the next restart.
+            }
+        }
+    }
+
     nvs_close(nvs);
     return err;
 }
@@ -366,6 +394,13 @@ static void register_set_rtk(void)
         "\n\tRequires restart");
     set_rtk_arg.verbose_log = arg_int0("v", "verbose_log", NULL, "0 or 1"
         "\n\tSet to 1 to display many additional Info log messages (default is 0)");
+    set_rtk_arg.external_events = arg_int0("t", "external_events", NULL, "0 or 1"
+        "\n\tSet to 1 to display external event counts on the OLED (default is 0)"
+        "\n\tRequires restart");
+    set_rtk_arg.ddmmss = arg_int0("f", "ddmmss", NULL, "0 or 1"
+        "\n\tSet to 1 to display lat and long in DD MM SS.SSSS format (default)"
+        "\n\tSet to 0 to display lat and long in DD.DDDDDDDD format"
+        "\n\tRequires restart");
     set_rtk_arg.end = arg_end(2);
 
     const esp_console_cmd_t cmd = {
@@ -407,7 +442,7 @@ static int show(int argc, char **argv)
     bool *new_modify_dhcp_msgs = NULL;
     get_config_param_bool("modify_dhcp", &new_modify_dhcp_msgs); // Requires restart - may be changed in NVM but not RAM
     if (new_modify_dhcp_msgs != NULL) // Use the (updated) value from nvs if available
-        printf("modify_dhcp_msgs:       %d\n", *new_eth_bridge_promiscuous);
+        printf("modify_dhcp_msgs:       %d\n", *new_modify_dhcp_msgs);
     else if (modify_dhcp_msgs != NULL)
         printf("modify_dhcp_msgs:       %d\n", *modify_dhcp_msgs);
     else
@@ -431,6 +466,24 @@ static int show(int argc, char **argv)
         printf("verbose_log:            %d\n", *verbose_log);
     else
         printf("verbose_log:            <not defined>\n");
+
+    bool *new_external_events = NULL;
+    get_config_param_bool("events", &new_external_events); // Requires restart - may be changed in NVM but not RAM
+    if (new_external_events != NULL) // Use the (updated) value from nvs if available
+        printf("external_events:        %d\n", *new_external_events);
+    else if (external_events != NULL)
+        printf("external_events:        %d\n", *external_events);
+    else
+        printf("external_events:        <not defined>\n");
+
+    bool *new_ddmmss = NULL;
+    get_config_param_bool("ddmmss", &new_ddmmss); // Requires restart - may be changed in NVM but not RAM
+    if (new_ddmmss != NULL) // Use the (updated) value from nvs if available
+        printf("ddmmss:                 %d\n", *new_ddmmss);
+    else if (ddmmss != NULL)
+        printf("ddmmss:                 %d\n", *ddmmss);
+    else
+        printf("ddmmss:                 <not defined>\n");
 
     return 0;
 }

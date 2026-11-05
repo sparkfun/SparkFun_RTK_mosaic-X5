@@ -39,6 +39,22 @@
 
    ---
 
+   Updates November 4th 2026 (v1.1.1):
+
+   Adds these new configuration settings:
+    -t, --external_events=<int>  0 or 1
+            Set to 1 to display external event counts on the OLED (default is 0)
+            Requires restart
+    -f, --ddmmss=<int>  0 or 1
+            Set to 1 to display lat and long in DD MM SS.SSSS format (default)
+            Set to 0 to display lat and long in DD.DDDDDDDD format
+            Requires restart
+
+    Adds OLED kerning (1 pixel) to improve display readability
+    Adds OLED x offset (1 pixel) to improve inverted display readability
+
+   ---
+
    Updates September 11th 2026 (v1.1.0):
 
    Major update - based on:
@@ -271,6 +287,8 @@ bool* modify_dhcp_msgs = NULL;
 bool* alt_geoid_separation = NULL;
 bool* inverted_display = NULL;
 bool* verbose_log = NULL;
+bool* external_events = NULL;
+bool* ddmmss = NULL;
 
 const char *cidr2mask(uint8_t cidr) {
     switch (cidr) {
@@ -406,6 +424,7 @@ const char MOSAIC_CMD_DATA_IN_OUT_RESPONSE[] = "DataInOut";
 const char MOSAIC_CMD_NMEA_STREAM10[] = "sno,Stream10,COM4,GGA,sec1\n\r"; // NMEA GGA every second
 const char MOSAIC_CMD_NMEA_STREAM10_RESPONSE[] = "NMEAOutput";
 const char MOSAIC_CMD_SBF_STREAM10[] = "sso,Stream10,COM4,IPStatus,OnChange\n\r"; // SBF IPStatus (4058) on change
+const char MOSAIC_CMD_SBF_STREAM10_EVENTS[] = "sso,Stream10,COM4,IPStatus+ExtEvent,OnChange\n\r"; // SBF IPStatus (4058) and ExtEvent (5924) on change
 const char MOSAIC_CMD_SBF_STREAM10_RESPONSE[] = "SBFOutput";
 
 const char MOSAIC_CMD_ETHERNET_OFF[] = "seth,off\n\r";
@@ -435,10 +454,15 @@ esp_lcd_panel_handle_t panel_handle = NULL;
 
 void print_text(char *txt); // Header
 
-const uint8_t oled_x_chars = 25; // 128 / 5
-const uint8_t oled_y_chars = 8;  // 64 / 8
-static char oled_text[25][8];
-static char oled_text_previous[25][8];
+#define oled_kerning 1 // 5x7 char spacing
+#define oled_x_pixels 128
+#define oled_x_chars (oled_x_pixels / (FONT_5X7_WIDTH + oled_kerning)) // 128 / 6
+#define oled_y_pixels 64
+#define oled_y_chars (oled_y_pixels / FONT_5X7_HEIGHT)  // 64 / 8
+const uint8_t oled_x_offset = 1; // Offset chars by 1 pixel to improve inverted display
+const uint8_t oled_x_wipe = oled_x_pixels - ((oled_x_chars * (FONT_5X7_WIDTH + oled_kerning)) + oled_x_offset);
+static char oled_text[oled_x_chars][oled_y_chars];
+static char oled_text_previous[oled_x_chars][oled_y_chars];
 static bool oled_ready = false;
 void x5_not_ready(void); // Header
 void clear_oled_text(void); // Header
@@ -449,7 +473,10 @@ void update_oled_full(void); // Header
 void update_oled_selective(bool full); // Header
 void display_IP(void); // Header
 
-static char ipAddress[25 + 1];
+static char ipAddress[oled_x_chars + 1]; // Full row plus NULL
+
+uint32_t event_count_A = 0; // ExtEvent (SBF 5924) EventA counter
+uint32_t event_count_B = 0; // ExtEvent (SBF 5924) EventB counter
 
 /* Console history - in NVS */
 #define MOUNT_PATH "/data"
@@ -969,7 +996,7 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t e
         ESP_LOGI(TAG, "~~~~~~~~~~~");
 
         uint8_t *ptr = (uint8_t *)&ip_info->ip;
-        snprintf(ipAddress, sizeof(ipAddress), "IP:   %d.%d.%d.%d", *(ptr + 0), *(ptr + 1), *(ptr + 2), *(ptr + 3));
+        snprintf(ipAddress, sizeof(ipAddress), "IP:  %d.%d.%d.%d", *(ptr + 0), *(ptr + 1), *(ptr + 2), *(ptr + 3));
     }
 }
 
@@ -1098,17 +1125,24 @@ static void x5_uart_task(void *args)
 if (CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG)
                                     ESP_LOGI(TAG, "Valid SBF Message: ID %d", (id & 0x1FFF));
 //#endif
-                                    if ((id & 0x1FFF) == 4058)
+                                    if ((id & 0x1FFF) == 4058) // IPStatus
                                     {
                                         // MACAddress (6 bytes) is in bytes 14-19
                                         // IPAddress (4 bytes) is in bytes 32-35
-                                        snprintf(ipAddress, sizeof(ipAddress), "IP:   %d.%d.%d.%d", *(ptr1 + 32), *(ptr1 + 33), *(ptr1 + 34), *(ptr1 + 35));
+                                        snprintf(ipAddress, sizeof(ipAddress), "IP:  %d.%d.%d.%d", *(ptr1 + 32), *(ptr1 + 33), *(ptr1 + 34), *(ptr1 + 35));
                                         ESP_LOGI(TAG, "IPStatus MAC: %02X:%02X:%02X:%02X:%02X:%02X IPAddress: %d.%d.%d.%d Gateway: %d.%d.%d.%d Subnet Mask: %s", 
                                                  *(ptr1 + 14), *(ptr1 + 15), *(ptr1 + 16), *(ptr1 + 17), *(ptr1 + 18), *(ptr1 + 19),
                                                  *(ptr1 + 32), *(ptr1 + 33), *(ptr1 + 34), *(ptr1 + 35),
                                                  *(ptr1 + 48), *(ptr1 + 49), *(ptr1 + 50), *(ptr1 + 51),
                                                  cidr2mask(*(ptr1 + 52)));
-
+                                    }
+                                    if ((id & 0x1FFF) == 5924) // ExtEvent
+                                    {
+                                        // The event Source is in byte 14
+                                        if (*(ptr1 + 14) == 1) // EventA
+                                            event_count_A = event_count_A + 1;
+                                        if (*(ptr1 + 14) == 2) // EventB
+                                            event_count_B = event_count_B + 1;
                                     }
                                 }
                                 else
@@ -1190,56 +1224,123 @@ if (CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG)
                                                     snprintf(theTime, sizeof(theTime), "%c%c:%c%c:%c%c",
                                                             *(token), *(token + 1), *(token + 2), *(token + 3), *(token + 4), *(token + 5));
                                             }
-                                            snprintf(line, sizeof(line), "Time: %s", tokenValid ? theTime : "?");
+                                            snprintf(line, sizeof(line), "Time:%s", tokenValid ? theTime : "?");
                                             set_oled(line);
                                             
                                             token = strtok_r(remainder, ",", &remainder); // Latitude
                                             if (!remainderValid) break;
-                                            char theLat[14];
-                                            float secs = 0;
-                                            float multiplier = 0.1;
-                                            int places = 1;
-                                            if (tokenValid)
+                                            snprintf(line, sizeof(line), "Lat: ?");
+                                            if (*ddmmss)
                                             {
-                                                while ((*(token + 4 + places) != ',') && (places < 8))
+                                                char theLat[14];
+                                                float secs = 0;
+                                                float multiplier = 0.1;
+                                                int places = 1;
+                                                if (tokenValid)
                                                 {
-                                                    secs += ((float)(*(token + 4 + places) - '0')) * multiplier;
-                                                    multiplier /= 10.0;
-                                                    places++;
+                                                    while ((*(token + 4 + places) != ',') && (places < 8))
+                                                    {
+                                                        secs += ((float)(*(token + 4 + places) - '0')) * multiplier;
+                                                        multiplier /= 10.0;
+                                                        places++;
+                                                    }
+                                                    secs *= 60.0;
+                                                    snprintf(theLat, sizeof(theLat), "%c%c %c%c %02.4f", *(token), *(token + 1), *(token + 2), *(token + 3), secs);
                                                 }
-                                                secs *= 60.0;
-                                                snprintf(theLat, sizeof(theLat), "%c%c %c%c %02.4f", *(token), *(token + 1), *(token + 2), *(token + 3), secs);
+                                                snprintf(line, sizeof(line), "Lat:  %s %c", tokenValid ? theLat : "?", remainderValid ? *remainder : '?');
                                             }
-                                            snprintf(line, sizeof(line), "Lat:   %s %c", tokenValid ? theLat : "?", remainderValid ? *remainder : '?');
+                                            else
+                                            {
+                                                char theLat[14];
+                                                double mins = 0.0;
+                                                double multiplier = 0.1;
+                                                int places = 1;
+                                                bool neg = remainderValid && (*remainder == 'S');
+                                                if (tokenValid)
+                                                {
+                                                    mins = (double)(*(token + 0) - '0') * 600.0;
+                                                    mins += (double)(*(token + 1) - '0') * 60.0;
+                                                    mins += (double)(*(token + 2) - '0') * 10.0;
+                                                    mins += (double)(*(token + 3) - '0') * 1.0;
+                                                    if (*(token + 4) == '.')
+                                                    {
+                                                        while ((*(token + 4 + places) != ',') && (places < 8))
+                                                        {
+                                                            mins += ((double)(*(token + 4 + places) - '0')) * multiplier;
+                                                            multiplier /= 10.0;
+                                                            places++;
+                                                        }
+                                                    }
+                                                    mins /= 60.0; // Convert to degs
+                                                    if (neg)
+                                                        mins *= -1.0;
+                                                    snprintf(theLat, sizeof(theLat), "%.8f", mins);
+                                                }
+                                                snprintf(line, sizeof(line), "Lat: %s", tokenValid ? theLat : "?");
+                                            }
                                             set_oled(line);
                                             
                                             token = strtok_r(remainder, ",", &remainder); // N/S
                                             if (!remainderValid) break;
                                             token = strtok_r(remainder, ",", &remainder); // Longitude
                                             if (!remainderValid) break;
-                                            char theLon[15];
-                                            if (tokenValid)
+                                            snprintf(line, sizeof(line), "Long:?");
+                                            if (*ddmmss)
                                             {
-                                                secs = 0;
-                                                multiplier = 0.1;
-                                                places = 1;
-                                                while ((*(token + 5 + places) != ',') && (places < 8))
+                                                char theLon[15];
+                                                float secs = 0;
+                                                float multiplier = 0.1;
+                                                int places = 1;
+                                                if (tokenValid)
                                                 {
-                                                    secs += ((float)(*(token + 5 + places) - '0')) * multiplier;
-                                                    multiplier /= 10.0;
-                                                    places++;
+                                                    while ((*(token + 5 + places) != ',') && (places < 8))
+                                                    {
+                                                        secs += ((float)(*(token + 5 + places) - '0')) * multiplier;
+                                                        multiplier /= 10.0;
+                                                        places++;
+                                                    }
+                                                    secs *= 60.0;
+                                                    snprintf(theLon, sizeof(theLon), "%c%c%c %c%c %02.4f", *(token), *(token + 1), *(token + 2), *(token + 3), *(token + 4), secs);
                                                 }
-                                                secs *= 60.0;
-                                                snprintf(theLon, sizeof(theLon), "%c%c%c %c%c %02.4f", *(token), *(token + 1), *(token + 2), *(token + 3), *(token + 4), secs);
+                                                snprintf(line, sizeof(line), "Long:%s %c", tokenValid ? theLon : "?", remainderValid ? *remainder : '?');
                                             }
-                                            snprintf(line, sizeof(line), "Long: %s %c", tokenValid ? theLon : "?", remainderValid ? *remainder : '?');
+                                            else
+                                            {
+                                                char theLon[14];
+                                                double mins = 0.0;
+                                                double multiplier = 0.1;
+                                                int places = 1;
+                                                bool neg = remainderValid && (*remainder == 'W');
+                                                if (tokenValid)
+                                                {
+                                                    mins = (double)(*(token + 0) - '0') * 6000.0;
+                                                    mins += (double)(*(token + 1) - '0') * 600.0;
+                                                    mins += (double)(*(token + 2) - '0') * 60.0;
+                                                    mins += (double)(*(token + 3) - '0') * 10.0;
+                                                    mins += (double)(*(token + 4) - '0') * 1.0;
+                                                    if (*(token + 5) == '.')
+                                                    {
+                                                        while ((*(token + 5 + places) != ',') && (places < 8))
+                                                        {
+                                                            mins += ((double)(*(token + 5 + places) - '0')) * multiplier;
+                                                            multiplier /= 10.0;
+                                                            places++;
+                                                        }
+                                                    }
+                                                    mins /= 60.0; // Convert to degs
+                                                    if (neg)
+                                                        mins *= -1.0;
+                                                    snprintf(theLon, sizeof(theLon), "%.8f", mins);
+                                                }
+                                                snprintf(line, sizeof(line), "Long:%s", tokenValid ? theLon : "?");
+                                            }
                                             set_oled(line);
                                             
                                             token = strtok_r(remainder, ",", &remainder); // E/W
                                             if (!remainderValid) break;
                                             token = strtok_r(remainder, ",", &remainder); // Fix
                                             if (!remainderValid) break;
-                                            char fixType[17] = { 0 };
+                                            char fixType[15] = { 0 };
                                             if (tokenValid) {
                                                 switch (*token) {
                                                     default:
@@ -1277,17 +1378,31 @@ if (CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG)
                                                         break;
                                                 }
                                             }
-                                            snprintf(line, sizeof(line), "Fix:  %s %s", tokenValid ? token : "?", fixType);
+                                            snprintf(line, sizeof(line), "Fix: %s %s", tokenValid ? token : "?", fixType);
                                             set_oled(line);
                                             
                                             token = strtok_r(remainder, ",", &remainder); // Num Sat
                                             if (!remainderValid) break;
-                                            snprintf(line, sizeof(line), "Sat:  %s", tokenValid ? token : "?");
+                                            snprintf(line, sizeof(line), "Sat: ?          ");
+                                            if (*external_events)
+                                            {
+                                                snprintf(line, sizeof(line), "Sat: %s          ", tokenValid ? token : "?");
+                                                snprintf(line + 13, sizeof(line) - 13, "EvA:%04ld", event_count_A % 10000);
+                                            }
+                                            else
+                                                snprintf(line, sizeof(line), "Sat: %s", tokenValid ? token : "?");
                                             set_oled(line);
                                             
                                             token = strtok_r(remainder, ",", &remainder); // HDOP
                                             if (!remainderValid) break;
-                                            snprintf(line, sizeof(line), "HDOP: %s", tokenValid ? token : "?");
+                                            snprintf(line, sizeof(line), "HDOP:?          ");
+                                            if (*external_events)
+                                            {
+                                                snprintf(line, sizeof(line), "HDOP:%s          ", tokenValid ? token : "?");
+                                                snprintf(line + 13, sizeof(line) - 13, "EvB:%04ld", event_count_B % 10000);
+                                            }
+                                            else
+                                                snprintf(line, sizeof(line), "HDOP:%s", tokenValid ? token : "?");
                                             set_oled(line);
                                             
                                             token = strtok_r(remainder, ",", &remainder); // Alt (Elev)
@@ -1304,8 +1419,8 @@ if (CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG)
                                                 digits++;
                                             }
                                             if (digits == 7) break; // Something has gone horribly wrong...
-                                            multiplier = 0.1;
-                                            places = 1;
+                                            float multiplier = 0.1;
+                                            int places = 1;
                                             while ((*(token + neg + digits + places) != ',') && (places < 8))
                                             {
                                                 alt += ((float)(*(token + neg + digits + places) - '0')) * multiplier;
@@ -1349,7 +1464,7 @@ if (CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG)
     //#endif
                                             char theAlt[15];
                                             snprintf(theAlt, sizeof(theAlt), "%0.3f", alt);
-                                            snprintf(line, sizeof(line), "Alt:  %s %c", tokenValid ? theAlt : "?", remainderValid ? *remainder : '?');
+                                            snprintf(line, sizeof(line), "Alt: %s %c", tokenValid ? theAlt : "?", remainderValid ? *remainder : '?');
                                             set_oled(line);
 
                                             // token = strtok_r(remainder, ",", &remainder); // M
@@ -1362,7 +1477,7 @@ if (CONFIG_EXAMPLE_RTK_X5_VERBOSE_LOG)
                                             // set_oled(line);
                                             
                                             if ((*mode == 2) && !s_ethernet_is_connected)
-                                                snprintf(line, sizeof(line), "IP:   Link Down");
+                                                snprintf(line, sizeof(line), "IP:  Link Down");
                                             else
                                                 snprintf(line, sizeof(line), "%s", ipAddress); // Copy the IP address
                                             set_oled(line); // Show the stored IP address
@@ -1565,7 +1680,7 @@ void initialize_ethernet(void)
 
 
     ESP_LOGI(TAG, "Configuring Mosaic Ethernet DHCP");
-    print_oled("Configure Ethernet DHCP");
+    print_oled("Configure Eth DHCP");
 
     // Disable Mosaic Ethernet - iterate to initialize connection
     if (!send_command_check_response(MOSAIC_CMD_ETHERNET_OFF, MOSAIC_CMD_ETHERNET_OFF_RESPONSE, 2000, 50, 5))
@@ -1704,7 +1819,7 @@ void initialize_oled(void)
 
     clear_oled_text();
     update_oled_full(); // Full update - write everything
-    print_oled("RTK mosaic-X5 starting");
+    print_oled("RTK mosaic-X5 startup");
     print_oled((char *)VERSION);
 }
 
@@ -1735,6 +1850,75 @@ void initialize_nvs(void)
         err = nvs_flash_init();
     }
     ESP_ERROR_CHECK(err);
+}
+
+void initialize_settings(void)
+{
+    ESP_LOGI(TAG, "Initializing settings");
+    /* Default settings */
+
+    // Get and set the log_level first - so the other gets use the correct log_level
+    get_config_param_str("log_level", &esp_log_level);
+    if (esp_log_level == NULL) {
+        param_set_value_str(&esp_log_level, "warn");
+    }
+    set_log_level_by_str((const char *)esp_log_level);
+
+    get_config_param_int("mode", &mode);
+    if (mode == NULL) {
+        // Default to Ethernet - leave X5 Ethernet configuration unchanged
+        param_set_value_int(&mode, 1);
+    }
+    get_config_param_str("ssid", &ssid);
+    if (ssid == NULL) {
+        param_set_value_str(&ssid, "sparkfun-guest"); // Default SSID
+    }
+    get_config_param_str("password", &password);
+    if (password == NULL) {
+        param_set_value_str(&password, ""); // Default password
+    }
+    get_config_param_str("x5_user", &x5_user);
+    if (x5_user == NULL) {
+        param_set_value_str(&x5_user, ""); // Default X5 username
+    }
+    get_config_param_str("x5_pass", &x5_pass);
+    if (x5_pass == NULL) {
+        param_set_value_str(&x5_pass, ""); // Default X5 password
+    }
+    
+    get_config_param_bool("promiscuous", &eth_bridge_promiscuous);
+    if (eth_bridge_promiscuous == NULL) {
+        param_set_value_bool(&eth_bridge_promiscuous, true); // Default to true
+    }
+    get_config_param_bool("modify_dhcp", &modify_dhcp_msgs);
+    if (modify_dhcp_msgs == NULL) {
+        param_set_value_bool(&modify_dhcp_msgs, true); // Default to true
+    }
+
+    get_config_param_bool("separation", &alt_geoid_separation);
+    if (alt_geoid_separation == NULL) {
+        param_set_value_bool(&alt_geoid_separation, false); // Default to false
+    }
+
+    get_config_param_bool("inverted_d", &inverted_display);
+    if (inverted_display == NULL) {
+        param_set_value_bool(&inverted_display, false); // Default to false
+    }
+
+    get_config_param_bool("verbose_log", &verbose_log);
+    if (verbose_log == NULL) {
+        param_set_value_bool(&verbose_log, false); // Default to false
+    }
+
+    get_config_param_bool("events", &external_events);
+    if (external_events == NULL) {
+        param_set_value_bool(&external_events, false); // Default to false
+    }
+
+    get_config_param_bool("ddmmss", &ddmmss);
+    if (ddmmss == NULL) {
+        param_set_value_bool(&ddmmss, true); // Default to true
+    }
 }
 
 void initialize_console(void)
@@ -1853,7 +2037,7 @@ void initialize_X5(void)
 {
     // Send the escape sequence
     ESP_LOGI(TAG, "Sending escape sequence to mosaic-X5");
-    print_oled("Sending escape sequence");
+    print_oled("Sending esc sequence");
     if (!send_command_check_response(MOSAIC_CMD_ESCAPE, MOSAIC_CMD_ESCAPE_RESPONSE, 2000, 50, 30))
     {
         ESP_LOGE(TAG, "Escape sequence not acknowledged");
@@ -1864,7 +2048,7 @@ void initialize_X5(void)
         send_command_check_response(MOSAIC_CMD_SOFT_RESET, MOSAIC_CMD_SOFT_RESET_RESPONSE, 2000, 50, 1);
 
         ESP_LOGI(TAG, "Sending escape sequence to mosaic-X5");
-        print_oled("Sending escape sequence");
+        print_oled("Sending esc sequence");
         if (!send_command_check_response(MOSAIC_CMD_ESCAPE, MOSAIC_CMD_ESCAPE_RESPONSE, 2000, 50, 30))
         {
             ESP_LOGE(TAG, "Escape sequence not acknowledged");
@@ -1890,7 +2074,7 @@ void initialize_X5(void)
             send_command_check_response(MOSAIC_CMD_SOFT_RESET, MOSAIC_CMD_SOFT_RESET_RESPONSE, 2000, 50, 1);
 
             ESP_LOGI(TAG, "Sending escape sequence to mosaic-X5");
-            print_oled("Sending escape sequence");
+            print_oled("Sending esc sequence");
             if (!send_command_check_response(MOSAIC_CMD_ESCAPE, MOSAIC_CMD_ESCAPE_RESPONSE, 2000, 50, 30))
             {
                 ESP_LOGE(TAG, "Escape sequence not acknowledged");
@@ -1922,7 +2106,7 @@ void initialize_X5(void)
         send_command_check_response(MOSAIC_CMD_SOFT_RESET, MOSAIC_CMD_SOFT_RESET_RESPONSE, 2000, 50, 1);
 
         ESP_LOGI(TAG, "Sending escape sequence to mosaic-X5");
-        print_oled("Sending escape sequence");
+        print_oled("Sending esc sequence");
         if (!send_command_check_response(MOSAIC_CMD_ESCAPE, MOSAIC_CMD_ESCAPE_RESPONSE, 2000, 50, 30))
         {
             ESP_LOGE(TAG, "Escape sequence not acknowledged");
@@ -1949,17 +2133,20 @@ void initialize_X5(void)
         x5_not_ready();
     }
 
-    // Ensure IPStatus is enabled
-    ESP_LOGI(TAG, "Configuring mosaic-X5 IPStatus (SBF Stream10)");
-    print_oled("Configuring IPStatus");
-    if (!send_command_check_response(MOSAIC_CMD_SBF_STREAM10, MOSAIC_CMD_SBF_STREAM10_RESPONSE, 2000, 50, 5))
+    // Ensure IPStatus is enabled. Ensure ExtEvent is enabled if external_events is true
+    if (*external_events)
+        ESP_LOGI(TAG, "Configuring mosaic-X5 IPStatus+ExtEvent (SBF Stream10)");
+    else
+        ESP_LOGI(TAG, "Configuring mosaic-X5 IPStatus (SBF Stream10)");
+    print_oled("Configuring SBF");
+    if (!send_command_check_response(*external_events ? MOSAIC_CMD_SBF_STREAM10_EVENTS : MOSAIC_CMD_SBF_STREAM10, MOSAIC_CMD_SBF_STREAM10_RESPONSE, 2000, 50, 5))
     {
         ESP_LOGE(TAG, "SBF Stream10 not acknowledged");
         x5_not_ready();
     }    
 
     // Initialize the displayed IP address. Will be updated by the arrival of SBF IPStatus or STA Connect
-    snprintf(ipAddress, sizeof(ipAddress), "IP:   0.0.0.0");
+    snprintf(ipAddress, sizeof(ipAddress), "IP:  0.0.0.0");
 }
 
 // Test the unused TX/RX/RTS/CTS pins: TX follows RX, RTS follows CTS
@@ -2009,34 +2196,35 @@ void ssd1306_draw_58char(uint8_t chXpos, uint8_t chYpos, char chChar)
     bool inverted = chChar >= 0x80;
     chChar &= 0x7F;
 
-    uint8_t buffer[FONT_5X7_WIDTH];
+    uint8_t buffer[FONT_5X7_WIDTH + oled_kerning];
+    memset(&buffer[0], 0, FONT_5X7_WIDTH + oled_kerning);
     uint8_t const *ptr = &font5x7_data[(uint16_t)chChar * (uint16_t)FONT_5X7_WIDTH];
     memcpy(&buffer[0], ptr, FONT_5X7_WIDTH);
-    if (inverted)
-        for (size_t i = 0; i < FONT_5X7_WIDTH; i++)
+    if (inverted) // Invert this character - set by the MS bit
+        for (size_t i = 0; i < (FONT_5X7_WIDTH + oled_kerning); i++)
             buffer[i] ^= 0xFF;
-    bool INVERTED_DISPLAY = *inverted_display;
-    if (INVERTED_DISPLAY)
-        for (size_t i = 0; i < FONT_5X7_WIDTH; i++)
+    if (*inverted_display) // Inverted display - set in nvs
+        for (size_t i = 0; i < (FONT_5X7_WIDTH + oled_kerning); i++)
             buffer[i] = buffer[i] ^ 0xFF;
 
     esp_lcd_panel_draw_bitmap(panel_handle,
                               chXpos,
                               chYpos,
-                              chXpos + FONT_5X7_WIDTH,
+                              chXpos + FONT_5X7_WIDTH + oled_kerning,
                               chYpos + FONT_5X7_HEIGHT,
                               (const void *)&buffer[0]);
 }
 
 void ssd1306_erase_char(uint8_t chXpos, uint8_t chYpos, uint8_t xWidth)
 {
-    const uint8_t empty[FONT_5X7_WIDTH] = { 0,0,0,0,0 };
+    const uint8_t empty[FONT_5X7_WIDTH + oled_kerning] = { 0,0,0,0,0,0 };
+    const uint8_t empty_inverted[FONT_5X7_WIDTH + oled_kerning] = { 0xFF,0xFF,0xFF,0xFF,0xFF,0xFF };
     esp_lcd_panel_draw_bitmap(panel_handle,
                               chXpos,
                               chYpos,
                               chXpos + xWidth,
                               chYpos + FONT_5X7_HEIGHT,
-                              (const void *)&empty[0]);
+                              *inverted_display ? (const void *)&empty_inverted[0] : (const void *)&empty[0]);
 }
 
 // Copy txt to the bottom line of the text buffer and update the OLED
@@ -2081,20 +2269,22 @@ void update_oled_selective(bool full) {
         static bool edgeWiped = false;
         uint8_t ypos = 0;
         for (uint8_t y = 0; y < oled_y_chars; y++) {
-            uint8_t xpos = 0;
+            if (!edgeWiped)
+                ssd1306_erase_char(0, ypos, oled_x_offset); // Wipe extra pixels at row start
+            uint8_t xpos = oled_x_offset;
             for (uint8_t x = 0; x < oled_x_chars; x++) {
                 if (full || (oled_text[x][y] != oled_text_previous[x][y])) // Selective update
                 {
                     ssd1306_draw_58char(xpos, ypos, oled_text[x][y]);
                     oled_text_previous[x][y] = oled_text[x][y]; // Update previous
                 }
-                xpos += 5;
+                xpos += FONT_5X7_WIDTH + oled_kerning;
             }
             if (!edgeWiped)
-                ssd1306_erase_char(xpos, ypos, 3); // Wipe extra pixels at row end
-            ypos += 8;
+                ssd1306_erase_char(xpos, ypos, oled_x_wipe); // Wipe extra pixels at row end
+            ypos += FONT_5X7_HEIGHT;
         }
-        edgeWiped = true; // Wipe the edge once
+        edgeWiped = true; // Wipe the edges once
     }
     else {
         ESP_LOGE(TAG, "OLED not ready");
@@ -2109,57 +2299,8 @@ void app_main(void)
     initialize_nvs();
     initialize_filesystem();
 
-    /* Default settings */
-    get_config_param_int("mode", &mode);
-    if (mode == NULL) {
-        // Default to Ethernet - leave X5 Ethernet configuration unchanged
-        param_set_value_int(&mode, 1);
-    }
-    get_config_param_str("ssid", &ssid);
-    if (ssid == NULL) {
-        param_set_value_str(&ssid, "sparkfun-guest"); // Default SSID
-    }
-    get_config_param_str("password", &password);
-    if (password == NULL) {
-        param_set_value_str(&password, ""); // Default password
-    }
-    get_config_param_str("x5_user", &x5_user);
-    if (x5_user == NULL) {
-        param_set_value_str(&x5_user, ""); // Default X5 username
-    }
-    get_config_param_str("x5_pass", &x5_pass);
-    if (x5_pass == NULL) {
-        param_set_value_str(&x5_pass, ""); // Default X5 password
-    }
-    get_config_param_str("log_level", &esp_log_level);
-    if (esp_log_level == NULL) {
-        param_set_value_str(&esp_log_level, "warn");
-    }
-    set_log_level_by_str((const char *)esp_log_level);
-    
-    get_config_param_bool("promiscuous", &eth_bridge_promiscuous);
-    if (eth_bridge_promiscuous == NULL) {
-        param_set_value_bool(&eth_bridge_promiscuous, true); // Default to true
-    }
-    get_config_param_bool("modify_dhcp", &modify_dhcp_msgs);
-    if (modify_dhcp_msgs == NULL) {
-        param_set_value_bool(&modify_dhcp_msgs, true); // Default to true
-    }
-
-    get_config_param_bool("separation", &alt_geoid_separation);
-    if (alt_geoid_separation == NULL) {
-        param_set_value_bool(&alt_geoid_separation, false); // Default to false
-    }
-
-    get_config_param_bool("inverted_d", &inverted_display);
-    if (inverted_display == NULL) {
-        param_set_value_bool(&inverted_display, false); // Default to false
-    }
-
-    get_config_param_bool("verbose_log", &verbose_log);
-    if (verbose_log == NULL) {
-        param_set_value_bool(&verbose_log, false); // Default to false
-    }
+    // Initialize settings
+    initialize_settings();
 
     // Initialize auxiliary peripherals
     initialize_leds();
