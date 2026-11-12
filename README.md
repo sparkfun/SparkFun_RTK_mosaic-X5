@@ -11,16 +11,19 @@ The RTK mosaic-X5 can be configured as a Real Time Kinematic (RTK) Base, where i
 
 Under the hood, the RTK mosaic-X5 is based on the mosaic-X5 GNSS module from Septentrio, plus the Espressif ESP32-WROVER processor (16MB flash, 8MB PSRAM). The mosaic-X5 has USB-C connectivity (with Ethernet-over-USB), multiple UARTs and supports full Ethernet connectivity. The only interface it doesn't offer is WiFi and that's why we've included the ESP32 with its own Ethernet connection. You can connect the mosaic-X5 directly to your Ethernet network - our product supports Power-over-Ethernet too. Or you can link the mosaic-X5 Ethernet port to the ESP32 Ethernet port and have the ESP32 provide WiFi connectivity. In that mode, the ESP32 becomes an Ethernet to WiFi Bridge, seamlessly passing WiFi traffic to and from the mosaic-X5 via Ethernet.
 
+
 Documentation
 --------------
 
-* **[Product Manual](http://docs.sparkfun.com/SparkFun_RTK_mosaic-X5/)** - Product manual for the RTK mosaic-X5 hosted by GitHub pages.<br>
-  [![Built with Material for MkDocs](https://img.shields.io/badge/Material_for_MkDocs-526CFE?logo=MaterialForMkDocs&logoColor=white)](https://squidfunk.github.io/mkdocs-material/) [![GitHub Pages Deploy](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/actions/workflows/build_documentation.yml/badge.svg)](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/actions/workflows/build_documentation.yml)
+> [!IMPORTANT]  
+> Our latest documentation is now available at: https://docs.sparkpnt.com/SXM-E/
 
 
-*Need to download or print our hookup guide?*
+> [!CAUTION]
+> *This product manual has been deprecated. Please refer to our latest documentation, linked above.*
+> * **[Product Manual](http://docs.sparkfun.com/SparkFun_RTK_mosaic-X5/)** - Product manual for the RTK mosaic-X5 hosted by GitHub pages.<br>
+>   [![Built with Material for MkDocs](https://img.shields.io/badge/Material_for_MkDocs-526CFE?logo=MaterialForMkDocs&logoColor=white)](https://squidfunk.github.io/mkdocs-material/) [![GitHub Pages Deploy](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/actions/workflows/generate_documentation.yml/badge.svg)](https://github.com/sparkfun/SparkFun_RTK_mosaic-X5/actions/workflows/generate_documentation.yml)
 
-* [Print *(Print to PDF)* from Single-Page View](http://docs.sparkfun.com/SparkFun_RTK_mosaic-X5/print_view)
 
 Repository Contents
 -------------------
@@ -43,10 +46,12 @@ Repository Contents
 * **[/Test_Sketches](/Test_Sketches/)** - Additional code used to validate and test the RTK mosaic-X5
 * **[/Documents](/Documents/)** - Component datasheets etc.
 
+
 Product Variants
 ----------------
 
 * [SXM-E](https://www.sparkpnt.com/products/sparkpnt-sxm-e-cors)- v1.0, Initial Release
+
 
 Version History
 ---------------
